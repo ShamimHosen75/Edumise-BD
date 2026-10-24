@@ -77,7 +77,10 @@ Migrations (one file per area):
    `events`, `event_photos`, `pages`, `sliders`, `gallery_albums`, `gallery_images`,
    `downloads`, `menu_items` (parent_id, label_en/bn, href, sort_order), `quick_links`,
    `footer_links` — all with `_en`/`_bn` columns and `is_published` / `published_at`.
-8. `routine` (section, day, period, subject, teacher, start/end time).
+8. `periods` (number, start/end, is_break), working days in `school_settings`, `rooms`,
+   `routine` (session, section, day, period, subject, teacher, room),
+   `exam_schedules` (exam, date, subject, start/end), `calendar_entries` (date range,
+   type holiday/event, title_en/bn).
 9. `attendance` (student, date, status, marked_by; unique student+date).
 10. Exams: `exams` (is_published), `exam_subjects` (full/pass marks, locked), `marks`.
 11. Fees: `fee_heads`, `fee_structures`, `invoices`, `payments`.
@@ -247,6 +250,16 @@ Public /[lang]/admission/apply multi-step form (progress bar, saves draft in loc
 - Guardian and student portal pages: "My children" / "My profile".
 - Tests: unit tests for CSV row validation and roll assignment; E2E import 10 students.
 
+## Step 3.5: routine (RTN-01, RTN-02, WEB-09) [CONFIRMED]
+- Periods setup (number, start/end time, break flag) and working days (Sat-Thu default).
+- Routine builder: grid of days x periods for a section; each cell pick subject + teacher
+  (+ room). Block on save and highlight clashes: same teacher or room in two places at the
+  same time. Clash logic lives in src/lib/routine.ts with unit tests.
+- Views: by section, by teacher ("My routine" for teachers), printable A4 landscape.
+- Exam schedule entity (exam, date, subject, time) with public view.
+- Academic calendar: holidays and events by month; public calendar page.
+- Public /[lang]/routine with class + section selector.
+
 ---
 
 ## Open questions
@@ -292,5 +305,10 @@ Public /[lang]/admission/apply multi-step form (progress bar, saves draft in loc
 20. **SheetJS (3.4):** the npm `xlsx` package is outdated and has known vulnerabilities;
    SheetJS now ships from cdn.sheetjs.com. Draft: install the current version from that
    URL (needs network access to cdn.sheetjs.com).
-21. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
+21. **Rooms (3.5):** a managed `rooms` list, or free text per cell? Clash checks need the
+   same room spelled the same way, so draft is a managed list.
+22. **Exam schedule visibility (3.5):** `exams.is_published` (1.3) is about results. The
+   schedule must go public before results. Draft: separate `schedule_published` flag.
+23. **Clash scope (3.5):** clashes checked within the current session only? Draft: yes.
+24. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
    website modules above are a typical set and should be checked against it.

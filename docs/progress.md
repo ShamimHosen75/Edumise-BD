@@ -15,3 +15,4 @@
 | 3.2 (missing) | — | Step text not supplied |
 | 3.3 Online admission | Not started | Blocked on 3.2 |
 | 3.4 Student management | Not started | Blocked on 3.3 |
+| 3.5 Routine | Not started | Blocked on 3.4 |
