@@ -52,6 +52,18 @@ const getAuthState = cache(async (): Promise<AuthState> => {
   };
 });
 
+/** How this session was signed in (password, reset-link code, ...), from the verified token. */
+export const getSessionAmr = cache(
+  async (): Promise<{ method?: string; timestamp?: number }[] | null> => {
+    const supabase = await createClient();
+    const { data } = await supabase.auth.getClaims();
+    const amr = data?.claims?.amr;
+    return Array.isArray(amr)
+      ? (amr as { method?: string; timestamp?: number }[])
+      : null;
+  },
+);
+
 /** The logged-in user with a usable role, or null. */
 export async function getCurrentUser(): Promise<CurrentUser | null> {
   return (await getAuthState()).user;

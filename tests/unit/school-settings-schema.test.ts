@@ -69,6 +69,26 @@ describe("schoolSettingsSchema", () => {
   });
 });
 
+describe("main colour readability (WCAG AA on white)", () => {
+  it.each(["#0f766e", "#1d4ed8", "#b91c1c", "#000000"])(
+    "accepts dark colour %s",
+    (c) => {
+      expect(errorFor({ primary_color: c }).success).toBe(true);
+    },
+  );
+  it.each(["#facc15", "#ffffff", "#f59e0b", "#22c55e"])(
+    "rejects light colour %s",
+    (c) => {
+      const r = errorFor({ primary_color: c });
+      expect(r.success).toBe(false);
+      expect(r.error?.issues[0]?.message).toBe("errors.colorContrast");
+    },
+  );
+  it("does not restrict the accent colour (its text colour is picked automatically)", () => {
+    expect(errorFor({ secondary_color: "#facc15" }).success).toBe(true);
+  });
+});
+
 describe("logoFileSchema", () => {
   const file = (size: number, type: string) =>
     new File([new Uint8Array(size)], "logo", { type });

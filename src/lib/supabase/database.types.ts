@@ -953,8 +953,14 @@ isOneToOne: false
 "custom_access_token_hook":
 { Args: { "event": Json }; Returns: Json
                            },
+"hit_rate_limit":
+{ Args: { "p_key": string,"p_max": number,"p_window_seconds": number }; Returns: boolean
+                           },
 "is_bd_phone":
 { Args: { "value": string }; Returns: boolean
+                           },
+"is_rate_limited":
+{ Args: { "p_key": string,"p_max": number,"p_window_seconds": number }; Returns: boolean
                            }
           }
           Enums: {

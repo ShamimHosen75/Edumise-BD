@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { loginAs, logout, TINY_PNG } from "./helpers";
+import { adminClient, loginAs, logout, TINY_PNG } from "./helpers";
 
 test("dashboard works on a phone: menu opens, no sideways scrolling", async ({
   page,
@@ -121,6 +121,16 @@ test.describe("school settings", () => {
     await expect(
       page.getByRole("img", { name: "Sunrise High School logo" }),
     ).toBeVisible();
+    // The image really loads (not just an empty box).
+    await expect
+      .poll(() =>
+        page
+          .getByRole("img", { name: "Sunrise High School logo" })
+          .evaluate(
+            (img: HTMLImageElement) => img.complete && img.naturalWidth,
+          ),
+      )
+      .toBeGreaterThan(0);
     // Regression: saving without touching the colours must keep them (they once became black).
     const primary = await page.evaluate(() =>
       getComputedStyle(document.documentElement)
@@ -129,4 +139,12 @@ test.describe("school settings", () => {
     );
     expect(primary).toBe("#0f766e");
   });
+});
+
+// Leave the database as the seed made it: the logo test uploads a logo.
+test.afterAll(async () => {
+  await adminClient()
+    .from("school_settings")
+    .update({ logo_path: null })
+    .eq("id", 1);
 });

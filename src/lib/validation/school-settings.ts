@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { contrastRatio, isHexColor } from "@/lib/theme";
+
 // Error messages are dictionary keys (errors.*), translated in the UI.
 
 const text = (max: number) => z.string().trim().max(max, "errors.tooLong");
@@ -22,6 +24,11 @@ const mapEmbedUrl = z.union([
 ]);
 
 const color = z.string().regex(/^#[0-9a-fA-F]{6}$/, "errors.color");
+/** The main colour is also used for text and links on white, so it must meet WCAG AA. */
+const textSafeColor = color.refine(
+  (v) => !isHexColor(v) || contrastRatio(v, "#ffffff") >= 4.5,
+  "errors.colorContrast",
+);
 
 const currentYear = new Date().getFullYear();
 
@@ -53,7 +60,7 @@ export const schoolSettingsSchema = z.object({
   map_embed_url: mapEmbedUrl,
   office_hours_en: text(200),
   office_hours_bn: text(200),
-  primary_color: color,
+  primary_color: textSafeColor,
   secondary_color: color,
   eiin: digits(/^[0-9]{6}$/, "errors.eiin"),
   institution_code: digits(/^[0-9]{1,10}$/, "errors.digits"),

@@ -3,7 +3,9 @@ import { redirect } from "next/navigation";
 import { AuthCard } from "@/components/auth/auth-card";
 import { NewPasswordForm } from "@/components/auth/new-password-form";
 import { errorKeys, pickMessages } from "@/i18n/messages";
-import { getCurrentUser } from "@/lib/auth/session";
+import { canSetPasswordWithoutCurrent } from "@/lib/auth/password-policy";
+import { roleHomePath } from "@/lib/auth/roles";
+import { getCurrentUser, getSessionAmr } from "@/lib/auth/session";
 
 import { loadAuthPage } from "./load";
 
@@ -20,6 +22,22 @@ export async function PasswordPage({
   // The reset link signs the user in; without a session the link was invalid or expired.
   if (!user)
     redirect(mode === "reset" ? `/${lang}/login?error=link` : `/${lang}/login`);
+  // Only a forced change or a fresh reset link may set a password without the current one.
+  const amr = await getSessionAmr();
+  const nowSeconds = Date.now() / 1000;
+  if (
+    !canSetPasswordWithoutCurrent({
+      mustChangePassword: user.mustChangePassword,
+      amr,
+      nowSeconds,
+    })
+  ) {
+    redirect(
+      mode === "reset"
+        ? `/${lang}/login?error=link`
+        : roleHomePath(lang, user.role),
+    );
+  }
 
   const messages = pickMessages(dict, [
     "auth.newPassword",

@@ -83,7 +83,8 @@
     "year": "Enter a year between 1800 and this year.",
     "logoSize": "The logo must be at most 1 MB.",
     "logoType": "The logo must be PNG, JPG or WebP.",
-    "uploadFailed": "The logo could not be uploaded. Please try again."
+    "uploadFailed": "The logo could not be uploaded. Please try again.",
+    "colorContrast": "This colour is too light for text on white. Choose a darker one (contrast at least 4.5:1)."
   },
   "forbidden": {
     "title": "You do not have access to this page",

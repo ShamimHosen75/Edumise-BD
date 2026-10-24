@@ -33,6 +33,7 @@ export default async function HomePage({ params }: PageProps) {
           {logo ? (
             <Image
               src={logo}
+              unoptimized
               alt={t(dict, "common.logoAlt", { school: name })}
               width={56}
               height={56}

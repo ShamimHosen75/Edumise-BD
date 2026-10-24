@@ -231,3 +231,17 @@ Known issues:
 - Local auth rate limits are raised in `supabase/config.toml` for tests; production
   limits are configured in the Supabase dashboard (Step 6.4).
 - E2E runs with one worker (some tests change shared settings), about 2 minutes.
+
+---
+
+## Phase 1 code review ✅
+
+Full report: [`docs/code-review-phase-1.md`](code-review-phase-1.md). 6 security and 3
+correctness findings fixed with regression tests (forced password change could be
+skipped; password change without current password; no app-level login limit and a
+shared-IP lockout risk; reset-email flooding; reset link built from Origin; anon could read
+`staff.profile_id`; light main colours failing AA; local logo not loading; test left data
+behind). Performance, maintainability and UX items are recorded for later steps.
+
+Production note for Step 6.4: raise Supabase's own sign-in rate limit, since the app now
+limits logins itself and Supabase sees every login from the server's IP.

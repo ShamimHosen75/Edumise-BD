@@ -225,3 +225,28 @@ test("auth pages fit a 360px screen", async ({ page }) => {
     expect(overflow, path).toBeLessThanOrEqual(0);
   }
 });
+
+test("a normal session cannot use the password pages (no change without the current password)", async ({
+  page,
+}) => {
+  await loginAs(page, "accountant@sunrise.test");
+  await page.goto("/en/change-password");
+  await expect(page).toHaveURL(/\/en\/dashboard\/accountant$/);
+  await page.goto("/en/reset-password");
+  await expect(page).toHaveURL(/\/en\/login\?error=link$/);
+});
+
+test("too many wrong passwords for one account are refused", async ({
+  page,
+}) => {
+  const email = `e2e-lock-${Date.now()}@sunrise.test`;
+  const alert = page.getByRole("alert").filter({ hasText: /\S/ });
+  for (let i = 0; i < 10; i++) {
+    await login(page, email, `Wrong${i}pass`);
+    await expect(alert).toHaveText("Wrong email, mobile number or password.");
+  }
+  await login(page, email, "Wrong10pass");
+  await expect(alert).toHaveText(
+    "Too many attempts. Please wait a few minutes and try again.",
+  );
+});
