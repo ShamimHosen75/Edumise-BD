@@ -779,14 +779,14 @@ isOneToOne: false
                   ]
                 },"staff": {
                   Row: {
-                    "address": string | null,"bio_bn": string,"bio_en": string,"birth_date": string | null,"created_at": string,"designation_id": number,"email": string | null,"full_name_bn": string,"full_name_en": string,"id": number,"is_public": boolean,"joined_on": string | null,"left_on": string | null,"nid": string | null,"personal_phone": string | null,"photo_path": string | null,"profile_id": string | null,"qualification_bn": string,"qualification_en": string,"sort_order": number,"subject_bn": string,"subject_en": string,"updated_at": string
+                    "bio_bn": string,"bio_en": string,"created_at": string,"designation_id": number,"full_name_bn": string,"full_name_en": string,"id": number,"is_public": boolean,"joined_on": string | null,"left_on": string | null,"photo_path": string | null,"profile_id": string | null,"qualification_bn": string,"qualification_en": string,"sort_order": number,"subject_bn": string,"subject_en": string,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "address"?: string | null,"bio_bn"?: string,"bio_en"?: string,"birth_date"?: string | null,"created_at"?: string,"designation_id": number,"email"?: string | null,"full_name_bn"?: string,"full_name_en": string,"id"?: never,"is_public"?: boolean,"joined_on"?: string | null,"left_on"?: string | null,"nid"?: string | null,"personal_phone"?: string | null,"photo_path"?: string | null,"profile_id"?: string | null,"qualification_bn"?: string,"qualification_en"?: string,"sort_order"?: number,"subject_bn"?: string,"subject_en"?: string,"updated_at"?: string
+                    "bio_bn"?: string,"bio_en"?: string,"created_at"?: string,"designation_id": number,"full_name_bn"?: string,"full_name_en": string,"id"?: never,"is_public"?: boolean,"joined_on"?: string | null,"left_on"?: string | null,"photo_path"?: string | null,"profile_id"?: string | null,"qualification_bn"?: string,"qualification_en"?: string,"sort_order"?: number,"subject_bn"?: string,"subject_en"?: string,"updated_at"?: string
                   }
                   Update: {
-                    "address"?: string | null,"bio_bn"?: string,"bio_en"?: string,"birth_date"?: string | null,"created_at"?: string,"designation_id"?: number,"email"?: string | null,"full_name_bn"?: string,"full_name_en"?: string,"id"?: never,"is_public"?: boolean,"joined_on"?: string | null,"left_on"?: string | null,"nid"?: string | null,"personal_phone"?: string | null,"photo_path"?: string | null,"profile_id"?: string | null,"qualification_bn"?: string,"qualification_en"?: string,"sort_order"?: number,"subject_bn"?: string,"subject_en"?: string,"updated_at"?: string
+                    "bio_bn"?: string,"bio_en"?: string,"created_at"?: string,"designation_id"?: number,"full_name_bn"?: string,"full_name_en"?: string,"id"?: never,"is_public"?: boolean,"joined_on"?: string | null,"left_on"?: string | null,"photo_path"?: string | null,"profile_id"?: string | null,"qualification_bn"?: string,"qualification_en"?: string,"sort_order"?: number,"subject_bn"?: string,"subject_en"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -800,6 +800,32 @@ isOneToOne: false
       columns: ["profile_id"]
 isOneToOne: true
       referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"staff_private": {
+                  Row: {
+                    "address": string | null,"birth_date": string | null,"created_at": string,"email": string | null,"nid": string | null,"personal_phone": string | null,"staff_id": number,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "address"?: string | null,"birth_date"?: string | null,"created_at"?: string,"email"?: string | null,"nid"?: string | null,"personal_phone"?: string | null,"staff_id": number,"updated_at"?: string
+                  }
+                  Update: {
+                    "address"?: string | null,"birth_date"?: string | null,"created_at"?: string,"email"?: string | null,"nid"?: string | null,"personal_phone"?: string | null,"staff_id"?: number,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "staff_private_staff_id_fkey"
+      columns: ["staff_id"]
+isOneToOne: true
+      referencedRelation: "public_staff"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "staff_private_staff_id_fkey"
+      columns: ["staff_id"]
+isOneToOne: true
+      referencedRelation: "staff"
       referencedColumns: ["id"]
     }
                   ]
@@ -923,6 +949,9 @@ isOneToOne: false
           Functions: {
             "class_allows_group":
 { Args: { "p_class_id": number }; Returns: boolean
+                           },
+"custom_access_token_hook":
+{ Args: { "event": Json }; Returns: Json
                            },
 "is_bd_phone":
 { Args: { "value": string }; Returns: boolean

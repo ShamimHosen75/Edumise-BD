@@ -18,24 +18,26 @@ before it is built.
 | `student` | Enrolled student | Own data only |
 | `guardian` | Parent / guardian | Linked students' data only |
 
-R = read, W = create/update/delete, — = no access.
+R = read, W = create/update/delete, — = no access. Updated to match Step 1.3 as built
+(enforced by RLS and tested in `supabase/tests/1*_rls_*.test.sql`).
 
 | Data | anon | super_admin | admin | teacher | accountant | student | guardian |
 |---|---|---|---|---|---|---|---|
 | Website content (notices, events, pages, sliders, gallery, downloads) | R published | RW | RW | R | R | R | R |
-| `school_settings` | R public fields | RW | R | R | R | R | R |
+| `school_settings` | R | RW (update) | RW (update) — 1.5 settings page | R | R | R | R |
 | `public_staff`, `governing_body` | R | RW | RW | R | R | R | R |
 | `profiles` | — | RW | RW (not super_admin rows) | R own | R own | R own | R own |
 | Academic setup (years, classes, sections, subjects) | — | RW | RW | R | R | R | R |
 | `routine` | R | RW | RW | R | R | R | R |
-| `staff` (private: NID, DOB, address, phone) | — | RW | RW | R own | R own | — | — |
+| `staff` (public fields) | R if is_public | RW | RW | R public + own | R public + own | R public | R public |
+| `staff_private` (NID, DOB, address, phone) | — | RW | RW | R own | R own | — | — |
 | `teacher_assignments` | — | RW | RW | R own | — | — | — |
 | `students` (private fields) | — | RW | RW | R own sections | R | R own | R linked |
 | `guardians`, `student_guardians` | — | RW | RW | R own sections | R | R own | R own |
 | `attendance` | — | RW | RW | RW own sections | — | R own | R linked |
-| `exams`, `exam_subjects` | R published | RW | RW | R | — | R | R |
-| `marks` | R published exam | RW | RW | RW own subjects while not locked | — | R own | R linked |
-| Fees (`fee_heads`, `fee_structures`, `invoices`, `payments`) | — | RW | RW | — | RW | R own | R linked |
+| `exams`, `exam_subjects` | R published / schedule published | RW | RW | R all | R all | R published | R published |
+| `marks` | — (one mark sheet via lookup function, Step 4.3) | RW | RW | R own subjects; W own subjects while not locked | — | R own, published exams | R linked, published exams |
+| Fees (`fee_heads`, `fee_structures`, `fee_waivers`, `invoices`, `invoice_items`) | — | RW | RW | — | RW | R own (+ fee heads) | R linked (+ fee heads) |
 
 ---
 

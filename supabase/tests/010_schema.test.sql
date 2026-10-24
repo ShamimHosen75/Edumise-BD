@@ -6,7 +6,7 @@ select plan(25);
 select tables_are('public', array[
   'school_settings', 'profiles',
   'academic_sessions', 'classes', 'groups', 'sections', 'subjects', 'class_subjects',
-  'designations', 'staff', 'students', 'guardians', 'student_guardians', 'enrollments',
+  'designations', 'staff', 'staff_private', 'students', 'guardians', 'student_guardians', 'enrollments',
   'teacher_assignments', 'governing_body',
   'notices', 'news', 'events', 'pages', 'sliders', 'gallery_albums', 'gallery_images', 'downloads',
   'periods', 'rooms', 'routine', 'attendance',
@@ -72,7 +72,7 @@ select throws_ok($$ update public.guardians set phone = '0171234567' where full_
   '23514', null, 'guardian phone must be 11-digit BD mobile');
 select throws_ok($$ update public.students set birth_reg_no = '12345' where full_name_en = 'Rahim Ahmed' $$,
   '23514', null, 'birth registration number must be 17 digits');
-select throws_ok($$ update public.staff set nid = 'ABC' where full_name_en = 'Kamal Hossain' $$,
+select throws_ok($$ update public.staff_private set nid = 'ABC' where email = 'teacher@sunrise.test' $$,
   '23514', null, 'NID must be 10, 13 or 17 digits');
 
 -- Notices: class audience needs a class; published needs a date.

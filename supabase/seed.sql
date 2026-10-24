@@ -112,13 +112,11 @@ insert into public.designations (name_en, name_bn, rank, is_teaching) values
   ('Instructor', 'ইন্সট্রাক্টর', 5, true),
   ('Staff', 'কর্মচারী', 6, false);
 
-insert into public.staff (
-  profile_id, designation_id, full_name_en, full_name_bn, subject_en, subject_bn,
-  qualification_en, joined_on, left_on, sort_order, nid, birth_date, address, personal_phone, email
-)
-select p.profile_id, d.id, p.name_en, p.name_bn, p.subject_en, p.subject_bn, p.qual,
-  p.joined::date, p.left_on::date, p.sort_order, p.nid, p.dob::date, p.address, p.phone, p.email
-from (values
+create temporary table seed_staff (
+  profile_id uuid, designation text, name_en text, name_bn text, subject_en text, subject_bn text,
+  qual text, joined text, left_on text, sort_order int, nid text, dob text, address text, phone text, email text
+);
+insert into seed_staff values
   (null::uuid, 'Head Teacher', 'Abdul Karim', 'আব্দুল করিম', 'Bangla', 'বাংলা', 'MA (Bangla), B.Ed', '2005-01-01', null, 1, '1990000000001', '1970-03-15', 'Staff Quarter 1, Demo Town', '01910000001', 'head@sunrise.test'),
   ('00000000-0000-4000-a000-000000000002', 'Assistant Head Teacher', 'Nasrin Akter', 'নাসরিন আক্তার', 'English', 'ইংরেজি', 'MA (English), B.Ed', '2008-01-01', null, 2, '1990000000002', '1975-07-21', 'House 5, Demo Town', '01910000002', 'admin@sunrise.test'),
   ('00000000-0000-4000-a000-000000000003', 'Senior Teacher', 'Kamal Hossain', 'কামাল হোসেন', 'Mathematics', 'গণিত', 'MSc (Mathematics), B.Ed', '2012-01-01', null, 3, '1990000000003', '1982-11-02', 'House 9, Demo Town', '01910000003', 'teacher@sunrise.test'),
@@ -126,8 +124,23 @@ from (values
   (null, 'Assistant Teacher', 'Habibur Rahman', 'হাবিবুর রহমান', 'ICT', 'আইসিটি', 'BSc (CSE)', '2019-01-01', null, 5, '1990000000005', '1991-09-30', 'House 20, Demo Town', '01910000005', 'habib@sunrise.test'),
   ('00000000-0000-4000-a000-000000000004', 'Staff', 'Rafiq Uddin', 'রফিক উদ্দিন', '', '', 'BCom', '2015-01-01', null, 6, '1990000000006', '1985-01-25', 'House 3, Demo Town', '01910000006', 'accountant@sunrise.test'),
   (null, 'Senior Teacher', 'Mohammad Ali', 'মোহাম্মদ আলী', 'Religion', 'ধর্ম', 'Kamil', '1995-01-01', '2024-12-31', 7, '1990000000007', '1964-02-14', 'Old Town Road', '01910000007', null)
-) as p(profile_id, designation, name_en, name_bn, subject_en, subject_bn, qual, joined, left_on, sort_order, nid, dob, address, phone, email)
+;
+
+insert into public.staff (
+  profile_id, designation_id, full_name_en, full_name_bn, subject_en, subject_bn,
+  qualification_en, joined_on, left_on, sort_order
+)
+select p.profile_id, d.id, p.name_en, p.name_bn, p.subject_en, p.subject_bn, p.qual,
+  p.joined::date, p.left_on::date, p.sort_order
+from seed_staff p
 join public.designations d on d.name_en = p.designation;
+
+insert into public.staff_private (staff_id, nid, birth_date, address, personal_phone, email)
+select s.id, p.nid, p.dob::date, p.address, p.phone, p.email
+from seed_staff p
+join public.staff s on s.full_name_en = p.name_en;
+
+drop table seed_staff;
 
 -- Class teachers: Kamal for 6A, Shirin for 9A.
 update public.sections set class_teacher_id = (select id from public.staff where full_name_en = 'Kamal Hossain')

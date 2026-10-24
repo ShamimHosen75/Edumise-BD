@@ -4,7 +4,7 @@
 |---|---|---|
 | 1.1 Project setup | ✅ Done | See below |
 | 1.2 Schema + seed | ✅ Done | See below |
-| 1.3 RLS policies | Not started | Blocked on 1.2 |
+| 1.3 RLS policies | ✅ Done | See below |
 | 1.4 Authentication | Not started | Blocked on 1.3 |
 | 1.5 i18n + theme | Not started | Blocked on 1.2 |
 | 2.1 Site shell + home | Not started | Blocked on 1.5 |
@@ -92,3 +92,45 @@ Known issues:
 - SVG is not allowed in the `public-media` bucket (SVG files can carry scripts). Logos
   must be PNG, JPG or WebP.
 - Profile `role` is NULL (no access) unless set by trusted server code via app_metadata.
+
+---
+
+## Step 1.3 — RLS policies ✅
+
+Checks (run locally, 2026-10-24): `db:reset` ✅ · `db:test` ✅ 11 files / 156 tests ·
+`supabase db lint` ✅ · `db:types` ✅ · `lint` ✅ · `typecheck` ✅ · `test` ✅ 17/17 ·
+`build` ✅ · `test:e2e` ✅ 10/10.
+
+| Acceptance criterion | Result | Evidence |
+|---|---|---|
+| `npm run db:test` passes | ✅ Pass | 11 pgTAP files, 156 tests |
+| No table has RLS disabled (test on `pg_tables.rowsecurity`) | ✅ Pass | `090_rls_coverage` "no public table has row level security disabled" |
+| Every table has explicit policies | ✅ Pass | `090_rls_coverage` "every public table has at least one explicit policy" |
+| Helpers `auth_role, is_staff, is_admin, teacher_section_ids, guardian_student_ids, my_student_id` (security definer, stable, fixed search_path) | ✅ Pass | `090_rls_coverage`; live in schema `app` (not exposed by the API) |
+| Role in profiles + custom access token hook | ✅ Pass | `090_rls_coverage` (hook adds `app_role`, null for unknown/inactive); live login token contains `app_role` |
+| Anon reads only published content, public_staff, governing body, routine | ✅ Pass | `100_rls_anon` (20 tests) |
+| Teacher: own sections' students, attendance; marks for own subjects; locked marks frozen | ✅ Pass | `120_rls_teacher` (20 tests) |
+| Guardian: linked children only. Student: own only | ✅ Pass | `150_rls_guardian` (14), `140_rls_student` (16) |
+| Accountant: fees full, students read-only | ✅ Pass | `130_rls_accountant` (14) |
+| ≥ 3 negative tests per role | ✅ Pass | anon 11 · super_admin 3 · admin 4 · teacher 11 · accountant 7 · student 8 · guardian 6 |
+| Tests really catch broken rules | ✅ Pass | mutation check: adding "everyone reads students" + "everyone updates marks" policies made teacher, student and guardian tests fail |
+
+Design changes:
+- `staff_private` (new migration): staff NID, birth date, address, personal phone and
+  email moved out of `staff`, because RLS works on whole rows. The public directory reads
+  `staff`; private fields need admin or the staff member themselves.
+- Profiles are protected by a trigger: users can edit their own name/avatar; only admins
+  change role, status, email or phone; only a super_admin touches super_admin accounts.
+- RLS reads the role from `profiles` (not the JWT), so a stale token never grants access.
+  The JWT `app_role` claim is for middleware routing only.
+
+Decisions used: admins may edit school settings (Step 1.5 says so; the draft matrix said
+read-only); anon gets no direct access to marks (Q1: public result lookup returns one
+mark sheet through a function in Step 4.3); notice audiences per Q9.
+
+Known issues:
+- Teachers cannot create notice drafts yet (Step 2.3 adds that policy).
+- The 3-day attendance edit window (Step 4.1) and per-section mark locks (Q29, Step 4.2)
+  are not enforced yet.
+- `private-docs` storage is admin-only; later steps add narrower rules (e.g. admission
+  uploads through the server).
