@@ -70,6 +70,9 @@ Migrations (one file per area):
    name, designation, subjects, qualification, joining year, bio, is_current),
    `governing_body` (term_start/end, is_current), `ex_principals`.
    Contact: `contact_messages` (is_read, ip_hash for rate limiting).
+   Admission: `admission_applications` (tracking_no, status, test date/marks),
+   `admission_documents`, `tracking_counters`; `enrollments` (student, session, section,
+   roll); `audit_log`.
 7. Website: `notices` (category, audience, target class, is_pinned, attachment), `news`,
    `events`, `event_photos`, `pages`, `sliders`, `gallery_albums`, `gallery_images`,
    `downloads`, `menu_items` (parent_id, label_en/bn, href, sort_order), `quick_links`,
@@ -207,6 +210,30 @@ page, and dashboard CRUD with EN/BN fields, draft/publish, publish date, file up
 - Reusable FormDialog pattern with react-hook-form + Zod + server action + toast.
 - Tests: unit tests for Zod schemas; E2E: create session -> class -> section -> map subjects.
 
+## Step 3.2 [MISSING]
+Not supplied yet. Step 3.3 needs `enrollments` and a class list, which likely belong here.
+
+## Step 3.3: online admission (ADM-01 to ADM-04) [CONFIRMED]
+Public /[lang]/admission/apply multi-step form (progress bar, saves draft in localStorage):
+ 1) Student: name EN/BN, birth date, gender, birth registration no, religion, blood group,
+    photo (jpg/png <= 500KB, cropped square).
+ 2) Guardian: father, mother, local guardian name, phone (BD format 01XXXXXXXXX validated),
+    occupation, email, addresses.
+ 3) Academic: applying for class, group (only Class 9), previous school, last result.
+ 4) Documents: birth certificate, previous transcript (pdf/jpg <= 2MB).
+ 5) Review + declaration checkbox + submit.
+- On submit: insert via server action using admin client (anon cannot write directly),
+  upload files to private documents bucket, generate tracking no ADM-YYYY-00001,
+  show success page with printable application copy (PDF).
+- /[lang]/admission/status: check by tracking no + phone.
+- Dashboard Admissions: queue with filters (class, status, date), detail view with
+  documents, change status, schedule test, enter test marks, merit list per class.
+- "Approve" converts to student + guardian + enrollment (choose section, auto-assign next
+  roll), creates guardian login, records in audit_log. Wrap in a single DB function
+  (transaction).
+- Tests: unit tests for phone/birth-reg validators and tracking no generator; RLS: anon
+  cannot read applications; E2E full flow apply -> approve -> student appears in class list.
+
 ---
 
 ## Open questions
@@ -236,5 +263,14 @@ page, and dashboard CRUD with EN/BN fields, draft/publish, publish date, file up
    by a salted hash of the IP over the last hour (raw IPs are not stored). OK?
 12. **Groups (3.1):** in Bangladesh groups usually start in Class 9. Draft: groups apply to
    Classes 9–10 only; Classes 6–8 map subjects with no group. Correct?
-13. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
+13. **Step 3.2:** it was skipped. Please paste it.
+14. **Guardian login (3.3):** how does the guardian receive the new account's password?
+   Draft: login is the guardian's phone, a one-time password is shown on the approval
+   screen to print or hand over, and `must_change_password` is set. No SMS provider.
+15. **Student login (3.3):** approval creates a guardian login. Should it also create a
+   student login?
+16. **Birth registration no (3.3):** draft rule is exactly 17 digits (current BD format).
+17. **Admission statuses (3.3):** draft: submitted, under_review, test_scheduled,
+   approved, rejected, waitlisted.
+18. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
    website modules above are a typical set and should be checked against it.
