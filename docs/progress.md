@@ -16,3 +16,4 @@
 | 3.3 Online admission | Not started | Blocked on 3.2 |
 | 3.4 Student management | Not started | Blocked on 3.3 |
 | 3.5 Routine | Not started | Blocked on 3.4 |
+| 4.1 Student attendance | Not started | Blocked on 3.5 |

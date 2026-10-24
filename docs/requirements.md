@@ -260,6 +260,20 @@ Public /[lang]/admission/apply multi-step form (progress bar, saves draft in loc
 - Academic calendar: holidays and events by month; public calendar page.
 - Public /[lang]/routine with class + section selector.
 
+## Step 4.1: student attendance (ATT-01, ATT-02, ATT-03) [CONFIRMED]
+- Teacher page "Take attendance": pick section (only own sections) and date (default
+  today, no future dates, edits allowed for 3 days then admin only). Mobile-first list with
+  big tap targets; default all Present; tap to cycle Present/Absent/Late/Leave; "mark all";
+  sticky Save bar with counts. Upsert in one server action.
+- Monthly sheet: section x month grid (P/A/L/Lv), totals and % per student, print A4
+  landscape, export Excel. Public /attendance_sheet is NOT exposed (privacy) - remove it.
+- Student/guardian portal: calendar view of the child's attendance + monthly %.
+- Admin dashboard widget: today's attendance % per class, list of sections not yet marked.
+- src/lib/attendance.ts: percentage, working days (exclude holidays from calendar),
+  streak of absences. Unit tests incl. holidays and leave not counted as absent.
+- Tests: RLS teacher cannot mark another section; E2E teacher marks attendance on a
+  360px viewport and guardian sees it.
+
 ---
 
 ## Open questions
@@ -310,5 +324,11 @@ Public /[lang]/admission/apply multi-step form (progress bar, saves draft in loc
 22. **Exam schedule visibility (3.5):** `exams.is_published` (1.3) is about results. The
    schedule must go public before results. Draft: separate `schedule_published` flag.
 23. **Clash scope (3.5):** clashes checked within the current session only? Draft: yes.
-24. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
+24. **Attendance % (4.1):** draft formula: (Present + Late) / (working days − Leave days).
+   Late counts as attended; Leave is removed from the denominator, not counted as absent.
+   Correct?
+25. **3-day edit window (4.1):** calendar days or working days? Draft: 3 calendar days
+   after the date, enforced in RLS as well as the server action.
+26. **Excluded on purpose:** no public attendance sheet page (the reference site has one).
+27. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
    website modules above are a typical set and should be checked against it.
