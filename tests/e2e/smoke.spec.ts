@@ -15,8 +15,8 @@ test("/ redirects to /en for an English browser", async ({ page }) => {
 });
 
 for (const [lang, heading] of [
-  ["en", "Welcome to Sunrise High School"],
-  ["bn", "সানরাইজ হাই স্কুল-এ স্বাগতম"],
+  ["en", "Sunrise High School"],
+  ["bn", "সানরাইজ হাই স্কুল"],
 ] as const) {
   test(`/${lang} renders with no console errors and fits the screen`, async ({
     page,

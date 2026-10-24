@@ -50,17 +50,26 @@ test.describe("language selection", () => {
 test.describe("Bangla formatting", () => {
   test("numbers and dates use Bangla digits in bn", async ({ page }) => {
     await page.goto("/bn");
-    await expect(page.getByTestId("established")).toHaveText("প্রতিষ্ঠিত ১৯৭৫");
-    const today = await page.getByTestId("today").innerText();
-    expect(today).toMatch(/[০-৯]/);
-    expect(today).not.toMatch(/[0-9]/);
+    const facts = page.locator('[data-section="facts"]');
+    await expect(facts.getByText("১৯৭৫")).toBeVisible();
+    await expect(facts.getByText("৯৯৯৯৯৯")).toBeVisible();
+    const dates = await page
+      .locator('[data-section="notices"] time')
+      .allInnerTexts();
+    expect(dates.length).toBeGreaterThan(0);
+    for (const d of dates) {
+      expect(d).toMatch(/[০-৯]/);
+      expect(d).not.toMatch(/[0-9]/);
+    }
+    // Footer copyright year too.
+    await expect(page.locator("footer")).toContainText(/© [০-৯]{4}/);
   });
 
   test("numbers stay in English digits in en", async ({ page }) => {
     await page.goto("/en");
-    await expect(page.getByTestId("established")).toHaveText(
-      "Established 1975",
-    );
+    await expect(
+      page.locator('[data-section="facts"]').getByText("1975"),
+    ).toBeVisible();
   });
 });
 

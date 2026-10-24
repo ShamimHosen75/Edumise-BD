@@ -11,7 +11,8 @@ select tables_are('public', array[
   'notices', 'news', 'events', 'pages', 'sliders', 'gallery_albums', 'gallery_images', 'downloads',
   'periods', 'rooms', 'routine', 'attendance',
   'exams', 'exam_classes', 'exam_subjects', 'marks',
-  'fee_heads', 'fee_structures', 'fee_waivers', 'invoices', 'invoice_items'
+  'fee_heads', 'fee_structures', 'fee_waivers', 'invoices', 'invoice_items',
+  'menu_items', 'site_links'
 ], 'public schema has exactly the planned tables');
 
 select views_are('public', array['public_staff'], 'public schema has exactly the planned views');

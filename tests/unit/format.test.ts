@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  formatWeekdayTime,
   formatCurrency,
   formatDate,
   formatNumber,
@@ -106,5 +107,25 @@ describe("pickLocalized", () => {
     expect(
       pickLocalized({ title_en: null, title_bn: null }, "title", "bn"),
     ).toBe("");
+  });
+});
+
+describe("formatWeekdayTime", () => {
+  // 03:00 UTC = 09:00 Thursday in Dhaka.
+  it("uses a 24-hour clock with no English AM/PM in Bangla", () => {
+    expect(formatWeekdayTime("2026-11-05T03:00:00Z", "en")).toBe(
+      "Thursday 09:00",
+    );
+    const bn = formatWeekdayTime("2026-11-05T03:00:00Z", "bn");
+    expect(bn).toBe("বৃহস্পতিবার ০৯:০০");
+    expect(bn).not.toMatch(/AM|PM|[0-9]/);
+  });
+  it("shows afternoon times in 24 hours", () => {
+    expect(formatWeekdayTime("2026-11-05T09:30:00Z", "en")).toBe(
+      "Thursday 15:30",
+    );
+  });
+  it("rejects invalid dates", () => {
+    expect(() => formatWeekdayTime("nope", "en")).toThrow(RangeError);
   });
 });

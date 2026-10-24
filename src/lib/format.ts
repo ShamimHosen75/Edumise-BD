@@ -79,3 +79,20 @@ export function pickLocalized<F extends string>(
   const bn = (row as Record<string, string | null | undefined>)[`${field}_bn`];
   return bn && bn.trim() !== "" ? bn : en;
 }
+
+/**
+ * Weekday and time in Bangladesh time, 24-hour clock in both languages (bn would otherwise
+ * show "AM"/"PM" in English letters): "Thursday 09:00" / "বৃহস্পতিবার ৯:০০".
+ */
+export function formatWeekdayTime(value: DateInput, lang: Locale): string {
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime()))
+    throw new RangeError(`Invalid date: ${String(value)}`);
+  return new Intl.DateTimeFormat(lang === "bn" ? "bn-BD" : "en-GB", {
+    timeZone: SCHOOL_TIME_ZONE,
+    weekday: "long",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).format(date);
+}

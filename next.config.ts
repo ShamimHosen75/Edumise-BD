@@ -12,6 +12,10 @@ const nextConfig: NextConfig = {
     serverActions: { bodySizeLimit: "2mb" },
   },
   images: {
+    // A local Supabase (127.0.0.1) cannot go through the image optimizer, which refuses
+    // private addresses; production Supabase URLs are optimized as usual.
+    unoptimized:
+      !!supabaseUrl && /\/\/(127\.0\.0\.1|localhost)[:/]/.test(supabaseUrl),
     // Logos and photos come from the Supabase public-media bucket.
     remotePatterns: supabaseUrl
       ? [

@@ -37,7 +37,7 @@ test("a wrong password shows an error and stays on the login page", async ({
   page,
 }) => {
   await login(page, "teacher@sunrise.test", "WrongPassword1");
-  await expect(page.getByRole("alert").filter({ hasText: /\S/ })).toHaveText(
+  await expect(page.getByRole("main").getByRole("alert")).toHaveText(
     "Wrong email, mobile number or password.",
   );
   await expect(page).toHaveURL(/\/en\/login$/);
@@ -47,7 +47,7 @@ test("an unknown phone number gets the same error (accounts cannot be probed)", 
   page,
 }) => {
   await login(page, "01799999999");
-  await expect(page.getByRole("alert").filter({ hasText: /\S/ })).toHaveText(
+  await expect(page.getByRole("main").getByRole("alert")).toHaveText(
     "Wrong email, mobile number or password.",
   );
 });
@@ -188,7 +188,7 @@ test("an invalid reset link goes back to login with a message", async ({
 }) => {
   await page.goto("/api/auth/callback?code=bogus&next=/en/reset-password");
   await expect(page).toHaveURL(/\/en\/login\?error=link$/);
-  await expect(page.getByRole("alert").filter({ hasText: /\S/ })).toContainText(
+  await expect(page.getByRole("main").getByRole("alert")).toContainText(
     "This link has expired",
   );
 });
@@ -203,7 +203,7 @@ test("a login without a role sees a clear message, not a redirect loop", async (
   });
   try {
     await login(page, user.email);
-    await expect(page.getByRole("alert").filter({ hasText: /\S/ })).toHaveText(
+    await expect(page.getByRole("main").getByRole("alert")).toHaveText(
       "Your account has no access. Please contact the school office.",
     );
     const response = await page.goto("/en/dashboard");
@@ -240,7 +240,7 @@ test("too many wrong passwords for one account are refused", async ({
   page,
 }) => {
   const email = `e2e-lock-${Date.now()}@sunrise.test`;
-  const alert = page.getByRole("alert").filter({ hasText: /\S/ });
+  const alert = page.getByRole("main").getByRole("alert");
   for (let i = 0; i < 10; i++) {
     await login(page, email, `Wrong${i}pass`);
     await expect(alert).toHaveText("Wrong email, mobile number or password.");

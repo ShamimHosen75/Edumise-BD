@@ -63,16 +63,16 @@ describe("t", () => {
     expect(t(en, "notFound.title")).toBe("Page not found");
   });
   it("fills placeholders", () => {
-    expect(t(en, "home.heading", { school: "Sunrise High School" })).toBe(
-      "Welcome to Sunrise High School",
+    expect(t(en, "dashboard.welcome", { name: "Rahim" })).toBe(
+      "Welcome, Rahim",
     );
-    expect(t(en, "home.established", { year: 1975 })).toBe("Established 1975");
+    expect(t(en, "site.home.slide", { n: 2, total: 3 })).toBe("Slide 2 of 3");
   });
   it("leaves unknown placeholders visible", () => {
-    expect(t(en, "home.heading", {})).toBe("Welcome to {school}");
+    expect(t(en, "dashboard.welcome", {})).toBe("Welcome, {name}");
   });
   it("returns the key for a missing entry instead of crashing", () => {
     // @ts-expect-error unknown keys are a type error; at runtime the key is shown.
-    expect(t(en, "home.missing")).toBe("home.missing");
+    expect(t(en, "site.missing")).toBe("site.missing");
   });
 });

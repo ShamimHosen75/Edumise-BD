@@ -467,11 +467,13 @@ Record before/after scores in docs/qa-report.md.
    pages with plain dictionary lookups, then switch to `t()` in 1.5? Or build 1.5 first?
 5. **school_settings columns:** 1.5 needs theme colours (primary, maybe secondary/accent).
    Draft 1.2 will include `primary_color`, `secondary_color`, `logo_path`.
-6. **Counters (2.1):** the home page shows live student/teacher counts from private
+6. ~~**Counters (2.1):**~~ RESOLVED: `public_stats()` security-definer function, counts only.
+   Original: the home page shows live student/teacher counts from private
    tables. Draft: a `security definer` function returning only the counts to anon.
 7. **Requirement IDs:** 2.1 cites WEB-01, WEB-02, WEB-16. Is there a list of all IDs
    (WEB-xx and others) to paste?
-8. **Menu tree (2.2):** which of the 33 seeded pages sit under which of the 10 top menus?
+8. ~~**Menu tree (2.2):**~~ PARTLY RESOLVED in 2.1: menus seeded with grouping by slug
+   (see `supabase/seeds/04_site.sql`); confirm or send the reference site's menu. Original: which of the 33 seeded pages sit under which of the 10 top menus?
    Draft grouping will follow the slugs (e.g. physics-lab under Facilities) unless you paste
    the reference site's menu.
 9. **Notice audience (2.3):** draft rule: `public` = anon; `staff` = staff roles only;

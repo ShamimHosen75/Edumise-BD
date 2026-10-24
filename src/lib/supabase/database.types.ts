@@ -553,6 +553,32 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"menu_items": {
+                  Row: {
+                    "created_at": string,"id": number,"is_hidden": boolean,"label_bn": string,"label_en": string,"page_id": number | null,"parent_id": number | null,"sort_order": number,"updated_at": string,"url": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"id"?: never,"is_hidden"?: boolean,"label_bn"?: string,"label_en": string,"page_id"?: number | null,"parent_id"?: number | null,"sort_order"?: number,"updated_at"?: string,"url"?: string | null
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: never,"is_hidden"?: boolean,"label_bn"?: string,"label_en"?: string,"page_id"?: number | null,"parent_id"?: number | null,"sort_order"?: number,"updated_at"?: string,"url"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "menu_items_page_id_fkey"
+      columns: ["page_id"]
+isOneToOne: false
+      referencedRelation: "pages"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "menu_items_parent_id_fkey"
+      columns: ["parent_id"]
+isOneToOne: false
+      referencedRelation: "menu_items"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"news": {
                   Row: {
                     "body_bn": string,"body_en": string,"cover_path": string | null,"created_at": string,"created_by": string | null,"id": number,"is_published": boolean,"published_at": string | null,"slug": string,"title_bn": string,"title_en": string,"updated_at": string
@@ -763,6 +789,20 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"site_links": {
+                  Row: {
+                    "created_at": string,"icon": string,"id": number,"is_published": boolean,"label_bn": string,"label_en": string,"placement": Database["public"]['Enums']["link_placement"],"sort_order": number,"updated_at": string,"url": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"icon"?: string,"id"?: never,"is_published"?: boolean,"label_bn"?: string,"label_en": string,"placement": Database["public"]['Enums']["link_placement"],"sort_order"?: number,"updated_at"?: string,"url": string
+                  }
+                  Update: {
+                    "created_at"?: string,"icon"?: string,"id"?: never,"is_published"?: boolean,"label_bn"?: string,"label_en"?: string,"placement"?: Database["public"]['Enums']["link_placement"],"sort_order"?: number,"updated_at"?: string,"url"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"sliders": {
                   Row: {
                     "created_at": string,"id": number,"image_path": string,"is_published": boolean,"link_url": string | null,"published_at": string | null,"sort_order": number,"subtitle_bn": string,"subtitle_en": string,"title_bn": string,"title_en": string,"updated_at": string
@@ -961,10 +1001,13 @@ isOneToOne: false
                            },
 "is_rate_limited":
 { Args: { "p_key": string,"p_max": number,"p_window_seconds": number }; Returns: boolean
+                           },
+"public_stats":
+{ Args: Record<PropertyKey, never>; Returns: Json
                            }
           }
           Enums: {
-            "app_role": "super_admin"|"admin"|"teacher"|"accountant"|"student"|"guardian","attendance_status": "present"|"absent"|"late"|"leave","blood_group": "A+"|"A-"|"B+"|"B-"|"AB+"|"AB-"|"O+"|"O-","exam_status": "draft"|"marks_entry"|"review"|"published","fee_frequency": "monthly"|"one_time","gender": "male"|"female"|"other","invoice_status": "unpaid"|"partial"|"paid"|"cancelled","notice_audience": "public"|"staff"|"class","notice_category": "general"|"exam"|"result"|"admission"|"holiday","religion": "islam"|"hinduism"|"buddhism"|"christianity"|"other","student_status": "active"|"inactive"|"transferred"|"graduated","subject_type": "compulsory"|"optional"|"fourth","waiver_kind": "percent"|"fixed"
+            "app_role": "super_admin"|"admin"|"teacher"|"accountant"|"student"|"guardian","attendance_status": "present"|"absent"|"late"|"leave","blood_group": "A+"|"A-"|"B+"|"B-"|"AB+"|"AB-"|"O+"|"O-","exam_status": "draft"|"marks_entry"|"review"|"published","fee_frequency": "monthly"|"one_time","gender": "male"|"female"|"other","invoice_status": "unpaid"|"partial"|"paid"|"cancelled","link_placement": "quick"|"footer","notice_audience": "public"|"staff"|"class","notice_category": "general"|"exam"|"result"|"admission"|"holiday","religion": "islam"|"hinduism"|"buddhism"|"christianity"|"other","student_status": "active"|"inactive"|"transferred"|"graduated","subject_type": "compulsory"|"optional"|"fourth","waiver_kind": "percent"|"fixed"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -1084,7 +1127,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "app_role": ["super_admin", "admin", "teacher", "accountant", "student", "guardian"],"attendance_status": ["present", "absent", "late", "leave"],"blood_group": ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],"exam_status": ["draft", "marks_entry", "review", "published"],"fee_frequency": ["monthly", "one_time"],"gender": ["male", "female", "other"],"invoice_status": ["unpaid", "partial", "paid", "cancelled"],"notice_audience": ["public", "staff", "class"],"notice_category": ["general", "exam", "result", "admission", "holiday"],"religion": ["islam", "hinduism", "buddhism", "christianity", "other"],"student_status": ["active", "inactive", "transferred", "graduated"],"subject_type": ["compulsory", "optional", "fourth"],"waiver_kind": ["percent", "fixed"]
+            "app_role": ["super_admin", "admin", "teacher", "accountant", "student", "guardian"],"attendance_status": ["present", "absent", "late", "leave"],"blood_group": ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],"exam_status": ["draft", "marks_entry", "review", "published"],"fee_frequency": ["monthly", "one_time"],"gender": ["male", "female", "other"],"invoice_status": ["unpaid", "partial", "paid", "cancelled"],"link_placement": ["quick", "footer"],"notice_audience": ["public", "staff", "class"],"notice_category": ["general", "exam", "result", "admission", "holiday"],"religion": ["islam", "hinduism", "buddhism", "christianity", "other"],"student_status": ["active", "inactive", "transferred", "graduated"],"subject_type": ["compulsory", "optional", "fourth"],"waiver_kind": ["percent", "fixed"]
           }
         }
 } as const

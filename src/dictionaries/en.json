@@ -5,14 +5,8 @@
   },
   "common": {
     "changeLanguage": "Change language",
-    "logoAlt": "{school} logo"
-  },
-  "home": {
-    "heading": "Welcome to {school}",
-    "intro": "The school website is being set up. Please check back soon.",
-    "established": "Established {year}",
-    "eiin": "EIIN: {eiin}",
-    "today": "Today is {date}"
+    "logoAlt": "{school} logo",
+    "skipToContent": "Skip to main content"
   },
   "notFound": {
     "title": "Page not found",
@@ -159,6 +153,68 @@
       "head_name_bn": "Head teacher's name (Bangla)",
       "head_message_en": "Message (English)",
       "head_message_bn": "Message (Bangla)"
+    }
+  },
+  "site": {
+    "topBar": {
+      "label": "Contact and quick actions",
+      "applyOnline": "Apply Online",
+      "login": "Login",
+      "social": "{network} (opens in a new tab)"
+    },
+    "nav": {
+      "main": "Main menu",
+      "open": "Menu",
+      "close": "Close menu",
+      "home": "Home page"
+    },
+    "home": {
+      "noticeBoard": "Notice board",
+      "latestNotices": "Latest notices",
+      "pinned": "Pinned",
+      "pause": "Pause",
+      "play": "Play",
+      "facts": "Institute facts",
+      "eiin": "EIIN",
+      "institutionCode": "Institution code",
+      "centerCode": "Centre code",
+      "established": "Established",
+      "quickLinks": "Quick links",
+      "headMessage": "Message from the head teacher",
+      "headTeacher": "Head teacher",
+      "headPhotoAlt": "Photo of {name}",
+      "readMore": "Read the full message",
+      "teachers": "Our teachers",
+      "atAGlance": "At a glance",
+      "classes": "Classes",
+      "students": "Students",
+      "teacherCount": "Teachers",
+      "staffCount": "Staff",
+      "chartTitle": "Students in each class",
+      "chartRow": "{class}: {count} students",
+      "events": "Upcoming events",
+      "gallery": "Gallery",
+      "slideshow": "Photo slideshow",
+      "slide": "Slide {n} of {total}",
+      "previous": "Previous slide",
+      "next": "Next slide",
+      "pauseSlides": "Pause slideshow",
+      "playSlides": "Play slideshow",
+      "goToSlide": "Go to slide {n}",
+      "opensNewTab": "opens in a new tab"
+    },
+    "footer": {
+      "contact": "Contact",
+      "phone": "Phone",
+      "email": "Email",
+      "officeHours": "Office hours",
+      "links": "Important links",
+      "follow": "Follow us",
+      "copyright": "© {year} {school}. All rights reserved.",
+      "poweredBy": "Website by Edumise BD"
+    },
+    "page": {
+      "updated": "Last updated {date}"
     }
   }
 }

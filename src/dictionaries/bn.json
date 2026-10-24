@@ -5,14 +5,8 @@
   },
   "common": {
     "changeLanguage": "ভাষা পরিবর্তন",
-    "logoAlt": "{school}-এর লোগো"
-  },
-  "home": {
-    "heading": "{school}-এ স্বাগতম",
-    "intro": "স্কুলের ওয়েবসাইট তৈরি হচ্ছে। অনুগ্রহ করে কিছুদিন পর আবার দেখুন।",
-    "established": "প্রতিষ্ঠিত {year}",
-    "eiin": "ইআইআইএন: {eiin}",
-    "today": "আজ {date}"
+    "logoAlt": "{school}-এর লোগো",
+    "skipToContent": "মূল অংশে যান"
   },
   "notFound": {
     "title": "পৃষ্ঠাটি পাওয়া যায়নি",
@@ -159,6 +153,68 @@
       "head_name_bn": "প্রধান শিক্ষকের নাম (বাংলা)",
       "head_message_en": "বাণী (ইংরেজি)",
       "head_message_bn": "বাণী (বাংলা)"
+    }
+  },
+  "site": {
+    "topBar": {
+      "label": "যোগাযোগ ও দ্রুত লিংক",
+      "applyOnline": "অনলাইনে আবেদন",
+      "login": "লগইন",
+      "social": "{network} (নতুন ট্যাবে খুলবে)"
+    },
+    "nav": {
+      "main": "প্রধান মেনু",
+      "open": "মেনু",
+      "close": "মেনু বন্ধ করুন",
+      "home": "হোম পেজ"
+    },
+    "home": {
+      "noticeBoard": "নোটিশ বোর্ড",
+      "latestNotices": "সর্বশেষ নোটিশ",
+      "pinned": "পিন করা",
+      "pause": "থামান",
+      "play": "চালু করুন",
+      "facts": "প্রতিষ্ঠানের তথ্য",
+      "eiin": "ইআইআইএন",
+      "institutionCode": "প্রতিষ্ঠান কোড",
+      "centerCode": "কেন্দ্র কোড",
+      "established": "প্রতিষ্ঠাকাল",
+      "quickLinks": "দ্রুত লিংক",
+      "headMessage": "প্রধান শিক্ষকের বাণী",
+      "headTeacher": "প্রধান শিক্ষক",
+      "headPhotoAlt": "{name}-এর ছবি",
+      "readMore": "পুরো বাণী পড়ুন",
+      "teachers": "আমাদের শিক্ষকগণ",
+      "atAGlance": "এক নজরে",
+      "classes": "শ্রেণি",
+      "students": "শিক্ষার্থী",
+      "teacherCount": "শিক্ষক",
+      "staffCount": "কর্মচারী",
+      "chartTitle": "শ্রেণিভিত্তিক শিক্ষার্থী",
+      "chartRow": "{class}: {count} জন শিক্ষার্থী",
+      "events": "আসন্ন অনুষ্ঠান",
+      "gallery": "গ্যালারি",
+      "slideshow": "ছবির স্লাইডশো",
+      "slide": "স্লাইড {n} / {total}",
+      "previous": "আগের স্লাইড",
+      "next": "পরের স্লাইড",
+      "pauseSlides": "স্লাইডশো থামান",
+      "playSlides": "স্লাইডশো চালু করুন",
+      "goToSlide": "স্লাইড {n}-এ যান",
+      "opensNewTab": "নতুন ট্যাবে খুলবে"
+    },
+    "footer": {
+      "contact": "যোগাযোগ",
+      "phone": "ফোন",
+      "email": "ইমেইল",
+      "officeHours": "অফিস সময়",
+      "links": "গুরুত্বপূর্ণ লিংক",
+      "follow": "আমাদের অনুসরণ করুন",
+      "copyright": "© {year} {school}। সর্বস্বত্ব সংরক্ষিত।",
+      "poweredBy": "ওয়েবসাইট: এডুমাইজ বিডি"
+    },
+    "page": {
+      "updated": "সর্বশেষ হালনাগাদ {date}"
     }
   }
 }
