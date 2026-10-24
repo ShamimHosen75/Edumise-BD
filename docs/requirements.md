@@ -378,6 +378,24 @@ invoices. Online payment is prepared but switched off until a gateway account ex
   (payment_intents table, unique provider txn id), then records the payment.
 - Tests: unit tests for idempotency and amount mismatch rejection using the mock provider.
 
+## Phase 6 — QA, security, performance and launch [CONFIRMED]
+Goal: prove the whole system works end to end, fix what fails, and deploy.
+
+## Step 6.1: full regression and traceability [CONFIRMED]
+Act purely as a QA lead. Do not add features.
+1. Build docs/traceability.md: every requirement ID from docs/requirements.md -> the
+   test file(s) and test names covering it -> status. List every requirement with no test.
+2. Write the missing tests (unit, RLS or Playwright) so every M and S requirement is
+   covered.
+3. Write 5 end-to-end "day in the life" Playwright scenarios: admission season, a school
+   day (attendance), exam cycle (setup -> marks -> process -> publish -> public search),
+   fee month (invoice -> collect -> dues report), website editor (notice + page + gallery).
+   Run them in desktop Chrome and a 360x740 mobile viewport, en and bn.
+4. Run the entire suite. For each failure, log it in docs/qa-report.md with ID, severity
+   (Blocker/Major/Minor/Cosmetic), requirement ID, steps, expected, actual.
+5. Fix Blockers and Majors one by one, re-run, and update the report. Stop and show me the
+   report before fixing Minors.
+
 ---
 
 ## Open questions
@@ -475,5 +493,10 @@ invoices. Online payment is prepared but switched off until a gateway account ex
    per year (`RCP-2026-000123`) since receipts are not public. OK?
 42. **Mobile banking txn ID (5.2):** unique per method (bKash and Nagad IDs could clash)?
    Draft: unique on (method, txn_id).
-43. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
+43. **Requirement catalogue (6.1):** 6.1 traces "every requirement ID" and covers "every M
+   and S requirement" (MoSCoW priority). The steps cite IDs (WEB-01…16, NOT-01, ADM-01…08,
+   AUTH-04, RTN-01/02, ATT-01…03, EXM-01…05, FEE-01…06) but the list of IDs with their
+   text and M/S/C/W priority has not been supplied. Please paste it; without it 6.1 can
+   only trace the IDs cited in the steps.
+44. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
    website modules above are a typical set and should be checked against it.
