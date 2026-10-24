@@ -44,7 +44,7 @@ Checks (run locally, 2026-10-24): `lint` ✅ · `typecheck` ✅ · `test` ✅ 17
 | Local Supabase starts; clients for server, browser, admin | ✅ Pass | `npm run db:start`; `tests/unit/supabase-admin.test.ts` |
 | Service-role key never in client code | ✅ Pass | `admin.ts` imports `server-only` (unit test); key string not found in `.next/static` |
 | No console errors; fits 360px | ✅ Pass | e2e collects console/page errors and checks horizontal overflow |
-| CI workflow | ⏳ Not yet run | `.github/workflows/ci.yml` runs on this push |
+| CI workflow | ✅ Pass | GitHub Actions run 1 (checks + e2e) green on commit b9ee122 |
 
 Negative tests: invalid locales rejected (`EN`, `fr`, `bn-BD`, empty, null); admin client
 throws without the service key or with an invalid URL; `/fr` returns 404.
