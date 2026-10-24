@@ -8,3 +8,4 @@
 | 1.4 Authentication | Not started | Blocked on 1.3 |
 | 1.5 i18n + theme | Not started | Blocked on 1.2 |
 | 2.1 Site shell + home | Not started | Blocked on 1.5 |
+| 2.2 CMS pages + menu | Not started | Blocked on 2.1 |

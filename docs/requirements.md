@@ -146,6 +146,22 @@ digits in bn; changing the primary colour in settings changes the site colour.
 - Design: clean, modern, trustworthy; primary colour from settings; good on 360px.
 - E2E: home loads in en and bn, no broken links in header/footer (crawl and assert 200).
 
+## Step 2.2: CMS pages and menu (WEB-03, WEB-04) [CONFIRMED]
+- Public route /[lang]/p/[slug] renders pages (title, rich content, cover image, attachments).
+- Seed pages for every static menu item in the reference site: about-us, history, donors,
+  mission-vision, campus-tour, achievements, chairman-message, principal-message,
+  administrators, recognition-letter, nationalization, statistics, govt-approval,
+  academic-rules, academic-calendar, why-study, how-to-apply, admission-test,
+  admission-policy, registration-system, tuition-fees, mobile-banking, daily-activities,
+  uniform, exam-system, rules, library, playground, physics-lab, chemistry-lab,
+  biology-lab, ict-lab, co-curricular.
+- Dashboard (admin): Pages list (search, status draft/published), editor with EN/BN tabs,
+  rich text editor (Tiptap) with sanitised HTML output, image upload, SEO title/description.
+- Menu builder: tree editor (add, rename EN/BN, reorder via drag or up/down, link to page or
+  URL, hide). Items pointing to empty/unpublished pages are hidden on the site automatically.
+- Tests: HTML sanitiser unit test (strips script/onerror); E2E: admin edits a page in bn,
+  publishes, public page shows new text.
+
 ---
 
 ## Open questions
@@ -163,5 +179,8 @@ digits in bn; changing the primary colour in settings changes the site colour.
    tables. Draft: a `security definer` function returning only the counts to anon.
 7. **Requirement IDs:** 2.1 cites WEB-01, WEB-02, WEB-16. Is there a list of all IDs
    (WEB-xx and others) to paste?
-8. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
+8. **Menu tree (2.2):** which of the 33 seeded pages sit under which of the 10 top menus?
+   Draft grouping will follow the slugs (e.g. physics-lab under Facilities) unless you paste
+   the reference site's menu.
+9. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
    website modules above are a typical set and should be checked against it.
