@@ -90,7 +90,11 @@ Migrations (one file per area):
    `result_subjects`; `board_results` (year, exam, examinees, passed, gpa5).
    Certificates: `certificates` (ref_no, student, type, language, issued_at, issued_by,
    status valid/revoked, revoked_reason).
-11. Fees: `fee_heads`, `fee_structures`, `invoices`, `payments`.
+11. Fees (all amounts `bigint` poisha): `fee_heads` (type monthly/one_time), `fee_structures`
+   (session, class, group nullable, head, amount), `fee_waivers` (student, head, percent or
+   fixed, reason, approved_by), `invoices` (student, period, due_date, status),
+   `invoice_items` (head, period key, gross, waiver, net; unique student+head+period),
+   `payments`; late fine settings in `school_settings`.
 - Storage buckets: `public-media` (public), `private-docs` (private).
 - `seed.sql`: fictional school "Sunrise High School"; one auth user per role (6),
   2 classes × 2 sections, students, guardians, a published and an unpublished exam,
@@ -329,6 +333,25 @@ Then:
   type, issue date, status (valid/revoked). Show no other personal data.
 - Tests: E2E issue -> verify valid -> revoke -> verify shows revoked.
 
+## Phase 5 — Fees and payments [CONFIRMED]
+Goal: the accountant bills students, records payments and sees dues; guardians see their
+invoices. Online payment is prepared but switched off until a gateway account exists.
+
+## Step 5.1: fee structure and invoices (FEE-01, FEE-02) [CONFIRMED]
+- Fee heads (Admission, Session, Monthly Tuition, Exam, Lab, ICT, Sports, Transport...),
+  type monthly or one-time, EN/BN names.
+- Fee structure: class (+ optional group) x head x amount per session; copy from previous
+  session.
+- Waivers/discounts per student: percent or fixed, per head, reason, approved by admin
+  (full free, half free, sibling discount).
+- Invoice generator: pick session, month (for monthly heads) or exam/one-time head,
+  classes -> preview count and total -> generate invoices with items after waivers.
+  Idempotent: never duplicate an invoice for the same student+head+period.
+- Optional late fine after due date (configurable amount/day, cap).
+- All money as integer poisha (BDT x 100) in DB; format in UI.
+- src/lib/fees.ts: apply waivers, compute totals, late fine, invoice status from payments.
+  Exhaustive unit tests (rounding, 100% waiver, partial payments, overpayment rejected).
+
 ---
 
 ## Open questions
@@ -411,5 +434,12 @@ Then:
    body text per certificate before issuing.
 36. **Transfer certificate (4.4):** should issuing one mark the student as transferred /
    inactive? Draft: yes, with a confirmation step.
-37. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
+37. **Waiver rounding (5.1):** percent waivers can give fractions of a poisha. Draft: round
+   the waiver *down* to the whole poisha (school never under-charges by rounding).
+38. **Stacking waivers (5.1):** a student with half-free and a sibling discount on the same
+   head: apply both? Draft: percent waivers first, then fixed; net never below 0.
+39. **Late fine (5.1):** stored on the invoice when charged, or computed live? Draft:
+   computed live for display; frozen onto the invoice as a fine item when a payment is
+   recorded. Applies per invoice, not per item.
+40. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
    website modules above are a typical set and should be checked against it.
