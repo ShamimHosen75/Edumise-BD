@@ -218,6 +218,10 @@ page, and dashboard CRUD with EN/BN fields, draft/publish, publish date, file up
 - Tests: E2E asserts a staff profile page HTML does not contain the seeded NID, birth date
   or address; contact form validation errors show in both languages.
 
+## Phase 3 — Students, admissions, staff, routine [CONFIRMED]
+Goal: the school office can set up a session, admit students online and manage staff and
+class routines.
+
 ## Step 3.1: academic structure management (admin) [CONFIRMED]
 - Dashboard pages: Sessions (set one as current), Classes, Sections (per class, capacity,
   class teacher), Groups (Science, Business Studies, Humanities), Subjects (code, name EN/BN,
@@ -227,8 +231,10 @@ page, and dashboard CRUD with EN/BN fields, draft/publish, publish date, file up
 - Reusable FormDialog pattern with react-hook-form + Zod + server action + toast.
 - Tests: unit tests for Zod schemas; E2E: create session -> class -> section -> map subjects.
 
-## Step 3.2 [MISSING]
-Not supplied yet. Step 3.3 needs `enrollments` and a class list, which likely belong here.
+## Step 3.2: staff management [TITLE ONLY]
+The owner's text under this heading was a duplicate of Step 3.1. Body still needed
+(likely: staff list/profile CRUD with private fields, designations, teacher
+assignments to sections/subjects, staff logins, former staff).
 
 ## Step 3.3: online admission (ADM-01 to ADM-04) [CONFIRMED]
 Public /[lang]/admission/apply multi-step form (progress bar, saves draft in localStorage):
@@ -466,7 +472,7 @@ Record before/after scores in docs/qa-report.md.
    by a salted hash of the IP over the last hour (raw IPs are not stored). OK?
 12. **Groups (3.1):** in Bangladesh groups usually start in Class 9. Draft: groups apply to
    Classes 9–10 only; Classes 6–8 map subjects with no group. Correct?
-13. **Step 3.2:** it was skipped. Please paste it.
+13. **Step 3.2 (staff management):** title known, body missing (source had 3.1 pasted).
 14. **Guardian login (3.3):** how does the guardian receive the new account's password?
    Draft: login is the guardian's phone, a one-time password is shown on the approval
    screen to print or hand over, and `must_change_password` is set. No SMS provider.
