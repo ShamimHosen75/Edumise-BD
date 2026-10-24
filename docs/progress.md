@@ -5,8 +5,8 @@
 | 1.1 Project setup | ✅ Done | See below |
 | 1.2 Schema + seed | ✅ Done | See below |
 | 1.3 RLS policies | ✅ Done | See below |
-| 1.4 Authentication | Not started | Blocked on 1.3 |
-| 1.5 i18n + theme | Not started | Blocked on 1.2 |
+| 1.4 Authentication | Not started | Next; also finishes the 1.5 settings page |
+| 1.5 i18n + theme | 🟡 Done except settings page | Settings page needs login; finished with 1.4 |
 | 2.1 Site shell + home | Not started | Blocked on 1.5 |
 | 2.2 CMS pages + menu | Not started | Blocked on 2.1 |
 | 2.3 Content modules | Not started | Blocked on 2.2 |
@@ -134,3 +134,39 @@ Known issues:
   are not enforced yet.
 - `private-docs` storage is admin-only; later steps add narrower rules (e.g. admission
   uploads through the server).
+
+---
+
+## Step 1.5 — i18n and white-label theme 🟡 (built before 1.4, as agreed)
+
+Checks (run locally, 2026-10-24): `lint` ✅ · `typecheck` ✅ · `test` ✅ 79/79 ·
+`db:test` ✅ · `build` ✅ · `test:e2e` ✅ 20/20 (desktop Chrome + 360×740).
+
+| Acceptance criterion | Result | Evidence |
+|---|---|---|
+| `/` redirects by cookie, then Accept-Language, default en | ✅ Pass | unit `pickLocale` (5 cases); e2e "Bangla browser → /bn", "saved cookie wins" |
+| Switching language on any page keeps the path | ✅ Pass | unit `switchLocalePath` (6 cases); e2e "switching language keeps the path and is remembered" |
+| Dates and numbers show Bangla digits in bn | ✅ Pass | unit `format.test.ts` (21 tests); e2e "প্রতিষ্ঠিত ১৯৭৫" and today's date has no ASCII digits |
+| `getDictionary` typed keys, `t()` helper | ✅ Pass | `TranslationKey` type (unknown key = type error, see `@ts-expect-error` test); unit `t` (4 tests) |
+| `format.ts`: toBanglaDigits, formatDate, formatCurrency (BDT), pickLocalized with English fallback | ✅ Pass | `tests/unit/format.test.ts` |
+| Inter for en, Hind Siliguri for bn (next/font), by lang attribute | ✅ Pass | e2e checks body font family per language |
+| Theme colours from school_settings as CSS variables; name from settings | ✅ Pass | e2e: `--primary` = seeded `#0f766e`, page title = school name in each language; unit `buildThemeCss` incl. CSS-injection test |
+| Admin `/dashboard/settings` page (Zod server action, logo upload) | ⏳ Moved to 1.4 | needs login and `requireRole`. Validation schema done now: `tests/unit/school-settings-schema.test.ts` (18 tests) |
+| Changing the primary colour in settings changes the site colour | ⏳ With the settings page | theme already reads the colour from the database; e2e for the change comes with the page |
+| Both en and bn render, no console errors | ✅ Pass | e2e smoke tests |
+
+Negative tests: invalid cookie / unknown languages fall back to en; fractional poisha and
+invalid dates throw; bad colours fall back to defaults and cannot inject CSS; settings form
+rejects bad colours, EIIN, http/javascript URLs, non-Google map embeds, SVG/large logos.
+
+Also fixed: a translated 404 page for unknown paths under `/en` and `/bn` (known issue
+from 1.1).
+
+Bug found and fixed during QA: a failed settings read was cached for an hour, so one
+database hiccup would leave the site unbranded. Failures are now never cached (unit test
+"does not cache a failed read").
+
+Known issues:
+- The language switch keeps the path but not query strings (none are used yet).
+- "Today is …" on the home page is part of the static page, refreshed hourly.
+- CI end-to-end job now starts local Supabase, so pages show real settings.

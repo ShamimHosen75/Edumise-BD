@@ -3,7 +3,8 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Colour tokens (shadcn "new-york", slate). Step 1.5 will override --primary from school_settings. */
+/* Colour tokens (shadcn "new-york", slate). --primary is overridden from school_settings
+   by a <style id="school-theme"> tag in the [lang] layout. */
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -45,6 +46,19 @@
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.551 0.027 264.364);
+}
+
+/* Fonts: Inter for English, Hind Siliguri for Bangla (chosen by the html lang attribute). */
+:root {
+  --app-font: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+html[lang="bn"] {
+  --app-font:
+    var(--font-hind), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+@theme {
+  --font-sans: var(--app-font);
 }
 
 @theme inline {

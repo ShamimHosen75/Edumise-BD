@@ -461,7 +461,8 @@ Record before/after scores in docs/qa-report.md.
    columns of `staff`? (Draft assumes a view.)
 3. **Phone login (1.4):** Supabase phone+password needs phone auth enabled. Alternative:
    look up the email for a phone number server-side, then sign in with email. Which?
-4. **Step order:** 1.4 (login, dashboard) comes before 1.5 (i18n). Should 1.4 build its
+4. ~~**Step order:**~~ RESOLVED: 1.5 built before 1.4 (owner: "continue"); the 1.5 settings
+   page is finished in 1.4. Original question: 1.4 (login, dashboard) comes before 1.5 (i18n). Should 1.4 build its
    pages with plain dictionary lookups, then switch to `t()` in 1.5? Or build 1.5 first?
 5. **school_settings columns:** 1.5 needs theme colours (primary, maybe secondary/accent).
    Draft 1.2 will include `primary_color`, `secondary_color`, `logo_path`.

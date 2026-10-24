@@ -9,14 +9,14 @@ function collectConsoleErrors(page: Page): string[] {
   return errors;
 }
 
-test("/ redirects to /en", async ({ page }) => {
+test("/ redirects to /en for an English browser", async ({ page }) => {
   await page.goto("/");
   await expect(page).toHaveURL(/\/en$/);
 });
 
 for (const [lang, heading] of [
-  ["en", "Welcome to Edumise BD"],
-  ["bn", "এডুমাইজ বিডি-তে স্বাগতম"],
+  ["en", "Welcome to Sunrise High School"],
+  ["bn", "সানরাইজ হাই স্কুল-এ স্বাগতম"],
 ] as const) {
   test(`/${lang} renders with no console errors and fits the screen`, async ({
     page,
@@ -36,14 +36,6 @@ for (const [lang, heading] of [
     expect(errors).toEqual([]);
   });
 }
-
-test("language link switches between en and bn", async ({ page }) => {
-  await page.goto("/en");
-  await page.getByRole("link", { name: "বাংলা" }).click();
-  await expect(page).toHaveURL(/\/bn$/);
-  await page.getByRole("link", { name: "English" }).click();
-  await expect(page).toHaveURL(/\/en$/);
-});
 
 test("unknown language returns 404", async ({ page }) => {
   const response = await page.goto("/fr");

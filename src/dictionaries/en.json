@@ -1,11 +1,22 @@
 {
   "meta": {
-    "title": "Edumise BD",
+    "title": "School website",
     "description": "School website and management system"
   },
+  "common": {
+    "changeLanguage": "Change language",
+    "logoAlt": "{school} logo"
+  },
   "home": {
-    "heading": "Welcome to Edumise BD",
+    "heading": "Welcome to {school}",
     "intro": "The school website is being set up. Please check back soon.",
-    "otherLanguage": "বাংলা"
+    "established": "Established {year}",
+    "eiin": "EIIN: {eiin}",
+    "today": "Today is {date}"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "The page you are looking for does not exist or has moved.",
+    "home": "Go to the home page"
   }
 }
