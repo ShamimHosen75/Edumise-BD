@@ -52,7 +52,14 @@ R = read, W = create/update/delete, — = no access.
 Acceptance: `/en` renders a placeholder page; all four npm checks pass; one sample unit
 test and one sample Playwright test run.
 
-## Step 1.2: database schema and seed [DRAFT]
+## Step 1.2: database schema and seed [APPROVED — owner said "continue", 2026-10-24]
+As built: 12 migrations create the tables needed by Steps 1.3–1.5 and every table named in
+1.3. Tables for later features are added by their own step's migration: menu_items,
+quick_links, footer_links (2.1/2.2), event_photos (2.3), ex_principals, contact_messages
+(2.4), admission tables and audit_log (3.3), calendar_entries, exam_schedules (3.5),
+mark_locks, results, board_results (4.2/4.3), certificates (4.4), payments,
+payment_allocations, payment_intents (5.2/5.3). school_settings holds only public fields,
+so no separate public view is needed. The original draft follows.
 Migrations (one file per area):
 1. Enums: `app_role`, `gender`, `attendance_status`, `payment_method`, `invoice_status`.
 2. `school_settings` (single row: name_en/bn, address_en/bn, logo_path, primary/secondary colour,

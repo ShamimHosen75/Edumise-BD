@@ -3,7 +3,7 @@
 | Step | Status | Notes |
 |---|---|---|
 | 1.1 Project setup | ✅ Done | See below |
-| 1.2 Schema + seed | Not started | Requirements are a draft awaiting review |
+| 1.2 Schema + seed | ✅ Done | See below |
 | 1.3 RLS policies | Not started | Blocked on 1.2 |
 | 1.4 Authentication | Not started | Blocked on 1.3 |
 | 1.5 i18n + theme | Not started | Blocked on 1.2 |
@@ -58,3 +58,37 @@ Known issues:
   advisories in the copy bundled with Next 15.
 - Local Supabase: edge runtime and analytics are disabled in `supabase/config.toml`
   (not used yet).
+
+---
+
+## Step 1.2 — database schema and seed ✅
+
+Checks (run locally, 2026-10-24): `db:reset` ✅ · `db:test` ✅ 4 files / 45 tests ·
+`supabase db lint` ✅ no issues · `db:types` ✅ · `lint` ✅ · `typecheck` ✅ · `test` ✅ 17/17 ·
+`build` ✅ · `test:e2e` ✅ 10/10.
+
+| Acceptance criterion | Result | Evidence |
+|---|---|---|
+| `npm run db:reset` applies all migrations + seed with no errors | ✅ Pass | 12 migrations + 3 seed files apply cleanly |
+| Types generate | ✅ Pass | `src/lib/supabase/database.types.ts`; CI fails if it is out of date |
+| Typecheck passes | ✅ Pass | `npm run typecheck` |
+| Every table has RLS enabled | ✅ Pass | `010_schema` "every public table has row level security enabled" |
+| No unexpected tables or views | ✅ Pass | `010_schema` `tables_are` / `views_are` |
+| Integrity rules hold | ✅ Pass | `010_schema`: 20 negative tests (one current session, roll unique per section, BD phone, 17-digit birth reg, NID, groups only Class 9–10, marks ≤ full, absent has no marks, teacher clash, money ≥ 0, no double billing, paid ≤ total …) |
+| One demo login per role, all can sign in | ✅ Pass | `020_seed`; manual: teacher gets a session, wrong password → `invalid_credentials` |
+| Public staff view has no private fields | ✅ Pass | `030_public_staff` (no NID, birth date, address, personal phone) |
+| Anon can read nothing yet | ✅ Pass | manual REST check: students, staff, settings, notices, public_staff all return `[]` |
+
+Decisions used (from the open questions): public_staff is a view (Q2); groups only for
+Classes 9–10 (Q12); exam status draft → marks_entry → review → published (Q27); fourth
+subject on enrollments (Q28); money in bigint poisha (5.1).
+
+Known issues:
+- No access rules yet, so the app cannot read any data. That is Step 1.3.
+- `public_staff` uses the reader's own permissions; Step 1.3 must grant anon the public
+  staff columns, or the public directory will be empty.
+- Demo seed is split into `supabase/seed.sql` + `supabase/seeds/*.sql` to keep each file
+  under ~300 lines. Generated `database.types.ts` (1,055 lines) is exempt.
+- SVG is not allowed in the `public-media` bucket (SVG files can carry scripts). Logos
+  must be PNG, JPG or WebP.
+- Profile `role` is NULL (no access) unless set by trusted server code via app_metadata.
