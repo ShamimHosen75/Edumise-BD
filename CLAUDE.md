@@ -54,3 +54,6 @@ school. Full requirements with IDs: `docs/requirements.md`. Build progress: `doc
 - Work step by step; do not build features from later steps.
 - If a requirement is unclear, ask instead of guessing.
 - At the end, give a short summary: what changed, how to test it manually, known issues.
+- After every step, run the "QA review" in `docs/prompts.md` before calling the step done.
+- Before a phase ends, run the "Code review" in `docs/prompts.md`. Bug fixes, change
+  requests and resuming a session follow the templates there too.
