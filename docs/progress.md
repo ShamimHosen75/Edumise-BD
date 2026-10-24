@@ -21,3 +21,5 @@
 | 4.3 Grading + results | Not started | Blocked on 4.2 |
 | 4.4 Certificates | Not started | Blocked on 4.3 |
 | 5.1 Fee setup + invoices | Not started | Blocked on 4.4 |
+| 5.2 Collection + reports | Not started | Blocked on 5.1 |
+| 5.3 Payment gateway adapter | Not started | Blocked on 5.2 |

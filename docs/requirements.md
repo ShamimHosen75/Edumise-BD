@@ -94,7 +94,10 @@ Migrations (one file per area):
    (session, class, group nullable, head, amount), `fee_waivers` (student, head, percent or
    fixed, reason, approved_by), `invoices` (student, period, due_date, status),
    `invoice_items` (head, period key, gross, waiver, net; unique student+head+period),
-   `payments`; late fine settings in `school_settings`.
+   `payments` (receipt_no, method, txn_id unique when set, collected_by, status
+   active/cancelled, cancel_reason), `payment_allocations` (payment → invoice_item, amount),
+   `payment_intents` (provider, provider_txn_id unique, amount, status); late fine and
+   `online_payment_enabled` in `school_settings`.
 - Storage buckets: `public-media` (public), `private-docs` (private).
 - `seed.sql`: fictional school "Sunrise High School"; one auth user per role (6),
   2 classes × 2 sections, students, guardians, a published and an unpublished exam,
@@ -352,6 +355,29 @@ invoices. Online payment is prepared but switched off until a gateway account ex
 - src/lib/fees.ts: apply waivers, compute totals, late fine, invoice status from payments.
   Exhaustive unit tests (rounding, 100% waiver, partial payments, overpayment rejected).
 
+## Step 5.2: collection and reports (FEE-03, FEE-04, FEE-06) [CONFIRMED]
+- Collect fee screen (accountant): search student by ID/roll/name -> shows unpaid invoices
+  -> select items -> amount, method (cash, bKash, Nagad, Rocket, bank), transaction ID
+  (required for mobile banking, unique) -> save -> receipt PDF (receipt no, items, paid,
+  due, in words in EN/BN, QR). Partial payments allowed; allocate to oldest first.
+- Cancel a payment with reason (admin only), keeps audit_log; never hard delete money rows.
+- Reports: daily collection (by method, by collector), dues by class/section/month with
+  guardian phone, head-wise income for a date range, student ledger. Export Excel and PDF.
+- Accountant dashboard widgets: today's collection, this month vs last month, top dues.
+- Guardian/student portal: invoices, payments, download receipts, total due banner.
+- Tests: RLS guardian sees only own children's invoices, teacher sees no fee data;
+  E2E generate invoices -> collect partial -> invoice status partial -> collect rest ->
+  paid -> guardian sees receipt.
+
+## Step 5.3: payment gateway abstraction (FEE-05, phase-2 ready) [CONFIRMED]
+- Define a PaymentProvider interface (createPayment, verifyPayment, handleWebhook) in
+  src/lib/payments/. Implement a "manual" provider and a "sandbox" mock provider; leave
+  stubs with TODO for bkash, nagad, sslcommerz.
+- Guardian "Pay now" button only shows when settings.online_payment_enabled = true.
+- Webhook route /api/payments/webhook/[provider] verifies signature, is idempotent
+  (payment_intents table, unique provider txn id), then records the payment.
+- Tests: unit tests for idempotency and amount mismatch rejection using the mock provider.
+
 ---
 
 ## Open questions
@@ -441,5 +467,13 @@ invoices. Online payment is prepared but switched off until a gateway account ex
 39. **Late fine (5.1):** stored on the invoice when charged, or computed live? Draft:
    computed live for display; frozen onto the invoice as a fine item when a payment is
    recorded. Applies per invoice, not per item.
-40. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
+40. **Allocation (5.2):** "select items" and "allocate to oldest first" together. Draft: the
+   accountant ticks items; a partial amount is spread over the ticked items oldest due
+   date first, fine items before the fee itself.
+41. **Cancelled payments (5.2):** cancelling restores the invoice to unpaid/partial and
+   keeps the receipt number (marked CANCELLED on reprint). Receipt numbers are sequential
+   per year (`RCP-2026-000123`) since receipts are not public. OK?
+42. **Mobile banking txn ID (5.2):** unique per method (bKash and Nagad IDs could clash)?
+   Draft: unique on (method, txn_id).
+43. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
    website modules above are a typical set and should be checked against it.
