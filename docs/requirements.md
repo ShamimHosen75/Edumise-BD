@@ -64,7 +64,8 @@ Migrations (one file per area):
    `students` (roll, section, private fields), `guardians`, `student_guardians`,
    `teacher_assignments` (teacher, section, subject; `is_class_teacher`).
 6. Public people: `public_staff` (view or table of non-private staff fields), `governing_body`.
-7. Website: `notices`, `events`, `pages`, `sliders`, `gallery_albums`, `gallery_images`,
+7. Website: `notices` (category, audience, target class, is_pinned, attachment), `news`,
+   `events`, `event_photos`, `pages`, `sliders`, `gallery_albums`, `gallery_images`,
    `downloads`, `menu_items` (parent_id, label_en/bn, href, sort_order), `quick_links`,
    `footer_links` — all with `_en`/`_bn` columns and `is_published` / `published_at`.
 8. `routine` (section, day, period, subject, teacher, start/end time).
@@ -162,6 +163,22 @@ digits in bn; changing the primary colour in settings changes the site colour.
 - Tests: HTML sanitiser unit test (strips script/onerror); E2E: admin edits a page in bn,
   publishes, public page shows new text.
 
+## Step 2.3: dynamic content modules (WEB-07, WEB-08, WEB-14, NOT-01) [CONFIRMED]
+For each module build: public list page with search + filters + pagination, public detail
+page, and dashboard CRUD with EN/BN fields, draft/publish, publish date, file upload.
+- Notices: category (general, exam, result, admission, holiday), audience (public, staff,
+  class), pin to top, PDF/image attachment with inline PDF preview and download,
+  share buttons (Facebook, WhatsApp, X, copy link). Teachers can create notices (draft);
+  admin publishes.
+- News: cover image, body.
+- Events: date/time, venue, photos; upcoming vs past tabs.
+- Gallery: albums with cover, photos uploaded in bulk (client-side resize to max 1600px,
+  WebP), lightbox with keyboard navigation and captions.
+- Downloads: category, file, size and type shown.
+- Every detail page gets Open Graph metadata. Add sitemap.ts and robots.ts.
+- Tests: unit test for slug/date helpers; RLS test: drafts invisible to anon;
+  E2E: create notice as draft -> not visible; publish -> visible on home ticker and list.
+
 ---
 
 ## Open questions
@@ -182,5 +199,10 @@ digits in bn; changing the primary colour in settings changes the site colour.
 8. **Menu tree (2.2):** which of the 33 seeded pages sit under which of the 10 top menus?
    Draft grouping will follow the slugs (e.g. physics-lab under Facilities) unless you paste
    the reference site's menu.
-9. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
+9. **Notice audience (2.3):** draft rule: `public` = anon; `staff` = staff roles only;
+   `class` = staff plus students/guardians of that class, shown in the dashboard only.
+   This also changes the Step 1.3 notice policies. Correct?
+10. **Teacher notice edits (2.3):** can a teacher edit or delete their own draft after
+   submitting it, and what happens if admin unpublishes it? Draft: own drafts only.
+11. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
    website modules above are a typical set and should be checked against it.
