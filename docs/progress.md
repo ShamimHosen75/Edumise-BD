@@ -18,3 +18,4 @@
 | 3.5 Routine | Not started | Blocked on 3.4 |
 | 4.1 Student attendance | Not started | Blocked on 3.5 |
 | 4.2 Exams + marks | Not started | Blocked on 4.1 |
+| 4.3 Grading + results | Not started | Blocked on 4.2 |

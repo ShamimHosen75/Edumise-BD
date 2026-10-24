@@ -85,7 +85,9 @@ Migrations (one file per area):
 10. Exams: `exams` (session, status draft/marks_entry/review/published, schedule_published),
    `exam_classes`, `exam_subjects` (class, subject, CQ/MCQ/practical full + pass marks,
    counts_in_gpa, locked), `marks` (student, exam_subject, cq, mcq, practical, is_absent),
-   per-student fourth subject on `enrollments`.
+   per-student fourth subject on `enrollments`; `results` (per student per exam: GPA,
+   GPA without fourth, grade, total, pass/fail, section + class position),
+   `result_subjects`; `board_results` (year, exam, examinees, passed, gpa5).
 11. Fees: `fee_heads`, `fee_structures`, `invoices`, `payments`.
 - Storage buckets: `public-media` (public), `private-docs` (private).
 - `seed.sql`: fictional school "Sunrise High School"; one auth user per role (6),
@@ -289,11 +291,40 @@ Public /[lang]/admission/apply multi-step form (progress bar, saves draft in loc
 - Tests: RLS teacher cannot write marks for other subjects or after lock; validation unit
   tests; E2E enter and lock marks.
 
+## Step 4.3: grading and results (EXM-03, EXM-04, EXM-05) [CONFIRMED]
+Business logic must be pure
+functions in src/lib/grading.ts with exhaustive unit tests (aim 100% coverage).
+Rules (Bangladesh SSC scale; read thresholds from school_settings.grading so it is
+configurable):
+  80-100 A+ 5.00 | 70-79 A 4.00 | 60-69 A- 3.50 | 50-59 B 3.00 | 40-49 C 2.00 |
+  33-39 D 1.00 | 0-32 F 0.00
+- Percent per subject = obtained / full * 100. Must also pass each part (CQ, MCQ,
+  practical) separately where pass marks are set; failing a part = F for the subject.
+- Fail (F) in any compulsory subject -> overall result Fail, GPA 0.00.
+- Fourth subject: only grade points above 2.00 are added (gp - 2).
+- GPA = (sum of compulsory GPs + fourth bonus) / number of compulsory subjects, capped at
+  5.00, rounded to 2 decimals. GPA without fourth subject also stored.
+- Absent in a subject = F.
+- Merit position within section and class: by total GPA, then total marks, then roll
+  (document tie rule).
+Then:
+- "Process results" action (admin) computes results rows for an exam in a DB transaction.
+- Tabulation sheet (section x subjects), report card / mark sheet PDF (school header,
+  photo, subject table, GPA, grade, position, attendance %, class teacher and head teacher
+  signature lines), bulk PDF for a section.
+- Publish exam -> results visible in student/guardian portal and public search.
+- Public /[lang]/result: select session, exam, class, section, group + roll -> mark sheet,
+  printable. Rate-limited. Board exam results page (WEB-11): admin enters year, examinees,
+  passed, GPA-5 count; public table + line chart of pass rate by year.
+- Test cases to include at minimum: all A+; one subject 32 -> Fail; CQ passed but MCQ
+  failed -> F; fourth subject A+ adds 3.00; GPA cap at 5.00; absent; tie ranking.
+
 ---
 
 ## Open questions
-1. **Public results (1.3):** should anon see results by roll number lookup only, or a full
-   list? Showing all students' marks publicly may conflict with the privacy rule.
+1. ~~**Public results (1.3):**~~ RESOLVED by 4.3: lookup by session/exam/class/section/
+   group + roll, rate-limited. Draft: anon gets results only through a function that
+   returns one mark sheet, not by reading the `results` table directly.
 2. **public_staff (1.3):** separate table maintained by admin, or a view exposing only safe
    columns of `staff`? (Draft assumes a view.)
 3. **Phone login (1.4):** Supabase phone+password needs phone auth enabled. Alternative:
@@ -352,5 +383,15 @@ Public /[lang]/admission/apply multi-step form (progress bar, saves draft in loc
 29. **Lock scope (4.2):** "Submit & lock" locks one exam_subject for one section, but
    `exam_subjects` is per class. Draft: a lock per exam_subject + section
    (`mark_locks` table), so one teacher's submit does not lock other sections.
-30. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
+30. **Percent rounding (4.3):** the scale uses whole numbers. Is 79.5% an A or an A+?
+   Draft: compare the exact percentage, no rounding (79.5 → A; 80 → A+).
+31. **Optional (non-fourth) subjects (4.3):** 3.1 has type compulsory / optional / fourth.
+   Do "optional" subjects count in GPA? Draft: only if `counts_in_gpa` is true, and then
+   they are treated as compulsory.
+32. **Two-paper subjects (4.3):** Bangla and English have 1st and 2nd papers in BD and are
+   graded as one combined subject. Draft: a `paper_group` on subjects; marks of both papers
+   are summed before grading. Needed?
+33. **Merit GPA (4.3):** rank by GPA *with* the fourth subject? Draft: yes; failed students
+   are ranked after all passed students.
+34. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
    website modules above are a typical set and should be checked against it.
