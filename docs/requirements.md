@@ -82,7 +82,10 @@ Migrations (one file per area):
    `exam_schedules` (exam, date, subject, start/end), `calendar_entries` (date range,
    type holiday/event, title_en/bn).
 9. `attendance` (student, date, status, marked_by; unique student+date).
-10. Exams: `exams` (is_published), `exam_subjects` (full/pass marks, locked), `marks`.
+10. Exams: `exams` (session, status draft/marks_entry/review/published, schedule_published),
+   `exam_classes`, `exam_subjects` (class, subject, CQ/MCQ/practical full + pass marks,
+   counts_in_gpa, locked), `marks` (student, exam_subject, cq, mcq, practical, is_absent),
+   per-student fourth subject on `enrollments`.
 11. Fees: `fee_heads`, `fee_structures`, `invoices`, `payments`.
 - Storage buckets: `public-media` (public), `private-docs` (private).
 - `seed.sql`: fictional school "Sunrise High School"; one auth user per role (6),
@@ -274,6 +277,18 @@ Public /[lang]/admission/apply multi-step form (progress bar, saves draft in loc
 - Tests: RLS teacher cannot mark another section; E2E teacher marks attendance on a
   360px viewport and guardian sees it.
 
+## Step 4.2: exams and marks (EXM-01, EXM-02) [CONFIRMED]
+- Exams: name EN/BN (Half Yearly, Annual, Pre-test, Test, Model), session, classes,
+  start/end date, status draft -> marks_entry -> review -> published.
+- Exam subjects per class: full and pass marks for CQ, MCQ, practical; total full marks;
+  whether it counts in GPA; fourth-subject flag per student group.
+- Marks entry: teacher picks exam + section + subject (only their assignments), grid of
+  students with inputs per part, validates 0..full marks, "absent" checkbox, autosave
+  draft, "Submit & lock". Admin can unlock. Show completion status per subject for admin.
+- Bulk import marks from Excel template.
+- Tests: RLS teacher cannot write marks for other subjects or after lock; validation unit
+  tests; E2E enter and lock marks.
+
 ---
 
 ## Open questions
@@ -330,5 +345,12 @@ Public /[lang]/admission/apply multi-step form (progress bar, saves draft in loc
 25. **3-day edit window (4.1):** calendar days or working days? Draft: 3 calendar days
    after the date, enforced in RLS as well as the server action.
 26. **Excluded on purpose:** no public attendance sheet page (the reference site has one).
-27. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
+27. **Exam status vs 1.3 (4.2):** Step 1.3 says "exam is published". Draft: published means
+   `status = 'published'`; the 1.3 policies use that instead of a boolean.
+28. **Fourth subject (4.2):** where is each student's fourth-subject choice stored? Draft:
+   `enrollments.fourth_subject_id`, set in Class 9 per group.
+29. **Lock scope (4.2):** "Submit & lock" locks one exam_subject for one section, but
+   `exam_subjects` is per class. Draft: a lock per exam_subject + section
+   (`mark_locks` table), so one teacher's submit does not lock other sections.
+30. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
    website modules above are a typical set and should be checked against it.
