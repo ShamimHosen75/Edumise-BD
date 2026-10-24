@@ -14,3 +14,4 @@
 | 3.1 Academic structure | Not started | Blocked on 2.4 |
 | 3.2 (missing) | — | Step text not supplied |
 | 3.3 Online admission | Not started | Blocked on 3.2 |
+| 3.4 Student management | Not started | Blocked on 3.3 |

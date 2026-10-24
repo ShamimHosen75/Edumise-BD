@@ -234,6 +234,19 @@ Public /[lang]/admission/apply multi-step form (progress bar, saves draft in loc
 - Tests: unit tests for phone/birth-reg validators and tracking no generator; RLS: anon
   cannot read applications; E2E full flow apply -> approve -> student appears in class list.
 
+## Step 3.4: student management (ADM-06, ADM-08, AUTH-04) [CONFIRMED]
+- Students list with filters (session, class, section, group, status) and search by
+  name/ID/roll/phone; student profile with tabs: Overview, Guardians, Academic history,
+  Attendance (placeholder), Results (placeholder), Fees (placeholder), Documents.
+- Add/edit student manually; link multiple guardians; one guardian can have many children.
+- Bulk import from Excel/CSV: download template, upload, preview with row-level validation
+  errors, then commit. Use SheetJS.
+- Year-end promotion tool: pick session + class, mark promoted/retained per student,
+  creates next-session enrollments with new rolls.
+- Student ID card PDF (front/back, photo, QR with student ID) using @react-pdf/renderer.
+- Guardian and student portal pages: "My children" / "My profile".
+- Tests: unit tests for CSV row validation and roll assignment; E2E import 10 students.
+
 ---
 
 ## Open questions
@@ -272,5 +285,12 @@ Public /[lang]/admission/apply multi-step form (progress bar, saves draft in loc
 16. **Birth registration no (3.3):** draft rule is exactly 17 digits (current BD format).
 17. **Admission statuses (3.3):** draft: submitted, under_review, test_scheduled,
    approved, rejected, waitlisted.
-18. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
+18. **Student ID format (3.4):** draft: `YYYY` + class + 4-digit serial, e.g. `2026060012`,
+   unique for life and printed on the ID card QR.
+19. **Promotion rolls (3.4):** new rolls by merit (final exam result, needs Step 4.x) or keep
+   the old order? Draft: by merit when a final result exists, otherwise by previous roll.
+20. **SheetJS (3.4):** the npm `xlsx` package is outdated and has known vulnerabilities;
+   SheetJS now ships from cdn.sheetjs.com. Draft: install the current version from that
+   URL (needs network access to cdn.sheetjs.com).
+21. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
    website modules above are a typical set and should be checked against it.
