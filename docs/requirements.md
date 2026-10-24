@@ -88,6 +88,8 @@ Migrations (one file per area):
    per-student fourth subject on `enrollments`; `results` (per student per exam: GPA,
    GPA without fourth, grade, total, pass/fail, section + class position),
    `result_subjects`; `board_results` (year, exam, examinees, passed, gpa5).
+   Certificates: `certificates` (ref_no, student, type, language, issued_at, issued_by,
+   status valid/revoked, revoked_reason).
 11. Fees: `fee_heads`, `fee_structures`, `invoices`, `payments`.
 - Storage buckets: `public-media` (public), `private-docs` (private).
 - `seed.sql`: fictional school "Sunrise High School"; one auth user per role (6),
@@ -319,6 +321,14 @@ Then:
 - Test cases to include at minimum: all A+; one subject 32 -> Fail; CQ passed but MCQ
   failed -> F; fourth subject A+ adds 3.00; GPA cap at 5.00; absent; tie ranking.
 
+## Step 4.4: certificates (WEB-12) [CONFIRMED]
+- Admin issues testimonial / transfer / character certificate for a student from templates
+  (EN/BN), each with a unique reference no and QR code linking to
+  /[lang]/verify/[ref]. PDF generation.
+- Public Verify page + header popup: enter reference no -> shows student name, certificate
+  type, issue date, status (valid/revoked). Show no other personal data.
+- Tests: E2E issue -> verify valid -> revoke -> verify shows revoked.
+
 ---
 
 ## Open questions
@@ -393,5 +403,13 @@ Then:
    are summed before grading. Needed?
 33. **Merit GPA (4.3):** rank by GPA *with* the fourth subject? Draft: yes; failed students
    are ranked after all passed students.
-34. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
+34. **Certificate reference no (4.4):** a sequential number (CERT-2026-00001) lets anyone
+   step through numbers and collect student names. Draft: random 10-character code
+   (e.g. `TC-7KQ2-M9XA-4P`), verify lookup rate-limited like results.
+35. **Certificate templates (4.4):** fixed layouts with fields filled from the student
+   record, or admin-editable template text? Draft: fixed layouts; admin can edit the
+   body text per certificate before issuing.
+36. **Transfer certificate (4.4):** should issuing one mark the student as transferred /
+   inactive? Draft: yes, with a confirmation step.
+37. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
    website modules above are a typical set and should be checked against it.

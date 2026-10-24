@@ -19,3 +19,4 @@
 | 4.1 Student attendance | Not started | Blocked on 3.5 |
 | 4.2 Exams + marks | Not started | Blocked on 4.1 |
 | 4.3 Grading + results | Not started | Blocked on 4.2 |
+| 4.4 Certificates | Not started | Blocked on 4.3 |
