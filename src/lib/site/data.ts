@@ -28,7 +28,7 @@ export const getMenuRows = cachedPublicQuery(
       await db()
         .from("menu_items")
         .select(
-          "id, parent_id, label_en, label_bn, url, page_id, sort_order, page:pages(slug, is_published)",
+          "id, parent_id, label_en, label_bn, url, page_id, sort_order, page:pages(slug, is_published, has_content)",
         )
         .order("sort_order"),
     ) as MenuRow[],
@@ -166,6 +166,8 @@ export type PageRow = Pick<
   | "seo_description_en"
   | "seo_description_bn"
   | "updated_at"
+  | "cover_path"
+  | "has_content"
 >;
 
 /** A published page (RLS hides drafts from visitors), or null. */
@@ -177,10 +179,25 @@ export const getPublishedPage = cachedPublicQuery<PageRow | null, [string]>(
       await db()
         .from("pages")
         .select(
-          "id, slug, title_en, title_bn, body_en, body_bn, seo_title_en, seo_title_bn, seo_description_en, seo_description_bn, updated_at",
+          "id, slug, title_en, title_bn, body_en, body_bn, seo_title_en, seo_title_bn, seo_description_en, seo_description_bn, updated_at, cover_path, has_content",
         )
         .eq("slug", slug)
         .maybeSingle(),
     ),
   null,
+);
+
+export const getPageAttachments = cachedPublicQuery(
+  "page-attachments",
+  [TAGS.pages],
+  async (pageId: number) =>
+    check(
+      await db()
+        .from("page_attachments")
+        .select("id, label_en, label_bn, file_path, mime_type, file_size")
+        .eq("page_id", pageId)
+        .order("sort_order")
+        .order("id"),
+    ),
+  [],
 );

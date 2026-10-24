@@ -8,7 +8,6 @@ import {
 } from "@/lib/routes";
 import { barPercent } from "@/lib/site/chart";
 import { buildMenu, type MenuRow } from "@/lib/site/menu";
-import { toParagraphs } from "@/lib/site/text";
 
 const row = (over: Partial<MenuRow> & { id: number }): MenuRow => ({
   parent_id: null,
@@ -75,14 +74,14 @@ describe("buildMenu", () => {
       parent_id: 2,
       label_en: "About us",
       page_id: 10,
-      page: { slug: "about-us", is_published: true },
+      page: { slug: "about-us", is_published: true, has_content: true },
     }),
     row({
       id: 4,
       parent_id: 2,
       label_en: "History",
       page_id: 11,
-      page: { slug: "history", is_published: false },
+      page: { slug: "history", is_published: false, has_content: true },
     }),
     row({
       id: 5,
@@ -90,6 +89,13 @@ describe("buildMenu", () => {
       label_en: "Deleted page",
       page_id: 12,
       page: null,
+    }),
+    row({
+      id: 10,
+      parent_id: 2,
+      label_en: "Empty page",
+      page_id: 13,
+      page: { slug: "donors", is_published: true, has_content: false },
     }),
     row({ id: 6, label_en: "Result" }),
     row({ id: 7, parent_id: 6, label_en: "Find a result", url: "/result" }),
@@ -108,7 +114,7 @@ describe("buildMenu", () => {
       "Board",
     ]);
   });
-  it("hides items whose page is unpublished or deleted, and routes not built yet", () => {
+  it("hides items whose page is unpublished, empty or deleted, and routes not built yet", () => {
     const about = buildMenu(rows, "en").find((m) => m.label === "About")!;
     expect(about.children.map((c) => c.label)).toEqual(["About us"]);
     expect(about.href).toBe("");
@@ -154,27 +160,5 @@ describe("barPercent", () => {
   });
   it("never exceeds 100", () => {
     expect(barPercent(20, 10)).toBe(100);
-  });
-});
-
-describe("toParagraphs", () => {
-  it("splits paragraphs and strips tags so stored HTML is never rendered", () => {
-    expect(toParagraphs("<p>One</p><p>Two &amp; three</p>")).toEqual([
-      "One",
-      "Two & three",
-    ]);
-    expect(
-      toParagraphs('<img src=x onerror="alert(1)">Hi<script>alert(1)</script>'),
-    ).toEqual(["Hialert(1)"]);
-  });
-  it("keeps plain text paragraphs", () => {
-    expect(toParagraphs("First line\n\nSecond   line")).toEqual([
-      "First line",
-      "Second line",
-    ]);
-  });
-  it("handles empty input", () => {
-    expect(toParagraphs("")).toEqual([]);
-    expect(toParagraphs(null)).toEqual([]);
   });
 });

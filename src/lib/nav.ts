@@ -2,7 +2,7 @@ import type { TranslationKey } from "@/i18n/t";
 import { ROLE_HOME_SEGMENT, type Role } from "@/lib/auth/roles";
 
 /** Icon names are mapped to lucide icons in the sidebar component. */
-export type NavIcon = "home" | "settings";
+export type NavIcon = "home" | "settings" | "pages" | "menu";
 
 export type NavItem = {
   key: string;
@@ -26,6 +26,20 @@ const ADMINS: readonly Role[] = ["super_admin", "admin"];
 /** Sidebar items. Later steps add their pages here. */
 export const NAV_ITEMS: readonly NavItem[] = [
   { key: "home", href: "", label: "nav.home", icon: "home", roles: ALL_ROLES },
+  {
+    key: "pages",
+    href: "/pages",
+    label: "nav.pages",
+    icon: "pages",
+    roles: ADMINS,
+  },
+  {
+    key: "menu",
+    href: "/menu",
+    label: "nav.menuBuilder",
+    icon: "menu",
+    roles: ADMINS,
+  },
   {
     key: "settings",
     href: "/settings",

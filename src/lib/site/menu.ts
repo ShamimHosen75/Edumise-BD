@@ -10,7 +10,11 @@ export type MenuRow = {
   label_bn: string;
   url: string | null;
   page_id: number | null;
-  page: { slug: string; is_published: boolean } | null;
+  page: {
+    slug: string;
+    is_published: boolean;
+    has_content: boolean | null;
+  } | null;
   sort_order: number;
 };
 
@@ -22,10 +26,12 @@ export type MenuLink = {
 };
 export type MenuEntry = MenuLink & { children: MenuLink[] };
 
-/** Where a row points, or null if it should not be shown (missing/unpublished page, unbuilt route). */
+/** Where a row points, or null if it should not be shown (missing, unpublished or empty page; unbuilt route). */
 function targetOf(row: MenuRow): string | null {
   if (row.page_id !== null) {
-    return row.page?.is_published ? `/p/${row.page.slug}` : null;
+    return row.page?.is_published && row.page.has_content
+      ? `/p/${row.page.slug}`
+      : null;
   }
   return isShowableLink(row.url) ? row.url : null;
 }

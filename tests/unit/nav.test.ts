@@ -11,8 +11,8 @@ const keys = (role: Role | null | undefined) =>
 
 describe("navForRole", () => {
   it("admins see the settings page", () => {
-    expect(keys("super_admin")).toEqual(["home", "settings"]);
-    expect(keys("admin")).toEqual(["home", "settings"]);
+    expect(keys("super_admin")).toEqual(["home", "pages", "menu", "settings"]);
+    expect(keys("admin")).toEqual(["home", "pages", "menu", "settings"]);
   });
   it.each(["teacher", "accountant", "student", "guardian"] as const)(
     "%s does not see settings",

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  formatBytes,
   formatWeekdayTime,
   formatCurrency,
   formatDate,
@@ -127,5 +128,19 @@ describe("formatWeekdayTime", () => {
   });
   it("rejects invalid dates", () => {
     expect(() => formatWeekdayTime("nope", "en")).toThrow(RangeError);
+  });
+});
+
+describe("formatBytes", () => {
+  it("picks a readable unit", () => {
+    expect(formatBytes(512, "en")).toBe("512 B");
+    expect(formatBytes(839_680, "en")).toBe("820 KB");
+    expect(formatBytes(2.3 * 1024 * 1024, "en")).toBe("2.3 MB");
+  });
+  it("uses Bangla digits and units in bn", () => {
+    expect(formatBytes(2.3 * 1024 * 1024, "bn")).toBe("২.৩ এমবি");
+  });
+  it("never goes negative", () => {
+    expect(formatBytes(-5, "en")).toBe("0 B");
   });
 });

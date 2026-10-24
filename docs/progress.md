@@ -8,7 +8,7 @@
 | 1.4 Authentication | ✅ Done | See below |
 | 1.5 i18n + theme | ✅ Done | Settings page finished with 1.4 |
 | 2.1 Site shell + home | ✅ Done | See below |
-| 2.2 CMS pages + menu | Not started | Blocked on 2.1 |
+| 2.2 CMS pages + menu | ✅ Done | See below |
 | 2.3 Content modules | Not started | Blocked on 2.2 |
 | 2.4 People + contact | Not started | Blocked on 2.3 |
 | 3.1 Academic structure | Not started | Blocked on 2.4 |
@@ -293,3 +293,46 @@ Known issues:
 - Local Supabase images skip Next's image optimizer (it refuses 127.0.0.1); production
   images are optimized.
 - 404 / 403 pages still have no site header and footer.
+
+---
+
+## Step 2.2 — CMS pages and menu ✅ (WEB-03, WEB-04)
+
+Checks (run locally, 2026-10-24): `lint` ✅ · `typecheck` ✅ · `test` ✅ 199 · `db:test` ✅
+14 files / 196 tests · `db lint` ✅ · types up to date ✅ · `build` ✅ · `test:e2e` ✅ 107
+passed, 5 skipped by design (desktop-only / phone-only checks) · `npm audit` 0.
+
+| Acceptance criterion | Result | Evidence |
+|---|---|---|
+| `/[lang]/p/[slug]`: title, rich content, cover image, attachments | ✅ Pass | e2e (Bangla edit published and shown; PDF attachment listed on the public page) |
+| Seed pages for every static menu item (33 slugs) | ✅ Pass | `supabase/seeds/04_site.sql`; grouped under About, Information, Academic, Admission, Facilities |
+| Dashboard Pages list with search and draft/published status | ✅ Pass | `/dashboard/pages` (search by title or address, status filter, "Empty" badge); e2e finds a page by search |
+| Editor with EN/BN tabs, Tiptap rich text, sanitised HTML, image upload, SEO title/description | ✅ Pass | `page-editor.tsx`, `rich-text-editor.tsx`; HTML sanitised on save and again on render |
+| Menu builder: add, rename EN/BN, reorder (up/down), link to page or URL, hide | ✅ Pass | `/dashboard/menu`; e2e adds an item, sees it in the header, moves items, deletes |
+| Items pointing to empty/unpublished pages hidden automatically | ✅ Pass | `pages.has_content` (generated); unit `buildMenu`; e2e: `donors` (empty) and `history` (draft) not in header, 404 |
+| Test: HTML sanitiser strips script / onerror | ✅ Pass | unit `cms.test.ts` (9 sanitiser tests) |
+| E2E: admin edits a page in bn, publishes, public page shows new text | ✅ Pass | `cms.spec.ts` |
+
+Negative tests: stored `<script>`, `onerror` and `javascript:` links do not run on the
+public page (e2e checks `window` was not touched); a fake PDF (HTML renamed .pdf) is
+refused by content; attachment paths outside `attachments/` and non-PDF/image types are
+rejected by the database; visitors cannot read attachments of drafts or change them;
+teachers get 403 on the page editor and menu builder and cannot edit pages via the API;
+unsafe menu URLs (`javascript:`, `http:`, missing slash) are rejected.
+
+Decisions:
+- Kept the editor's HTML allow-list small (headings, paragraphs, lists, quotes, tables,
+  links, images from our own storage). Images from other sites are removed so pages cannot
+  track visitors.
+- Dropped `@tailwindcss/typography` (its parser had a moderate advisory); page text uses a
+  short `.rich-text` style in `globals.css`.
+- In Bangla, the editor's heading buttons are "বড় শিরোনাম" / "ছোট শিরোনাম" so they are not
+  confused with the "শিরোনাম" (Title) field.
+- Pages list uses a plain server-rendered table; the shared TanStack DataTable comes in
+  Step 3.1 as specified there.
+
+Known issues:
+- Reorder is by up/down buttons (the spec allows "drag or up/down"); drag-and-drop not built.
+- Menu items cannot be moved between menus (delete and re-add instead).
+- Deleting a page does not delete its uploaded images from storage (attachments are deleted).
+- The link dialog in the editor uses the browser's prompt box.

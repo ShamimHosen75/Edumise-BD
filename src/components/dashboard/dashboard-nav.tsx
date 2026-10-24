@@ -3,13 +3,26 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Home, Menu, Settings, X, type LucideIcon } from "lucide-react";
+import {
+  FileText,
+  Home,
+  ListTree,
+  Menu,
+  Settings,
+  X,
+  type LucideIcon,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { isActive, type NavIcon, type NavItem } from "@/lib/nav";
 import { cn } from "@/lib/utils";
 
-const ICONS: Record<NavIcon, LucideIcon> = { home: Home, settings: Settings };
+const ICONS: Record<NavIcon, LucideIcon> = {
+  home: Home,
+  settings: Settings,
+  pages: FileText,
+  menu: ListTree,
+};
 
 export type NavLink = Pick<NavItem, "key" | "href" | "icon"> & {
   label: string;

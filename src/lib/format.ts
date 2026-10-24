@@ -96,3 +96,17 @@ export function formatWeekdayTime(value: DateInput, lang: Locale): string {
     hourCycle: "h23",
   }).format(date);
 }
+
+/** File size for people: "820 KB", "2.3 MB" / "৮২০ কেবি", "২.৩ এমবি". */
+export function formatBytes(bytes: number, lang: Locale): string {
+  const units =
+    lang === "bn" ? ["বাইট", "কেবি", "এমবি", "জিবি"] : ["B", "KB", "MB", "GB"];
+  let value = Math.max(0, bytes);
+  let unit = 0;
+  while (value >= 1024 && unit < units.length - 1) {
+    value /= 1024;
+    unit++;
+  }
+  const decimals = unit === 0 || value >= 10 ? 0 : 1;
+  return `${formatNumber(Number(value.toFixed(decimals)), lang, { decimals })} ${units[unit]}`;
+}

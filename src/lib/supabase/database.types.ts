@@ -625,16 +625,36 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"pages": {
+                },"page_attachments": {
                   Row: {
-                    "body_bn": string,"body_en": string,"cover_path": string | null,"created_at": string,"created_by": string | null,"id": number,"is_published": boolean,"published_at": string | null,"seo_description_bn": string,"seo_description_en": string,"seo_title_bn": string,"seo_title_en": string,"slug": string,"title_bn": string,"title_en": string,"updated_at": string
+                    "created_at": string,"file_path": string,"file_size": number,"id": number,"label_bn": string,"label_en": string,"mime_type": string,"page_id": number,"sort_order": number
                   }
                   ComputedFields: never
                   Insert: {
-                    "body_bn"?: string,"body_en"?: string,"cover_path"?: string | null,"created_at"?: string,"created_by"?: string | null,"id"?: never,"is_published"?: boolean,"published_at"?: string | null,"seo_description_bn"?: string,"seo_description_en"?: string,"seo_title_bn"?: string,"seo_title_en"?: string,"slug": string,"title_bn"?: string,"title_en": string,"updated_at"?: string
+                    "created_at"?: string,"file_path": string,"file_size": number,"id"?: never,"label_bn"?: string,"label_en": string,"mime_type": string,"page_id": number,"sort_order"?: number
                   }
                   Update: {
-                    "body_bn"?: string,"body_en"?: string,"cover_path"?: string | null,"created_at"?: string,"created_by"?: string | null,"id"?: never,"is_published"?: boolean,"published_at"?: string | null,"seo_description_bn"?: string,"seo_description_en"?: string,"seo_title_bn"?: string,"seo_title_en"?: string,"slug"?: string,"title_bn"?: string,"title_en"?: string,"updated_at"?: string
+                    "created_at"?: string,"file_path"?: string,"file_size"?: number,"id"?: never,"label_bn"?: string,"label_en"?: string,"mime_type"?: string,"page_id"?: number,"sort_order"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "page_attachments_page_id_fkey"
+      columns: ["page_id"]
+isOneToOne: false
+      referencedRelation: "pages"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"pages": {
+                  Row: {
+                    "body_bn": string,"body_en": string,"cover_path": string | null,"created_at": string,"created_by": string | null,"has_content": boolean | null,"id": number,"is_published": boolean,"published_at": string | null,"seo_description_bn": string,"seo_description_en": string,"seo_title_bn": string,"seo_title_en": string,"slug": string,"title_bn": string,"title_en": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "body_bn"?: string,"body_en"?: string,"cover_path"?: string | null,"created_at"?: string,"created_by"?: string | null,"has_content"?: never,"id"?: never,"is_published"?: boolean,"published_at"?: string | null,"seo_description_bn"?: string,"seo_description_en"?: string,"seo_title_bn"?: string,"seo_title_en"?: string,"slug": string,"title_bn"?: string,"title_en": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "body_bn"?: string,"body_en"?: string,"cover_path"?: string | null,"created_at"?: string,"created_by"?: string | null,"has_content"?: never,"id"?: never,"is_published"?: boolean,"published_at"?: string | null,"seo_description_bn"?: string,"seo_description_en"?: string,"seo_title_bn"?: string,"seo_title_en"?: string,"slug"?: string,"title_bn"?: string,"title_en"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     {

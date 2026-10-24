@@ -28,7 +28,12 @@ test("sidebar shows only the pages a role may open", async ({ page }, info) => {
   test.skip(info.project.name !== "desktop-chrome", "desktop sidebar");
   await loginAs(page, "admin@sunrise.test");
   const nav = page.getByRole("navigation", { name: "Dashboard navigation" });
-  await expect(nav.getByRole("link")).toHaveText(["Home", "School settings"]);
+  await expect(nav.getByRole("link")).toHaveText([
+    "Home",
+    "Pages",
+    "Website menu",
+    "School settings",
+  ]);
   await logout(page);
 
   await loginAs(page, "teacher@sunrise.test");

@@ -21,7 +21,9 @@ export function FormField({ id, label, hint, error, children }: Props) {
   const describedBy = [hintId, errorId].filter(Boolean).join(" ") || undefined;
   return (
     <div className="flex flex-col gap-1.5">
-      <Label htmlFor={id}>{label}</Label>
+      <Label htmlFor={id} id={`${id}-label`}>
+        {label}
+      </Label>
       {children({
         id,
         "aria-invalid": Boolean(error),

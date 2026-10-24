@@ -1,9 +1,11 @@
 export type ImageType = "image/png" | "image/jpeg" | "image/webp";
+export type DocumentType = ImageType | "application/pdf";
 
-const EXTENSIONS: Record<ImageType, string> = {
+const EXTENSIONS: Record<DocumentType, string> = {
   "image/png": "png",
   "image/jpeg": "jpg",
   "image/webp": "webp",
+  "application/pdf": "pdf",
 };
 
 /**
@@ -21,6 +23,13 @@ export function detectImageType(bytes: Uint8Array): ImageType | null {
   return null;
 }
 
-export function imageExtension(type: ImageType): string {
+export function imageExtension(type: DocumentType): string {
   return EXTENSIONS[type];
+}
+
+/** PDF or image, detected from the file's first bytes ("%PDF-" for PDF). */
+export function detectDocumentType(bytes: Uint8Array): DocumentType | null {
+  const pdf = [0x25, 0x50, 0x44, 0x46, 0x2d];
+  if (pdf.every((b, i) => bytes[i] === b)) return "application/pdf";
+  return detectImageType(bytes);
 }
