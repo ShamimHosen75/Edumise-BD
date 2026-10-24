@@ -59,7 +59,10 @@ Migrations (one file per area):
    phone, email, social links, EIIN, institution code, center code, established year,
    head teacher message_en/bn + photo).
 3. `profiles` (id → auth.users, role, full_name_en/bn, must_change_password).
-4. Academic: `academic_years`, `classes` (6–10), `sections`, `subjects`, `class_subjects`.
+4. Academic: `academic_sessions` (is_current, only one), `classes` (6–10), `sections`
+   (capacity, class_teacher_id), `groups` (Science, Business Studies, Humanities),
+   `subjects` (code, name_en/bn, type compulsory/optional/fourth), `class_subjects`
+   (class, group nullable, subject).
 5. People: `staff` (private fields: nid, birth_date, address, personal_phone),
    `students` (roll, section, private fields), `guardians`, `student_guardians`,
    `teacher_assignments` (teacher, section, subject; `is_class_teacher`).
@@ -195,6 +198,15 @@ page, and dashboard CRUD with EN/BN fields, draft/publish, publish date, file up
 - Tests: E2E asserts a staff profile page HTML does not contain the seeded NID, birth date
   or address; contact form validation errors show in both languages.
 
+## Step 3.1: academic structure management (admin) [CONFIRMED]
+- Dashboard pages: Sessions (set one as current), Classes, Sections (per class, capacity,
+  class teacher), Groups (Science, Business Studies, Humanities), Subjects (code, name EN/BN,
+  type: compulsory / optional / fourth), Class-Subjects mapping per class and group.
+- Reusable DataTable component (TanStack): search, column filters, sort, pagination,
+  CSV export, row actions, empty and loading states. Use it everywhere from now on.
+- Reusable FormDialog pattern with react-hook-form + Zod + server action + toast.
+- Tests: unit tests for Zod schemas; E2E: create session -> class -> section -> map subjects.
+
 ---
 
 ## Open questions
@@ -222,5 +234,7 @@ page, and dashboard CRUD with EN/BN fields, draft/publish, publish date, file up
    submitting it, and what happens if admin unpublishes it? Draft: own drafts only.
 11. **Rate limit (2.4):** no Redis in the stack. Draft: count rows in `contact_messages`
    by a salted hash of the IP over the last hour (raw IPs are not stored). OK?
-12. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
+12. **Groups (3.1):** in Bangladesh groups usually start in Class 9. Draft: groups apply to
+   Classes 9–10 only; Classes 6–8 map subjects with no group. Correct?
+13. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
    website modules above are a typical set and should be checked against it.

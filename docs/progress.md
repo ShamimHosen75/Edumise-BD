@@ -11,3 +11,4 @@
 | 2.2 CMS pages + menu | Not started | Blocked on 2.1 |
 | 2.3 Content modules | Not started | Blocked on 2.2 |
 | 2.4 People + contact | Not started | Blocked on 2.3 |
+| 3.1 Academic structure | Not started | Blocked on 2.4 |
