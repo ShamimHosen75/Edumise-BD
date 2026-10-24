@@ -10,3 +10,4 @@
 | 2.1 Site shell + home | Not started | Blocked on 1.5 |
 | 2.2 CMS pages + menu | Not started | Blocked on 2.1 |
 | 2.3 Content modules | Not started | Blocked on 2.2 |
+| 2.4 People + contact | Not started | Blocked on 2.3 |

@@ -63,7 +63,10 @@ Migrations (one file per area):
 5. People: `staff` (private fields: nid, birth_date, address, personal_phone),
    `students` (roll, section, private fields), `guardians`, `student_guardians`,
    `teacher_assignments` (teacher, section, subject; `is_class_teacher`).
-6. Public people: `public_staff` (view or table of non-private staff fields), `governing_body`.
+6. Public people: `designations` (name_en/bn, rank), `public_staff` (view exposing only photo,
+   name, designation, subjects, qualification, joining year, bio, is_current),
+   `governing_body` (term_start/end, is_current), `ex_principals`.
+   Contact: `contact_messages` (is_read, ip_hash for rate limiting).
 7. Website: `notices` (category, audience, target class, is_pinned, attachment), `news`,
    `events`, `event_photos`, `pages`, `sliders`, `gallery_albums`, `gallery_images`,
    `downloads`, `menu_items` (parent_id, label_en/bn, href, sort_order), `quick_links`,
@@ -179,6 +182,19 @@ page, and dashboard CRUD with EN/BN fields, draft/publish, publish date, file up
 - Tests: unit test for slug/date helpers; RLS test: drafts invisible to anon;
   E2E: create notice as draft -> not visible; publish -> visible on home ticker and list.
 
+## Step 2.4: people and contact pages (WEB-05, WEB-06, WEB-15) [CONFIRMED]
+- Teachers and Staff directory: current and former, grouped/ordered by designation rank
+  (Head Teacher, Assistant Head Teacher, Senior Teacher, Assistant Teacher, Instructor, Staff),
+  cards with photo, name, designation, subject. Profile page shows ONLY public fields
+  (photo, name, designation, subjects, qualification, joining year, short bio).
+- Governing body and ex-governing body grouped by term; ex-principals list.
+- Dashboard CRUD for governing body and ex-principals.
+- Contact page: form (name, phone, email, subject, message) with Zod validation,
+  honeypot + rate limit (5/hour per IP), saves to contact_messages; Google Maps embed from
+  settings; office hours. Admin inbox page to read/mark messages.
+- Tests: E2E asserts a staff profile page HTML does not contain the seeded NID, birth date
+  or address; contact form validation errors show in both languages.
+
 ---
 
 ## Open questions
@@ -204,5 +220,7 @@ page, and dashboard CRUD with EN/BN fields, draft/publish, publish date, file up
    This also changes the Step 1.3 notice policies. Correct?
 10. **Teacher notice edits (2.3):** can a teacher edit or delete their own draft after
    submitting it, and what happens if admin unpublishes it? Draft: own drafts only.
-11. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
+11. **Rate limit (2.4):** no Redis in the stack. Draft: count rows in `contact_messages`
+   by a salted hash of the IP over the last hour (raw IPs are not stored). OK?
+12. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
    website modules above are a typical set and should be checked against it.
