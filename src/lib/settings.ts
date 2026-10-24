@@ -15,7 +15,10 @@ export const SETTINGS_TAG = "school-settings";
 // brief database outage is never remembered for the next hour.
 const loadSettings = unstable_cache(
   async (): Promise<SchoolSettings | null> => {
-    const { data, error } = await createPublicClient().from("school_settings").select("*").maybeSingle();
+    const { data, error } = await createPublicClient()
+      .from("school_settings")
+      .select("*")
+      .maybeSingle();
     if (error) throw new Error(error.message);
     return data;
   },

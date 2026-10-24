@@ -8,7 +8,12 @@ const nextConfig: NextConfig = {
   images: {
     // Logos and photos come from the Supabase public-media bucket.
     remotePatterns: supabaseUrl
-      ? [{ ...urlParts(supabaseUrl), pathname: "/storage/v1/object/public/public-media/**" }]
+      ? [
+          {
+            ...urlParts(supabaseUrl),
+            pathname: "/storage/v1/object/public/public-media/**",
+          },
+        ]
       : [],
   },
 };
