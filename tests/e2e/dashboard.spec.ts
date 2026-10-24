@@ -30,6 +30,11 @@ test("sidebar shows only the pages a role may open", async ({ page }, info) => {
   const nav = page.getByRole("navigation", { name: "Dashboard navigation" });
   await expect(nav.getByRole("link")).toHaveText([
     "Home",
+    "Notices",
+    "News",
+    "Events",
+    "Gallery",
+    "Downloads",
     "Pages",
     "Website menu",
     "School settings",
@@ -37,7 +42,7 @@ test("sidebar shows only the pages a role may open", async ({ page }, info) => {
   await logout(page);
 
   await loginAs(page, "teacher@sunrise.test");
-  await expect(nav.getByRole("link")).toHaveText(["Home"]);
+  await expect(nav.getByRole("link")).toHaveText(["Home", "Notices"]);
 });
 
 test("the dashboard renders in Bangla", async ({ page }) => {

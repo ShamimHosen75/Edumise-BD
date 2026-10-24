@@ -9,8 +9,8 @@
 | 1.5 i18n + theme | ✅ Done | Settings page finished with 1.4 |
 | 2.1 Site shell + home | ✅ Done | See below |
 | 2.2 CMS pages + menu | ✅ Done | See below |
-| 2.3 Content modules | Not started | Blocked on 2.2 |
-| 2.4 People + contact | Not started | Blocked on 2.3 |
+| 2.3 Content modules | ✅ Done | See below |
+| 2.4 People + contact | Not started | Next |
 | 3.1 Academic structure | Not started | Blocked on 2.4 |
 | 3.2 Staff management | Not started | Title only; body still needed |
 | 3.3 Online admission | Not started | Blocked on 3.2 |
@@ -336,3 +336,62 @@ Known issues:
 - Menu items cannot be moved between menus (delete and re-add instead).
 - Deleting a page does not delete its uploaded images from storage (attachments are deleted).
 - The link dialog in the editor uses the browser's prompt box.
+
+## Step 2.3 — content modules ✅ (WEB-07, WEB-08, WEB-14, NOT-01)
+
+Checks (run locally, 2026-10-24): `lint` ✅ · `typecheck` ✅ · `test` ✅ 233 · `db:test` ✅
+15 files / 220 tests · `db lint` ✅ · types up to date ✅ · `build` ✅ · `test:e2e` ✅
+137 passed, 5 skipped by design (desktop-only / phone-only checks) · `npm audit` 0.
+
+| Acceptance criterion | Result | Evidence |
+|---|---|---|
+| Public list page per module with search, filters and pagination | ✅ Pass | `/notices` (search + category), `/news` (search), `/events` (upcoming/past), `/gallery`, `/downloads` (search + category); 10 per page; e2e pagination, category filter, search |
+| Public detail page per module | ✅ Pass | `/notices/[slug]`, `/news/[slug]`, `/events/[slug]`, `/gallery/[slug]`, `/downloads/[id]`; e2e `content-pages.spec.ts` (en + bn, 200, no console errors, no sideways scroll at 360 px) |
+| Dashboard CRUD with EN/BN fields, draft/publish, publish date, file upload | ✅ Pass | `/dashboard/{notices,news,events,gallery,downloads}`: list (search, status draft/scheduled/published), create, edit, delete, file upload; e2e creates notices, a download and an album |
+| Notices: category, audience (public/staff/class), pin, PDF/image attachment with inline PDF preview and download, share buttons | ✅ Pass | notice form + `FileAttachment` (`<object>` PDF preview, download link) + `ShareButtons` (Facebook, WhatsApp, X, copy link); e2e "notice page previews the PDF…" |
+| Teachers create notice drafts; admin publishes | ✅ Pass | RLS policies (migration 2200) + server forces draft; pgTAP `220_content_modules` (12 teacher checks); e2e "a teacher writes a notice draft and an admin publishes it" |
+| News: cover image, body | ✅ Pass | cover upload on the edit page; cards with cover and excerpt |
+| Events: date/time, venue, photos; upcoming vs past tabs | ✅ Pass | start/end in Bangladesh time, venue EN/BN, photos from a linked album; e2e "events are split into upcoming and past" |
+| Gallery: albums with cover, bulk photo upload resized to max 1600 px WebP in the browser, lightbox with keyboard and captions | ✅ Pass | `album-photos.tsx` + `resize-image.ts`; captions EN/BN, set cover, remove; e2e bulk upload of 2 photos and lightbox arrow keys / Escape / focus return |
+| Downloads: category, file, size and type shown | ✅ Pass | e2e "downloads show category, size and type…" |
+| Open Graph metadata on every detail page; `sitemap.ts` and `robots.ts` | ✅ Pass | `detailMetadata()` (title, description, image, canonical, hreflang, Twitter card); unit + e2e "sitemap and robots are served" (drafts not listed) |
+| Unit test for slug/date helpers | ✅ Pass | `content.test.ts`, `content-admin.test.ts` (Dhaka time round trip, schedule, status, sitemap, OG) |
+| RLS test: drafts invisible to anon | ✅ Pass | pgTAP `220_content_modules` (draft notices, news, events, albums, downloads and scheduled notices hidden) |
+| E2E: draft not visible → publish → visible on home ticker and list | ✅ Pass | `content.spec.ts` first test |
+
+Negative tests: a teacher cannot publish (insert or update), write in someone else's name,
+see or edit others' drafts, edit or delete published notices, write news, or upload outside
+`notices/<own id>/`; a published download without a file is refused by the database and
+the form says "Upload the file before publishing."; downloads accept only the fixed
+categories; a student gets 403 on content editors; unknown items, ids and modules are 404;
+the event form rejects an end before the start and a bad address; uploads are checked by
+their real content (PDF/PNG/JPG/WebP) and size.
+
+Decisions:
+- Event photos come from a linked gallery album (`events.album_id`) instead of a second
+  photo table, so photos are uploaded and captioned in one place.
+- `downloads.file_path` is now optional so a download can be saved before its file is
+  uploaded; a database check keeps published downloads from having no file.
+- One generic dashboard (`/dashboard/[module]`) serves all five modules; the module list,
+  roles and file column live in `src/lib/content/modules.ts`.
+- Uploads are limited to 4 MB for attachments/downloads and 2 MB for images: Vercel
+  accepts request bodies up to 4.5 MB. Server actions now accept 5 MB bodies (was 2 MB).
+  The browser checks the size first and shows "The file is too large." This also fixes the
+  Step 2.2 page attachments, which said 10 MB but could not take more than 2 MB.
+- The home page "Latest notices", "Upcoming events" and "Gallery" sections now link to
+  their full lists, and event titles link to the event page.
+- A shared error page (`[lang]/error.tsx`, "Try again") replaces the framework's default
+  when a page fails to load.
+
+Known issues:
+- Scheduled items appear up to an hour after their publish time (pages are cached for an
+  hour; saving in the dashboard refreshes them at once).
+- Staff and class notices are stored but shown nowhere yet; the portal notice board comes
+  with the student/teacher portal steps.
+- The PDF preview depends on the browser's PDF viewer; where it has none (some phones) the
+  page shows "Open the PDF" and the download link instead.
+- Photos are uploaded one at a time (with progress); there is no drag-to-reorder.
+- Teachers cannot delete files they uploaded to a draft (Storage has no delete policy for
+  them); replaced files stay in Storage until an admin cleans up.
+- Detail pages do not repeat the school name in `og:site_name`.
+

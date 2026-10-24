@@ -14,6 +14,11 @@ import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import type { Locale } from "@/i18n/config";
 import { msg, type Messages } from "@/i18n/messages";
+import {
+  ATTACHMENT_MAX_BYTES,
+  fileTooLarge,
+  IMAGE_MAX_BYTES,
+} from "@/lib/files";
 
 export type AttachmentItem = {
   id: number;
@@ -48,10 +53,19 @@ export function PageMedia({
   const run = (
     action: () => Promise<{ ok: boolean; error?: string }>,
     form?: HTMLFormElement,
-  ) =>
+    max?: number,
+  ) => {
+    // Too large a body would fail before the server can answer, so check here first.
+    if (form && max && fileTooLarge(new FormData(form).get("file"), max)) {
+      setStatus({ ok: false, text: m("errors.fileSize") });
+      return;
+    }
     start(async () => {
       setStatus(null);
-      const result = await action();
+      const result = await action().catch(() => ({
+        ok: false,
+        error: "errors.uploadFailed",
+      }));
       setStatus(
         result.ok
           ? { ok: true, text: m("cms.done") }
@@ -62,6 +76,7 @@ export function PageMedia({
         router.refresh();
       }
     });
+  };
 
   return (
     <section
@@ -84,7 +99,11 @@ export function PageMedia({
           onSubmit={(e) => {
             e.preventDefault();
             const form = e.currentTarget;
-            run(() => setPageCover(lang, pageId, new FormData(form)), form);
+            run(
+              () => setPageCover(lang, pageId, new FormData(form)),
+              form,
+              IMAGE_MAX_BYTES,
+            );
           }}
         >
           <FormField
@@ -156,7 +175,11 @@ export function PageMedia({
           onSubmit={(e) => {
             e.preventDefault();
             const form = e.currentTarget;
-            run(() => addAttachment(lang, pageId, new FormData(form)), form);
+            run(
+              () => addAttachment(lang, pageId, new FormData(form)),
+              form,
+              ATTACHMENT_MAX_BYTES,
+            );
           }}
         >
           <FormField id="att-label" label={m("cms.attachmentLabel")}>

@@ -14,6 +14,8 @@ export const TAGS = {
   staff: "staff",
   stats: "stats",
   pages: "pages",
+  news: "news",
+  downloads: "downloads",
 } as const;
 
 /**

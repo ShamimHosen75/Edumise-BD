@@ -3,6 +3,7 @@ import { Pin } from "lucide-react";
 
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
+import { t } from "@/i18n/t";
 import { formatDate, pickLocalized } from "@/lib/format";
 import { isAvailableRoute, localizeHref } from "@/lib/routes";
 
@@ -17,7 +18,7 @@ export type NoticeRow = {
   published_at: string | null;
 };
 
-/** Latest 5 public notices. Titles link to the notice page once it exists (Step 2.3). */
+/** Latest 5 public notices, linking to their pages. */
 export function LatestNotices({
   lang,
   dict,
@@ -29,7 +30,14 @@ export function LatestNotices({
 }) {
   if (notices.length === 0) return null;
   return (
-    <Section id="notices" title={dict.site.home.latestNotices}>
+    <Section
+      id="notices"
+      title={dict.site.home.latestNotices}
+      more={{
+        href: `/${lang}/notices`,
+        label: t(dict, "content.allItems", { section: dict.content.notices }),
+      }}
+    >
       <ul className="bg-card divide-y rounded-xl border">
         {notices.map((n) => {
           const path = `/notices/${n.slug}`;

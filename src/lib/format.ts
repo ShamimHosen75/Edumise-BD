@@ -110,3 +110,16 @@ export function formatBytes(bytes: number, lang: Locale): string {
   const decimals = unit === 0 || value >= 10 ? 0 : 1;
   return `${formatNumber(Number(value.toFixed(decimals)), lang, { decimals })} ${units[unit]}`;
 }
+
+/** Date and 24-hour time in Bangladesh time: "24 October 2026, 09:00" / "২৪ অক্টোবর, ২০২৬ ৯:০০". */
+export function formatDateTime(value: DateInput, lang: Locale): string {
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime()))
+    throw new RangeError(`Invalid date: ${String(value)}`);
+  return new Intl.DateTimeFormat(lang === "bn" ? "bn-BD" : "en-GB", {
+    timeZone: SCHOOL_TIME_ZONE,
+    dateStyle: "long",
+    timeStyle: "short",
+    hourCycle: "h23",
+  }).format(date);
+}

@@ -2,6 +2,7 @@ import Image from "next/image";
 
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
+import { t } from "@/i18n/t";
 import { pickLocalized } from "@/lib/format";
 import { publicMediaUrl } from "@/lib/supabase/public";
 
@@ -30,7 +31,14 @@ export function GalleryPreview({
   });
   if (shown.length === 0) return null;
   return (
-    <Section id="gallery" title={dict.site.home.gallery}>
+    <Section
+      id="gallery"
+      title={dict.site.home.gallery}
+      more={{
+        href: `/${lang}/gallery`,
+        label: t(dict, "content.allItems", { section: dict.content.gallery }),
+      }}
+    >
       <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {shown.map((img) => {
           const caption = pickLocalized(img, "caption", lang);

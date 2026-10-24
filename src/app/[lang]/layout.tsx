@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { isLocale, locales } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { schoolName } from "@/lib/school";
+import { getSiteUrl } from "@/lib/site-url";
 import { getSchoolSettings } from "@/lib/settings";
 import { buildThemeCss } from "@/lib/theme";
 
@@ -45,9 +46,11 @@ export async function generateMetadata({
   ]);
   const name = schoolName(settings, lang, dict);
   return {
+    metadataBase: new URL(getSiteUrl()),
     title: { default: name, template: `%s | ${name}` },
     description: dict.meta.description,
     alternates: { languages: { en: "/en", bn: "/bn" } },
+    openGraph: { siteName: name, locale: lang === "bn" ? "bn_BD" : "en_GB" },
   };
 }
 

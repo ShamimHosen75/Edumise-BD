@@ -28,12 +28,24 @@ describe("route registry", () => {
       "/forgot-password",
       "/p/about-us",
       "/p/ict-lab",
+      "/notices",
+      "/notices/exam-routine-2026",
+      "/news",
+      "/events/annual-sports-2026",
+      "/gallery",
+      "/gallery/annual-sports-2025",
+      "/downloads",
+      "/downloads/12",
     ])
       expect(isAvailableRoute(p)).toBe(true);
   });
   it("hides pages from later steps and odd paths", () => {
     for (const p of [
-      "/notices",
+      "/teachers",
+      "/notices/Exam",
+      "/downloads/0",
+      "/downloads/abc",
+      "/news/a/b",
       "/admission/apply",
       "/contact",
       "/p/",

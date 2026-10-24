@@ -25,8 +25,17 @@ export function createPublicClient() {
 export function publicMediaUrl(path: string | null | undefined): string | null {
   if (!path) return null;
   // Demo school photos ship with the app (public/demo); real uploads live in Storage.
-  if (/^demo\/[a-z0-9-]+\.(jpg|png|webp)$/.test(path)) return `/${path}`;
+  if (/^demo\/[a-z0-9-]+\.(jpg|png|webp|pdf)$/.test(path)) return `/${path}`;
   const { NEXT_PUBLIC_SUPABASE_URL } = getPublicEnv();
   const safe = path.split("/").map(encodeURIComponent).join("/");
   return `${NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/public-media/${safe}`;
+}
+
+/** Link that downloads the file instead of opening it (Storage honours ?download). */
+export function publicDownloadUrl(
+  path: string | null | undefined,
+): string | null {
+  const url = publicMediaUrl(path);
+  if (!url) return null;
+  return url.startsWith("/") ? url : `${url}?download=`;
 }

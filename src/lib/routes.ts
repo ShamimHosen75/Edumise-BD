@@ -8,6 +8,10 @@ const AVAILABLE: readonly RegExp[] = [
   /^\/login$/,
   /^\/forgot-password$/,
   /^\/p\/[a-z0-9]+(?:-[a-z0-9]+)*$/,
+  // Step 2.3
+  /^\/(notices|news|events|gallery|downloads)$/,
+  /^\/(notices|news|events|gallery)\/[a-z0-9]+(?:-[a-z0-9]+)*$/,
+  /^\/downloads\/[1-9][0-9]*$/,
 ];
 
 export function isAvailableRoute(path: string): boolean {

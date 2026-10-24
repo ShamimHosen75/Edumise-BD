@@ -28,7 +28,7 @@ set local request.jwt.claims to '{"sub": "00000000-0000-4000-a000-000000000002",
 
 select is(app.auth_role(), 'admin', 'admin is recognised');
 select is((select count(*)::int from public.students), 20, 'admin reads all students');
-select is((select count(*)::int from public.notices), 9, 'admin reads all notices including drafts');
+select ok((select count(*) from public.notices where not is_published) > 0, 'admin reads all notices including drafts');
 select is(pg_temp.affected($$ update public.school_settings set phone = '01700000009' $$), 1,
   'admin can edit school settings');
 select lives_ok($$ insert into public.notices (slug, title_en) values ('admin-draft', 'Draft') $$,

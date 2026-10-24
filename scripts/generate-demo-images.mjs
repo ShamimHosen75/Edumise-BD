@@ -114,3 +114,40 @@ for (const s of scenes) {
 }
 // eslint-disable-next-line no-console -- command-line script
 console.log(`Wrote ${scenes.length} images to public/demo/`);
+
+// A tiny valid one-page PDF for demo notices and downloads.
+import { writeFileSync } from "node:fs";
+
+function demoPdf(title) {
+  const text = `BT /F1 24 Tf 72 720 Td (${title}) Tj ET`;
+  const objects = [
+    "<< /Type /Catalog /Pages 2 0 R >>",
+    "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+    "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>",
+    `<< /Length ${text.length} >>\nstream\n${text}\nendstream`,
+    "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+  ];
+  let body = "%PDF-1.4\n";
+  const offsets = [];
+  objects.forEach((o, i) => {
+    offsets.push(body.length);
+    body += `${i + 1} 0 obj\n${o}\nendobj\n`;
+  });
+  const xref = body.length;
+  body += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+  body += offsets
+    .map((o) => `${String(o).padStart(10, "0")} 00000 n \n`)
+    .join("");
+  body += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
+  return body;
+}
+writeFileSync(
+  "public/demo/notice-sample.pdf",
+  demoPdf("Sunrise High School - Notice"),
+);
+writeFileSync(
+  "public/demo/calendar-2026.pdf",
+  demoPdf("Sunrise High School - Academic calendar 2026"),
+);
+// eslint-disable-next-line no-console -- command-line script
+console.log("Wrote 2 demo PDFs to public/demo/");

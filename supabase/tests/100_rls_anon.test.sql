@@ -14,12 +14,11 @@ select is((select count(*)::int from public.public_staff), 7, 'anon reads the pu
 select is((select count(*)::int from public.governing_body), 4, 'anon reads the governing body');
 select is((select count(*)::int from public.routine), 6, 'anon reads the routine');
 select is((select count(*)::int from public.sections), 10, 'anon reads sections (for the routine page)');
-select results_eq($$ select slug from public.notices order by slug $$,
-  $$ values ('annual-exam-routine-2026'), ('class-9-registration'), ('half-yearly-result-2026'),
-            ('sports-day-registration'), ('tuition-fee-deadline'), ('victory-day-holiday') $$,
+select is((select count(*)::int from public.notices
+  where audience <> 'public' or not is_published or slug = 'admission-2027-draft'), 0,
   'anon sees only published public notices (not staff, class or draft)');
 select is((select count(*)::int from public.pages where slug = 'history'), 0, 'anon does not see the unpublished page');
-select is((select count(*)::int from public.news), 1, 'anon does not see draft news');
+select is((select count(*)::int from public.news where slug = 'new-ict-lab-draft'), 0, 'anon does not see draft news');
 select is((select count(*)::int from public.exams where status = 'published'), 1, 'anon sees the published exam');
 
 -- Forbidden

@@ -10,12 +10,26 @@ const keys = (role: Role | null | undefined) =>
   navForRole(role).map((i) => i.key);
 
 describe("navForRole", () => {
-  it("admins see the settings page", () => {
-    expect(keys("super_admin")).toEqual(["home", "pages", "menu", "settings"]);
-    expect(keys("admin")).toEqual(["home", "pages", "menu", "settings"]);
+  const ADMIN_NAV = [
+    "home",
+    "notices",
+    "news",
+    "events",
+    "gallery",
+    "downloads",
+    "pages",
+    "menu",
+    "settings",
+  ];
+  it("admins see content, pages, menu and settings", () => {
+    expect(keys("super_admin")).toEqual(ADMIN_NAV);
+    expect(keys("admin")).toEqual(ADMIN_NAV);
   });
-  it.each(["teacher", "accountant", "student", "guardian"] as const)(
-    "%s does not see settings",
+  it("teachers see only notices besides home", () => {
+    expect(keys("teacher")).toEqual(["home", "notices"]);
+  });
+  it.each(["accountant", "student", "guardian"] as const)(
+    "%s does not see content or settings",
     (role) => {
       expect(keys(role)).toEqual(["home"]);
     },

@@ -33,3 +33,22 @@ export function detectDocumentType(bytes: Uint8Array): DocumentType | null {
   if (pdf.every((b, i) => bytes[i] === b)) return "application/pdf";
   return detectImageType(bytes);
 }
+
+/** Cover and editor images. */
+export const IMAGE_MAX_BYTES = 2 * 1024 * 1024;
+/**
+ * Attachments and downloads. Uploads go through a server action, and Vercel accepts request
+ * bodies up to 4.5 MB, so 4 MB is the most a file can be (next.config allows 5 MB bodies).
+ */
+export const ATTACHMENT_MAX_BYTES = 4 * 1024 * 1024;
+
+/** True when the form's file is bigger than max (checked in the browser before upload). */
+export function fileTooLarge(file: FormDataEntryValue | null, max: number) {
+  return typeof file === "object" && file !== null && file.size > max;
+}
+
+/** Short label for a file type: "PDF", "JPG", "PNG", "WEBP"; "" when unknown. */
+export function fileTypeLabel(mime: string | null | undefined): string {
+  const ext = EXTENSIONS[mime as DocumentType];
+  return ext ? ext.toUpperCase() : "";
+}

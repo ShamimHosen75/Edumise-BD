@@ -1,7 +1,9 @@
 import { MapPin } from "lucide-react";
+import Link from "next/link";
 
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
+import { t } from "@/i18n/t";
 import {
   formatWeekdayTime,
   pickLocalized,
@@ -12,6 +14,7 @@ import { Section } from "./section";
 
 export type EventRow = {
   id: number;
+  slug: string;
   title_en: string;
   title_bn: string;
   venue_en: string;
@@ -45,7 +48,14 @@ export function UpcomingEvents({
 }) {
   if (events.length === 0) return null;
   return (
-    <Section id="events" title={dict.site.home.events}>
+    <Section
+      id="events"
+      title={dict.site.home.events}
+      more={{
+        href: `/${lang}/events`,
+        label: t(dict, "content.allItems", { section: dict.content.events }),
+      }}
+    >
       <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {events.map((e) => {
           const d = dateParts(e.starts_at, lang);
@@ -61,7 +71,12 @@ export function UpcomingEvents({
               </time>
               <div className="min-w-0">
                 <p className="font-semibold">
-                  {pickLocalized(e, "title", lang)}
+                  <Link
+                    href={`/${lang}/events/${e.slug}`}
+                    className="hover:text-primary hover:underline"
+                  >
+                    {pickLocalized(e, "title", lang)}
+                  </Link>
                 </p>
                 <p className="text-muted-foreground text-xs">{d.time}</p>
                 {venue ? (

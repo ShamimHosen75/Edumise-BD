@@ -8,12 +8,15 @@ import { isLocale } from "@/i18n/config";
 import type { TranslationKey } from "@/i18n/t";
 import { requireRole } from "@/lib/auth/session";
 import {
+  ATTACHMENT_MAX_BYTES,
   detectDocumentType,
   detectImageType,
+  IMAGE_MAX_BYTES,
   imageExtension,
 } from "@/lib/files";
 import { sanitizeRichText } from "@/lib/sanitize";
 import { TAGS } from "@/lib/site/cache";
+import { readUpload } from "@/lib/uploads";
 import { createClient } from "@/lib/supabase/server";
 import { pageSchema, type PageInput } from "@/lib/validation/page";
 
@@ -24,9 +27,6 @@ export type SaveResult =
 export type UploadResult =
   { ok: true; url: string } | { ok: false; error: TranslationKey };
 export type SimpleResult = { ok: true } | { ok: false; error: TranslationKey };
-
-const IMAGE_MAX = 2 * 1024 * 1024;
-const ATTACHMENT_MAX = 10 * 1024 * 1024;
 
 async function adminOnly(lang: string) {
   if (!isLocale(lang)) throw new Error("Invalid language");
@@ -100,17 +100,6 @@ export async function deletePage(
   return { ok: true };
 }
 
-async function readFile(
-  formData: FormData,
-  max: number,
-): Promise<{ error: TranslationKey } | { file: File; bytes: Uint8Array }> {
-  const file = formData.get("file");
-  if (!(file instanceof File) || file.size === 0)
-    return { error: "errors.required" };
-  if (file.size > max) return { error: "errors.fileSize" };
-  return { file, bytes: new Uint8Array(await file.arrayBuffer()) };
-}
-
 /** Image for the editor (inserted into the page body). Checked by its real content. */
 export async function uploadPageImage(
   lang: string,
@@ -118,10 +107,10 @@ export async function uploadPageImage(
   formData: FormData,
 ): Promise<UploadResult> {
   const supabase = await adminOnly(lang);
-  const read = await readFile(formData, IMAGE_MAX);
+  const read = await readUpload(formData, IMAGE_MAX_BYTES);
   if ("error" in read) return { ok: false, error: read.error };
   const type = detectImageType(read.bytes);
-  if (!type) return { ok: false, error: "errors.logoType" };
+  if (!type) return { ok: false, error: "errors.imageType" };
   const path = `pages/${pageId}/${randomUUID()}.${imageExtension(type)}`;
   const { error } = await supabase.storage
     .from("public-media")
@@ -142,10 +131,10 @@ export async function setPageCover(
   const supabase = await adminOnly(lang);
   let coverPath: string | null = null;
   if (formData.get("remove") !== "1") {
-    const read = await readFile(formData, IMAGE_MAX);
+    const read = await readUpload(formData, IMAGE_MAX_BYTES);
     if ("error" in read) return { ok: false, error: read.error };
     const type = detectImageType(read.bytes);
-    if (!type) return { ok: false, error: "errors.logoType" };
+    if (!type) return { ok: false, error: "errors.imageType" };
     coverPath = `pages/${pageId}/cover-${randomUUID()}.${imageExtension(type)}`;
     const { error } = await supabase.storage
       .from("public-media")
@@ -170,7 +159,7 @@ export async function addAttachment(
   const label = String(formData.get("label") ?? "").trim();
   if (!label || label.length > 120)
     return { ok: false, error: "errors.required" };
-  const read = await readFile(formData, ATTACHMENT_MAX);
+  const read = await readUpload(formData, ATTACHMENT_MAX_BYTES);
   if ("error" in read) return { ok: false, error: read.error };
   const type = detectDocumentType(read.bytes);
   if (!type) return { ok: false, error: "errors.fileType" };

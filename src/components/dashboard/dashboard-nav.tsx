@@ -4,10 +4,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
+  CalendarDays,
+  Download,
   FileText,
   Home,
+  Images,
   ListTree,
+  Megaphone,
   Menu,
+  Newspaper,
   Settings,
   X,
   type LucideIcon,
@@ -22,6 +27,11 @@ const ICONS: Record<NavIcon, LucideIcon> = {
   settings: Settings,
   pages: FileText,
   menu: ListTree,
+  notices: Megaphone,
+  news: Newspaper,
+  events: CalendarDays,
+  gallery: Images,
+  downloads: Download,
 };
 
 export type NavLink = Pick<NavItem, "key" | "href" | "icon"> & {

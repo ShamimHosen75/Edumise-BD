@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
   experimental: {
     authInterrupts: true,
     // Logo uploads are up to 1 MB plus form fields.
-    serverActions: { bodySizeLimit: "2mb" },
+    serverActions: { bodySizeLimit: "5mb" },
   },
   images: {
     // A local Supabase (127.0.0.1) cannot go through the image optimizer, which refuses

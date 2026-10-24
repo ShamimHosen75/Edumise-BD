@@ -131,14 +131,14 @@ isOneToOne: false
                   ]
                 },"downloads": {
                   Row: {
-                    "category": string,"created_at": string,"file_path": string,"file_size": number | null,"id": number,"is_published": boolean,"mime_type": string | null,"published_at": string | null,"title_bn": string,"title_en": string,"updated_at": string
+                    "category": string,"created_at": string,"file_path": string | null,"file_size": number | null,"id": number,"is_published": boolean,"mime_type": string | null,"published_at": string | null,"title_bn": string,"title_en": string,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "category"?: string,"created_at"?: string,"file_path": string,"file_size"?: number | null,"id"?: never,"is_published"?: boolean,"mime_type"?: string | null,"published_at"?: string | null,"title_bn"?: string,"title_en": string,"updated_at"?: string
+                    "category"?: string,"created_at"?: string,"file_path"?: string | null,"file_size"?: number | null,"id"?: never,"is_published"?: boolean,"mime_type"?: string | null,"published_at"?: string | null,"title_bn"?: string,"title_en": string,"updated_at"?: string
                   }
                   Update: {
-                    "category"?: string,"created_at"?: string,"file_path"?: string,"file_size"?: number | null,"id"?: never,"is_published"?: boolean,"mime_type"?: string | null,"published_at"?: string | null,"title_bn"?: string,"title_en"?: string,"updated_at"?: string
+                    "category"?: string,"created_at"?: string,"file_path"?: string | null,"file_size"?: number | null,"id"?: never,"is_published"?: boolean,"mime_type"?: string | null,"published_at"?: string | null,"title_bn"?: string,"title_en"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     
@@ -189,17 +189,23 @@ isOneToOne: false
                   ]
                 },"events": {
                   Row: {
-                    "body_bn": string,"body_en": string,"cover_path": string | null,"created_at": string,"created_by": string | null,"ends_at": string | null,"id": number,"is_published": boolean,"published_at": string | null,"slug": string,"starts_at": string,"title_bn": string,"title_en": string,"updated_at": string,"venue_bn": string,"venue_en": string
+                    "album_id": number | null,"body_bn": string,"body_en": string,"cover_path": string | null,"created_at": string,"created_by": string | null,"ends_at": string | null,"id": number,"is_published": boolean,"published_at": string | null,"slug": string,"starts_at": string,"title_bn": string,"title_en": string,"updated_at": string,"venue_bn": string,"venue_en": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "body_bn"?: string,"body_en"?: string,"cover_path"?: string | null,"created_at"?: string,"created_by"?: string | null,"ends_at"?: string | null,"id"?: never,"is_published"?: boolean,"published_at"?: string | null,"slug": string,"starts_at": string,"title_bn"?: string,"title_en": string,"updated_at"?: string,"venue_bn"?: string,"venue_en"?: string
+                    "album_id"?: number | null,"body_bn"?: string,"body_en"?: string,"cover_path"?: string | null,"created_at"?: string,"created_by"?: string | null,"ends_at"?: string | null,"id"?: never,"is_published"?: boolean,"published_at"?: string | null,"slug": string,"starts_at": string,"title_bn"?: string,"title_en": string,"updated_at"?: string,"venue_bn"?: string,"venue_en"?: string
                   }
                   Update: {
-                    "body_bn"?: string,"body_en"?: string,"cover_path"?: string | null,"created_at"?: string,"created_by"?: string | null,"ends_at"?: string | null,"id"?: never,"is_published"?: boolean,"published_at"?: string | null,"slug"?: string,"starts_at"?: string,"title_bn"?: string,"title_en"?: string,"updated_at"?: string,"venue_bn"?: string,"venue_en"?: string
+                    "album_id"?: number | null,"body_bn"?: string,"body_en"?: string,"cover_path"?: string | null,"created_at"?: string,"created_by"?: string | null,"ends_at"?: string | null,"id"?: never,"is_published"?: boolean,"published_at"?: string | null,"slug"?: string,"starts_at"?: string,"title_bn"?: string,"title_en"?: string,"updated_at"?: string,"venue_bn"?: string,"venue_en"?: string
                   }
                   Relationships: [
                     {
+      foreignKeyName: "events_album_id_fkey"
+      columns: ["album_id"]
+isOneToOne: false
+      referencedRelation: "gallery_albums"
+      referencedColumns: ["id"]
+    },{
       foreignKeyName: "events_created_by_fkey"
       columns: ["created_by"]
 isOneToOne: false
