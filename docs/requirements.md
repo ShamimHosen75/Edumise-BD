@@ -55,7 +55,9 @@ test and one sample Playwright test run.
 ## Step 1.2: database schema and seed [DRAFT]
 Migrations (one file per area):
 1. Enums: `app_role`, `gender`, `attendance_status`, `payment_method`, `invoice_status`.
-2. `school_settings` (name_en/bn, address, logo, EIIN, contact; single row).
+2. `school_settings` (single row: name_en/bn, address_en/bn, logo_path, primary/secondary colour,
+   phone, email, social links, EIIN, institution code, center code, established year,
+   head teacher message_en/bn + photo).
 3. `profiles` (id → auth.users, role, full_name_en/bn, must_change_password).
 4. Academic: `academic_years`, `classes` (6–10), `sections`, `subjects`, `class_subjects`.
 5. People: `staff` (private fields: nid, birth_date, address, personal_phone),
@@ -63,7 +65,8 @@ Migrations (one file per area):
    `teacher_assignments` (teacher, section, subject; `is_class_teacher`).
 6. Public people: `public_staff` (view or table of non-private staff fields), `governing_body`.
 7. Website: `notices`, `events`, `pages`, `sliders`, `gallery_albums`, `gallery_images`,
-   `downloads` — all with `_en`/`_bn` columns and `is_published` / `published_at`.
+   `downloads`, `menu_items` (parent_id, label_en/bn, href, sort_order), `quick_links`,
+   `footer_links` — all with `_en`/`_bn` columns and `is_published` / `published_at`.
 8. `routine` (section, day, period, subject, teacher, start/end time).
 9. `attendance` (student, date, status, marked_by; unique student+date).
 10. Exams: `exams` (is_published), `exam_subjects` (full/pass marks, locked), `marks`.
@@ -127,6 +130,22 @@ are blocked when logged out.
 Acceptance: switching language on any page keeps the path; dates and numbers show Bangla
 digits in bn; changing the primary colour in settings changes the site colour.
 
+## Step 2.1: public site shell and home page (WEB-01, WEB-02, WEB-16) [CONFIRMED]
+- Top bar: phone, email, social icons (from settings, hidden if empty), language switch,
+  "Apply Online" and "Login" buttons.
+- Header with logo + school name and a responsive mega-menu built from menu_items
+  (desktop dropdowns, mobile sheet). Menus: Home, About, Information, Academic, Admission,
+  Student, Facilities, Result, Others, Contact.
+- Footer: address, contact, configurable govt/education links, social links, copyright.
+- Home sections (each its own server component, hidden automatically when empty):
+  hero carousel, scrolling notice ticker + latest 5 notices, institute facts (EIIN,
+  institution code, center code, established), quick-link grid, head teacher's message,
+  teacher highlights (from public_staff), live counters (classes, students, teachers, staff
+  counted from DB), class-wise student bar chart, upcoming events, gallery preview.
+- Use ISR: revalidate with revalidateTag when content changes.
+- Design: clean, modern, trustworthy; primary colour from settings; good on 360px.
+- E2E: home loads in en and bn, no broken links in header/footer (crawl and assert 200).
+
 ---
 
 ## Open questions
@@ -140,5 +159,9 @@ digits in bn; changing the primary colour in settings changes the site colour.
    pages with plain dictionary lookups, then switch to `t()` in 1.5? Or build 1.5 first?
 5. **school_settings columns:** 1.5 needs theme colours (primary, maybe secondary/accent).
    Draft 1.2 will include `primary_color`, `secondary_color`, `logo_path`.
-6. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
+6. **Counters (2.1):** the home page shows live student/teacher counts from private
+   tables. Draft: a `security definer` function returning only the counts to anon.
+7. **Requirement IDs:** 2.1 cites WEB-01, WEB-02, WEB-16. Is there a list of all IDs
+   (WEB-xx and others) to paste?
+8. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
    website modules above are a typical set and should be checked against it.
