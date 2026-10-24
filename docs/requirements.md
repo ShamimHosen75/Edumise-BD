@@ -422,6 +422,20 @@ Write findings and fixes to docs/security-report.md, with a regression test for 
 - Add Lighthouse CI to GitHub Actions for the home page.
 Record before/after scores in docs/qa-report.md.
 
+## Step 6.4: production deployment [CONFIRMED]
+- Write docs/deploy.md: create Supabase project, link and push migrations
+  (supabase link, supabase db push), set Auth URLs and SMTP, create storage buckets,
+  configure the custom access token hook, create the first super admin with a script
+  (scripts/create-admin.ts), deploy on Vercel with env vars, custom domain, backups.
+- A production seed that creates only settings, grading scale and empty structure (no demo
+  people). Keep demo seed for a demo deployment.
+- Health check route /api/health (DB reachable).
+- docs/user-guide-en.md and docs/user-guide-bn.md: short task guides per role (admin,
+  teacher, accountant, guardian) with screenshots taken by Playwright.
+- docs/rebrand.md: how to launch the template for a new school in under 1 hour.
+- Final: run the full suite against the production preview URL (smoke subset), tag v1.0.0,
+  write CHANGELOG.md.
+
 ---
 
 ## Open questions
@@ -530,5 +544,8 @@ Record before/after scores in docs/qa-report.md.
    A strict nonce CSP only on the dashboard, which is dynamic anyway.
 45. **Guardian phone in reports vs privacy (6.2):** dues reports (5.2) show guardian phone.
    Fine for staff; draft treats the rule as "never on public pages" only.
-46. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
+46. **Deploy access (6.4):** this cloud sandbox has no Supabase Cloud or Vercel account.
+   Either the owner runs the deploy steps from docs/deploy.md, or provides access tokens
+   (SUPABASE_ACCESS_TOKEN, VERCEL_TOKEN) as environment secrets and allows those hosts.
+47. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
    website modules above are a typical set and should be checked against it.

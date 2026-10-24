@@ -26,3 +26,4 @@
 | 6.1 Regression + traceability | Not started | Blocked on 5.3 |
 | 6.2 Security audit | Not started | Blocked on 6.1 |
 | 6.3 Performance, a11y, SEO | Not started | Blocked on 6.2 |
+| 6.4 Deployment + handover | Not started | Blocked on 6.3 |
