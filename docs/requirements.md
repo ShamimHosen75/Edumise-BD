@@ -396,6 +396,32 @@ Act purely as a QA lead. Do not add features.
 5. Fix Blockers and Majors one by one, re-run, and update the report. Stop and show me the
    report before fixing Minors.
 
+## Step 6.2: security audit (NFR-01, NFR-02) [CONFIRMED]
+Act as a penetration tester on our own code. Check and fix:
+- Any table/view/function without RLS or with an overly broad policy; any SECURITY DEFINER
+  function without a fixed search_path. Run Supabase advisors (supabase db lint).
+- Service-role key or secrets reachable from client bundles (grep the .next build output).
+- Every server action and route handler: auth check, role check, Zod validation.
+- IDOR: try changing IDs in URLs/actions for another student, invoice, application.
+- File uploads: type + size checked server-side, private bucket uses signed URLs.
+- XSS via rich text and notice titles; CSRF on route handlers; rate limits on login,
+  contact, admission and result search.
+- Personal data on public pages: crawl the whole public site and assert no NID, birth date,
+  guardian phone or address appears.
+- Security headers (CSP, X-Frame-Options, Referrer-Policy) in next.config.
+Write findings and fixes to docs/security-report.md, with a regression test for each fix.
+
+## Step 6.3: performance, accessibility and SEO (NFR-03, NFR-04, NFR-06, WEB-17) [CONFIRMED]
+- Run Lighthouse (mobile) on home, notice list, notice detail, result page, teacher list;
+  target >= 90 for Performance, Accessibility, Best Practices, SEO. Fix issues: next/image
+  sizes, font loading, bundle size (analyze), caching, unused JS.
+- Run axe via @axe-core/playwright on every public page and the main dashboard pages;
+  fix all serious/critical violations.
+- Check every dashboard screen at 360px for overflow; tables scroll horizontally.
+- Verify print styles for report card, receipt, attendance sheet, routine.
+- Add Lighthouse CI to GitHub Actions for the home page.
+Record before/after scores in docs/qa-report.md.
+
 ---
 
 ## Open questions
@@ -498,5 +524,11 @@ Act purely as a QA lead. Do not add features.
    AUTH-04, RTN-01/02, ATT-01…03, EXM-01…05, FEE-01…06) but the list of IDs with their
    text and M/S/C/W priority has not been supplied. Please paste it; without it 6.1 can
    only trace the IDs cited in the steps.
-44. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
+44. **CSP vs ISR (6.2 vs 2.1):** a strict nonce-based CSP forces every page to render on each
+   request, which turns off the ISR caching required in 2.1. Draft: a static CSP in
+   next.config (no nonces; `script-src 'self'` plus hashes where needed), keeping ISR.
+   A strict nonce CSP only on the dashboard, which is dynamic anyway.
+45. **Guardian phone in reports vs privacy (6.2):** dues reports (5.2) show guardian phone.
+   Fine for staff; draft treats the rule as "never on public pages" only.
+46. **Reference site:** www.cpghs.edu.bd is blocked by this environment's network policy;
    website modules above are a typical set and should be checked against it.

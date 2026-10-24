@@ -24,3 +24,5 @@
 | 5.2 Collection + reports | Not started | Blocked on 5.1 |
 | 5.3 Payment gateway adapter | Not started | Blocked on 5.2 |
 | 6.1 Regression + traceability | Not started | Blocked on 5.3 |
+| 6.2 Security audit | Not started | Blocked on 6.1 |
+| 6.3 Performance, a11y, SEO | Not started | Blocked on 6.2 |
