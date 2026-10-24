@@ -5,8 +5,8 @@
 | 1.1 Project setup | ✅ Done | See below |
 | 1.2 Schema + seed | ✅ Done | See below |
 | 1.3 RLS policies | ✅ Done | See below |
-| 1.4 Authentication | Not started | Next; also finishes the 1.5 settings page |
-| 1.5 i18n + theme | 🟡 Done except settings page | Settings page needs login; finished with 1.4 |
+| 1.4 Authentication | ✅ Done | See below |
+| 1.5 i18n + theme | ✅ Done | Settings page finished with 1.4 |
 | 2.1 Site shell + home | Not started | Blocked on 1.5 |
 | 2.2 CMS pages + menu | Not started | Blocked on 2.1 |
 | 2.3 Content modules | Not started | Blocked on 2.2 |
@@ -151,8 +151,8 @@ Checks (run locally, 2026-10-24): `lint` ✅ · `typecheck` ✅ · `test` ✅ 79
 | `format.ts`: toBanglaDigits, formatDate, formatCurrency (BDT), pickLocalized with English fallback | ✅ Pass | `tests/unit/format.test.ts` |
 | Inter for en, Hind Siliguri for bn (next/font), by lang attribute | ✅ Pass | e2e checks body font family per language |
 | Theme colours from school_settings as CSS variables; name from settings | ✅ Pass | e2e: `--primary` = seeded `#0f766e`, page title = school name in each language; unit `buildThemeCss` incl. CSS-injection test |
-| Admin `/dashboard/settings` page (Zod server action, logo upload) | ⏳ Moved to 1.4 | needs login and `requireRole`. Validation schema done now: `tests/unit/school-settings-schema.test.ts` (18 tests) |
-| Changing the primary colour in settings changes the site colour | ⏳ With the settings page | theme already reads the colour from the database; e2e for the change comes with the page |
+| Admin `/dashboard/settings` page (Zod server action, logo upload) | ✅ Pass (in 1.4) | e2e `school settings` tests; schema `tests/unit/school-settings-schema.test.ts` |
+| Changing the primary colour in settings changes the site colour | ✅ Pass (in 1.4) | e2e "changing the primary colour changes the site colour" (blue appears on `/en`, then restored) |
 | Both en and bn render, no console errors | ✅ Pass | e2e smoke tests |
 
 Negative tests: invalid cookie / unknown languages fall back to en; fractional poisha and
@@ -170,3 +170,64 @@ Known issues:
 - The language switch keeps the path but not query strings (none are used yet).
 - "Today is …" on the home page is part of the static page, refreshed hourly.
 - CI end-to-end job now starts local Supabase, so pages show real settings.
+
+---
+
+## Step 1.4 — authentication ✅ (plus the 1.5 settings page)
+
+Checks (run locally, 2026-10-24): `lint` ✅ · `typecheck` ✅ · `test` ✅ 123/123 ·
+`db:test` ✅ · `build` ✅ · `test:e2e` ✅ 68 passed, 2 skipped by design (phone-only /
+desktop-only checks), desktop Chrome + 360×740.
+
+| Acceptance criterion | Result | Evidence |
+|---|---|---|
+| All 6 seeded users can log in | ✅ Pass | e2e "each seeded role" ×6 (admin logs in by mobile number, others by email) |
+| Each lands on its own dashboard and gets 403 on another role's page | ✅ Pass | same tests: own `home-<role>` widgets visible; another role's page → HTTP 403 |
+| Wrong password shows an error | ✅ Pass | e2e "a wrong password shows an error…"; unknown phone gets the same message |
+| Protected routes are blocked when logged out | ✅ Pass | e2e "protected pages redirect to login…", "after logout the dashboard is blocked again" |
+| Login: email or phone + password, errors, loading state | ✅ Pass | e2e validation errors in en and bn; button shows "Logging in…" and is disabled while submitting |
+| Forgot / reset password (Supabase email flow) | ✅ Pass | e2e reads the email from local Mailpit, follows the link, sets a new password, logs in with it |
+| Forced password change on first login | ✅ Pass | e2e "first login forces a password change" (dashboard stays closed until changed) |
+| Middleware protects `/[lang]/dashboard/**` | ✅ Pass | redirect to `/[lang]/login?next=…`, then back to the page after login |
+| Sidebar from a typed config filtered by role | ✅ Pass | unit `nav.test.ts` (filter, order, labels, active state); e2e sidebar per role and phone menu |
+| Role-specific home page for each of the 6 roles | ✅ Pass | `/dashboard/{super-admin,admin,teacher,accountant,student,guardian}` |
+| `requireRole(roles[])` used in layouts and server actions | ✅ Pass | unit `session.test.ts` (6 tests); used by role pages, settings page and settings action |
+| Logout | ✅ Pass | e2e logs out and checks the dashboard is closed again |
+| Both languages, 360px, no console errors | ✅ Pass | dashboard in Bangla e2e; 360px overflow checks for login and dashboard |
+
+Negative tests added: wrong password, unknown phone, malformed identifier, crafted
+`?next=https://evil…`, invalid reset link, teacher opening settings (403), a login with no
+role, an SVG renamed to `.png` uploaded as a logo (rejected by its real content), weak and
+mismatched new passwords, unknown email on the forgot page (same answer as a real one).
+
+Bugs found and fixed during QA:
+1. **Whole site was rendered on every request** (since 1.5): the 404 page read a request
+   header, which made every page under `/[lang]` dynamic. Fixed; `/en` and `/bn` are
+   prerendered again.
+2. **Saving settings made `/en` and `/bn` return 404** until the next deploy
+   (`dynamicParams = false` + full-site revalidation in Next 15). Fixed by revalidating only
+   pages tagged with the settings, and dropping `dynamicParams = false`.
+3. **Saving settings turned the theme colours black**: colour inputs started as `#000000`
+   before the form library filled them. Fixed by rendering saved values into the HTML;
+   regression check in the logo upload e2e (verified it fails without the fix).
+4. **Redirect loop** for a login without a usable profile (no role, or deactivated after
+   the token was issued). Fixed: such users see "Your account has no access".
+5. Local config: `[auth.email] enable_signup = false` disabled email login entirely. Public
+   sign-ups are blocked by `[auth] enable_signup = false` instead (verified: sign-up API
+   returns `signup_disabled`).
+
+Decisions used: phone login looks up the profile's email on the server (Q3, no SMS
+provider); public sign-up disabled; passwords at least 8 characters with letters and
+digits; the JWT `app_role` claim is used only for routing, access is checked against the
+profile on every request.
+
+Known issues:
+- Login rate limiting: Supabase limits sign-ins per IP, but logins go through our server,
+  so in production every user shares the server's IP. Needs an app-level limit (Step 6.2).
+- Accounts created through the Supabase admin API get their role after the new-user
+  trigger runs, so account-creation code (admissions 3.3, staff 3.2) must set
+  `profiles.role` itself, as the test helper does.
+- The reset link must be opened in the same browser that requested it (Supabase PKCE).
+- Local auth rate limits are raised in `supabase/config.toml` for tests; production
+  limits are configured in the Supabase dashboard (Step 6.4).
+- E2E runs with one worker (some tests change shared settings), about 2 minutes.

@@ -459,7 +459,8 @@ Record before/after scores in docs/qa-report.md.
    returns one mark sheet, not by reading the `results` table directly.
 2. **public_staff (1.3):** separate table maintained by admin, or a view exposing only safe
    columns of `staff`? (Draft assumes a view.)
-3. **Phone login (1.4):** Supabase phone+password needs phone auth enabled. Alternative:
+3. ~~**Phone login (1.4):**~~ RESOLVED: the server looks up the profile's email for the
+   phone number, then signs in with email (no SMS provider). Original question: Supabase phone+password needs phone auth enabled. Alternative:
    look up the email for a phone number server-side, then sign in with email. Which?
 4. ~~**Step order:**~~ RESOLVED: 1.5 built before 1.4 (owner: "continue"); the 1.5 settings
    page is finished in 1.4. Original question: 1.4 (login, dashboard) comes before 1.5 (i18n). Should 1.4 build its

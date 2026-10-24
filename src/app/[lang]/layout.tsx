@@ -27,7 +27,8 @@ type LayoutProps = {
   params: Promise<{ lang: string }>;
 };
 
-export const dynamicParams = false;
+// Not dynamicParams = false: with it, revalidating a page left it without a fallback (404).
+// Unknown languages are rejected by isLocale() below instead.
 
 export function generateStaticParams() {
   return locales.map((lang) => ({ lang }));

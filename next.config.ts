@@ -5,6 +5,12 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // Enables forbidden() so wrong-role pages answer with a real 403.
+  experimental: {
+    authInterrupts: true,
+    // Logo uploads are up to 1 MB plus form fields.
+    serverActions: { bodySizeLimit: "2mb" },
+  },
   images: {
     // Logos and photos come from the Supabase public-media bucket.
     remotePatterns: supabaseUrl
