@@ -21,3 +21,13 @@ export function webpName(name: string): string {
     .replace(/^-+|-+$/g, "");
   return `${base || "photo"}.webp`;
 }
+
+/** The centred square of an image: source x, y and side length. */
+export function centerSquare(width: number, height: number) {
+  const side = Math.min(width, height);
+  return {
+    x: Math.floor((width - side) / 2),
+    y: Math.floor((height - side) / 2),
+    side,
+  };
+}

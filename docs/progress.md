@@ -13,7 +13,7 @@
 | 2.4 People + contact | ✅ Done | See below |
 | 3.1 Academic structure | ✅ Done | See below |
 | 3.2 Staff management | ✅ Done | Scope agreed 2026-10-25; see below |
-| 3.3 Online admission | Not started | Blocked on 3.2 |
+| 3.3 Online admission | ✅ Done | See below |
 | 3.4 Student management | Not started | Blocked on 3.3 |
 | 3.5 Routine | Not started | Blocked on 3.4 |
 | 4.1 Student attendance | Not started | Blocked on 3.5 |
@@ -541,4 +541,56 @@ Decisions:
 Known issues:
 - Staff cannot yet view or edit their own profile from their dashboard (a later portal step).
 - No bulk import of staff from a spreadsheet.
+
+## Step 3.3 — online admission ✅ (ADM-01 to ADM-04)
+
+Checks (run locally, 2026-10-25): `lint` ✅ · `typecheck` ✅ · `test` ✅ 305 · `db:test` ✅
+20 files / 281 tests · `db lint` ✅ · types up to date ✅ · `build` ✅ · `test:e2e` ✅
+183 passed, 5 skipped by design (desktop-only / phone-only checks) · `npm audit` 0.
+
+| Acceptance criterion | Result | Evidence |
+|---|---|---|
+| `/[lang]/admission/apply`: 5 steps with progress bar, draft kept in localStorage | ✅ Pass | `apply-form.tsx`; e2e checks each step's errors, the draft surviving a reload, "Start again" (Bangla) |
+| Step 1 student incl. photo (JPG/PNG ≤ 500 KB, cropped square) | ✅ Pass | photo cut to the centred square in the browser (≤ 600 px JPEG), checked again by its bytes on the server |
+| Step 2 guardians, BD mobile validated | ✅ Pass | unit: `+8801…`, dashes and Bangla digits accepted, other numbers refused |
+| Step 3 class, group (Classes 9–10), previous school, result | ✅ Pass | group asked only for Classes 9–10 (as in Step 3.1); server checks it again |
+| Step 4 documents (PDF/JPG ≤ 2 MB) | ✅ Pass | birth certificate required, transcript optional; uploaded one per request with a signed one-hour token (keeps each request under the host's 4.5 MB limit) |
+| Step 5 review + declaration + submit | ✅ Pass | e2e: submit refused until the declaration is ticked |
+| Insert via server action with the service role; files in the private bucket; tracking no ADM-YYYY-00001 | ✅ Pass | `next_tracking_no()` (per-year counter); files in `private-docs/admissions/<id>/`; honeypot; 10 applications / hour per address |
+| Success page with printable application copy | ✅ Pass (see note) | copy with tracking number, photo and all answers; "Print or save as PDF" (site header and footer hidden in print) |
+| `/[lang]/admission/status` by tracking no + phone | ✅ Pass | both must match; 30 tries / hour per address; e2e wrong phone refused |
+| Dashboard queue (filters class, status, date), detail with documents, status, test, marks, merit list | ✅ Pass | `/dashboard/admissions` (DataTable + date range), detail with 10-minute private document links, `/dashboard/admissions/merit` |
+| Approve → student + guardians + enrollment (section, next roll), guardian login, audit_log, one DB function | ✅ Pass | `approve_admission()` (one transaction, row lock and advisory locks for the student ID and roll); guardian login with one-time password; e2e guardian logs in with the mobile number |
+| Unit tests: phone/birth-reg validators, tracking no generator | ✅ Pass | `tests/unit/admission.test.ts` (16) |
+| RLS: anon cannot read applications | ✅ Pass | pgTAP `270_admissions` (18) |
+| E2E: apply → approve → student in the class list | ✅ Pass | `tests/e2e/admission.spec.ts`; class list at `/dashboard/students` |
+
+Note on the PDF: the copy is printed to PDF by the browser. A generated PDF (react-pdf)
+cannot shape Bangla text correctly (joined letters break), so browser printing is used.
+
+Decisions (open questions 14–18 in requirements.md, drafts adopted):
+- Statuses: submitted, under review, test scheduled, approved, rejected, waitlisted.
+- Birth registration number: exactly 17 digits.
+- Student ID: year + 2-digit class + 4-digit serial (e.g. 2026060012), made on approval.
+- Guardian login: the guardian's mobile number with a one-time password shown to the admin
+  on approval (must be changed at first sign-in). The account's email is a placeholder under
+  the reserved `.invalid` domain, so no email is ever sent to it. If the mobile already
+  logs in as a guardian (brothers and sisters), that login is reused.
+- No student login on approval (student portal: Step 3.4).
+- Guardian records are reused when the same mobile and name already exist.
+- The status page shows the test date only while the test is the next step; marks are
+  not shown to applicants.
+- `/dashboard/students` is a simple class list for now; Step 3.4 builds the full students
+  area on it.
+
+Known issues:
+- Guardians whose login email is a placeholder cannot use "Forgot password"; the office
+  issues a new one-time password (Step 3.4 adds this to the student/guardian pages).
+- Files chosen on this device are not kept in the draft (browsers cannot store them);
+  the form asks for them again after a reload.
+- The admission e2e test leaves its applicant, student and guardian in the local database
+  (deleting them directly would leave the cached home page counts stale); CI starts from a
+  fresh database each run. The home page counter test reads the expected numbers.
+- Applicants' rejected-application files stay in the private bucket until the office
+  removes them (clean-up tool later).
 

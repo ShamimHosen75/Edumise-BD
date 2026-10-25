@@ -37,6 +37,64 @@ export type Database = {
                   Relationships: [
                     
                   ]
+                },"admission_applications": {
+                  Row: {
+                    "birth_date": string,"birth_reg_no": string,"blood_group": Database["public"]['Enums']["blood_group"] | null,"class_id": number,"father_name": string,"gender": Database["public"]['Enums']["gender"],"group_id": number | null,"guardian_email": string | null,"guardian_occupation": string,"guardian_phone": string,"id": number,"last_result": string,"local_guardian_name": string,"mother_name": string,"office_note": string,"permanent_address": string,"photo_path": string | null,"present_address": string,"previous_school": string,"religion": Database["public"]['Enums']["religion"] | null,"session_id": number,"status": Database["public"]['Enums']["admission_status"],"student_id": number | null,"student_name_bn": string,"student_name_en": string,"submitted_at": string,"test_at": string | null,"test_marks": number | null,"test_venue": string,"tracking_no": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "birth_date": string,"birth_reg_no": string,"blood_group"?: Database["public"]['Enums']["blood_group"] | null,"class_id": number,"father_name": string,"gender": Database["public"]['Enums']["gender"],"group_id"?: number | null,"guardian_email"?: string | null,"guardian_occupation"?: string,"guardian_phone": string,"id"?: never,"last_result"?: string,"local_guardian_name"?: string,"mother_name": string,"office_note"?: string,"permanent_address"?: string,"photo_path"?: string | null,"present_address": string,"previous_school"?: string,"religion"?: Database["public"]['Enums']["religion"] | null,"session_id": number,"status"?: Database["public"]['Enums']["admission_status"],"student_id"?: number | null,"student_name_bn"?: string,"student_name_en": string,"submitted_at"?: string,"test_at"?: string | null,"test_marks"?: number | null,"test_venue"?: string,"tracking_no": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "birth_date"?: string,"birth_reg_no"?: string,"blood_group"?: Database["public"]['Enums']["blood_group"] | null,"class_id"?: number,"father_name"?: string,"gender"?: Database["public"]['Enums']["gender"],"group_id"?: number | null,"guardian_email"?: string | null,"guardian_occupation"?: string,"guardian_phone"?: string,"id"?: never,"last_result"?: string,"local_guardian_name"?: string,"mother_name"?: string,"office_note"?: string,"permanent_address"?: string,"photo_path"?: string | null,"present_address"?: string,"previous_school"?: string,"religion"?: Database["public"]['Enums']["religion"] | null,"session_id"?: number,"status"?: Database["public"]['Enums']["admission_status"],"student_id"?: number | null,"student_name_bn"?: string,"student_name_en"?: string,"submitted_at"?: string,"test_at"?: string | null,"test_marks"?: number | null,"test_venue"?: string,"tracking_no"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "admission_applications_class_id_fkey"
+      columns: ["class_id"]
+isOneToOne: false
+      referencedRelation: "classes"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "admission_applications_group_id_fkey"
+      columns: ["group_id"]
+isOneToOne: false
+      referencedRelation: "groups"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "admission_applications_session_id_fkey"
+      columns: ["session_id"]
+isOneToOne: false
+      referencedRelation: "academic_sessions"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "admission_applications_student_id_fkey"
+      columns: ["student_id"]
+isOneToOne: false
+      referencedRelation: "students"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"admission_documents": {
+                  Row: {
+                    "application_id": number,"created_at": string,"file_path": string,"file_size": number,"id": number,"kind": string,"mime_type": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "application_id": number,"created_at"?: string,"file_path": string,"file_size": number,"id"?: never,"kind": string,"mime_type": string
+                  }
+                  Update: {
+                    "application_id"?: number,"created_at"?: string,"file_path"?: string,"file_size"?: number,"id"?: never,"kind"?: string,"mime_type"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "admission_documents_application_id_fkey"
+      columns: ["application_id"]
+isOneToOne: false
+      referencedRelation: "admission_applications"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"attendance": {
                   Row: {
                     "created_at": string,"date": string,"id": number,"marked_by": string | null,"note": string,"section_id": number,"status": Database["public"]['Enums']["attendance_status"],"student_id": number,"updated_at": string
@@ -66,6 +124,26 @@ isOneToOne: false
       columns: ["student_id"]
 isOneToOne: false
       referencedRelation: "students"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"audit_log": {
+                  Row: {
+                    "action": string,"actor_id": string | null,"created_at": string,"details": NonNullable<Json>,"entity": string,"entity_id": string,"id": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "action": string,"actor_id"?: string | null,"created_at"?: string,"details"?: NonNullable<Json>,"entity": string,"entity_id": string,"id"?: never
+                  }
+                  Update: {
+                    "action"?: string,"actor_id"?: string | null,"created_at"?: string,"details"?: NonNullable<Json>,"entity"?: string,"entity_id"?: string,"id"?: never
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "audit_log_actor_id_fkey"
+      columns: ["actor_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
       referencedColumns: ["id"]
     }
                   ]
@@ -1027,6 +1105,20 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"tracking_counters": {
+                  Row: {
+                    "last_value": number,"year": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "last_value"?: number,"year": number
+                  }
+                  Update: {
+                    "last_value"?: number,"year"?: number
+                  }
+                  Relationships: [
+                    
+                  ]
                 }
           }
           Views: {
@@ -1041,7 +1133,12 @@ isOneToOne: false
                 }
           }
           Functions: {
-            "class_allows_group":
+            "approve_admission":
+{ Args: { "p_application_id": number,"p_section_id": number }; Returns: {
+              "guardian_id": number,"roll": number,"student_code": string,"student_id": number
+            }[]
+                           },
+"class_allows_group":
 { Args: { "p_class_id": number }; Returns: boolean
                            },
 "custom_access_token_hook":
@@ -1056,15 +1153,21 @@ isOneToOne: false
 "is_rate_limited":
 { Args: { "p_key": string,"p_max": number,"p_window_seconds": number }; Returns: boolean
                            },
+"next_tracking_no":
+{ Args: Record<PropertyKey, never>; Returns: string
+                           },
 "public_stats":
 { Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"record_audit":
+{ Args: { "p_action": string,"p_details": Json,"p_entity": string,"p_entity_id": string }; Returns: undefined
                            },
 "set_current_session":
 { Args: { "p_session_id": number }; Returns: boolean
                            }
           }
           Enums: {
-            "app_role": "super_admin"|"admin"|"teacher"|"accountant"|"student"|"guardian","attendance_status": "present"|"absent"|"late"|"leave","blood_group": "A+"|"A-"|"B+"|"B-"|"AB+"|"AB-"|"O+"|"O-","exam_status": "draft"|"marks_entry"|"review"|"published","fee_frequency": "monthly"|"one_time","gender": "male"|"female"|"other","invoice_status": "unpaid"|"partial"|"paid"|"cancelled","link_placement": "quick"|"footer","notice_audience": "public"|"staff"|"class","notice_category": "general"|"exam"|"result"|"admission"|"holiday","religion": "islam"|"hinduism"|"buddhism"|"christianity"|"other","student_status": "active"|"inactive"|"transferred"|"graduated","subject_type": "compulsory"|"optional"|"fourth","waiver_kind": "percent"|"fixed"
+            "admission_status": "submitted"|"under_review"|"test_scheduled"|"approved"|"rejected"|"waitlisted","app_role": "super_admin"|"admin"|"teacher"|"accountant"|"student"|"guardian","attendance_status": "present"|"absent"|"late"|"leave","blood_group": "A+"|"A-"|"B+"|"B-"|"AB+"|"AB-"|"O+"|"O-","exam_status": "draft"|"marks_entry"|"review"|"published","fee_frequency": "monthly"|"one_time","gender": "male"|"female"|"other","invoice_status": "unpaid"|"partial"|"paid"|"cancelled","link_placement": "quick"|"footer","notice_audience": "public"|"staff"|"class","notice_category": "general"|"exam"|"result"|"admission"|"holiday","religion": "islam"|"hinduism"|"buddhism"|"christianity"|"other","student_status": "active"|"inactive"|"transferred"|"graduated","subject_type": "compulsory"|"optional"|"fourth","waiver_kind": "percent"|"fixed"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -1184,7 +1287,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "app_role": ["super_admin", "admin", "teacher", "accountant", "student", "guardian"],"attendance_status": ["present", "absent", "late", "leave"],"blood_group": ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],"exam_status": ["draft", "marks_entry", "review", "published"],"fee_frequency": ["monthly", "one_time"],"gender": ["male", "female", "other"],"invoice_status": ["unpaid", "partial", "paid", "cancelled"],"link_placement": ["quick", "footer"],"notice_audience": ["public", "staff", "class"],"notice_category": ["general", "exam", "result", "admission", "holiday"],"religion": ["islam", "hinduism", "buddhism", "christianity", "other"],"student_status": ["active", "inactive", "transferred", "graduated"],"subject_type": ["compulsory", "optional", "fourth"],"waiver_kind": ["percent", "fixed"]
+            "admission_status": ["submitted", "under_review", "test_scheduled", "approved", "rejected", "waitlisted"],"app_role": ["super_admin", "admin", "teacher", "accountant", "student", "guardian"],"attendance_status": ["present", "absent", "late", "leave"],"blood_group": ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],"exam_status": ["draft", "marks_entry", "review", "published"],"fee_frequency": ["monthly", "one_time"],"gender": ["male", "female", "other"],"invoice_status": ["unpaid", "partial", "paid", "cancelled"],"link_placement": ["quick", "footer"],"notice_audience": ["public", "staff", "class"],"notice_category": ["general", "exam", "result", "admission", "holiday"],"religion": ["islam", "hinduism", "buddhism", "christianity", "other"],"student_status": ["active", "inactive", "transferred", "graduated"],"subject_type": ["compulsory", "optional", "fourth"],"waiver_kind": ["percent", "fixed"]
           }
         }
 } as const

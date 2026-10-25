@@ -41,6 +41,8 @@ describe("route registry", () => {
       "/governing-body",
       "/ex-principals",
       "/contact",
+      "/admission/apply",
+      "/admission/status",
     ])
       expect(isAvailableRoute(p)).toBe(true);
   });
@@ -53,7 +55,7 @@ describe("route registry", () => {
       "/downloads/0",
       "/downloads/abc",
       "/news/a/b",
-      "/admission/apply",
+      "/admission/other",
       "/result",
       "/p/",
       "/p/About",

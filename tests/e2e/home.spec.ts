@@ -1,5 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
+import { adminClient } from "./helpers";
+
 const SECTIONS = [
   "notices",
   "facts",
@@ -36,15 +38,29 @@ test.describe("home page", () => {
   test("live counters come from the database, with Bangla digits in bn", async ({
     page,
   }) => {
+    // Other tests (admissions) may add students, so read the numbers to expect.
+    const { data } = await adminClient().rpc("public_stats");
+    const stats = data as {
+      students: number;
+      by_class: { level: number; students: number }[];
+    };
+    const class6 = stats.by_class.find((c) => c.level === 6)!.students;
     await page.goto("/en");
     const glance = page.locator('[data-section="at-a-glance"]');
-    await expect(glance.getByText("20", { exact: true })).toBeVisible();
-    await expect(glance.getByText("Class 6: 10 students")).toBeAttached();
+    await expect(
+      glance.getByText(String(stats.students), { exact: true }),
+    ).toBeVisible();
+    await expect(
+      glance.getByText(`Class 6: ${class6} students`),
+    ).toBeAttached();
     await page.goto("/bn");
+    const bnDigits = String(stats.students).replace(/[0-9]/g, (d) =>
+      String.fromCharCode(0x09e6 + Number(d)),
+    );
     await expect(
       page
         .locator('[data-section="at-a-glance"]')
-        .getByText("২০", { exact: true }),
+        .getByText(bnDigits, { exact: true }),
     ).toBeVisible();
   });
 
@@ -147,13 +163,12 @@ test.describe("header and footer links", () => {
     });
   }
 
-  test("menu items for pages that do not exist yet are hidden", async ({
-    page,
-  }) => {
+  test("menu items show only for pages that exist", async ({ page }) => {
     await page.goto("/en");
-    await expect(page.getByRole("link", { name: "Apply Online" })).toHaveCount(
-      0,
-    );
+    // Online admission exists since Step 3.3; results come in Step 4.3.
+    await expect(
+      page.getByRole("link", { name: "Apply Online" }).first(),
+    ).toHaveAttribute("href", "/en/admission/apply");
     await expect(page.getByRole("button", { name: "Result" })).toHaveCount(0);
     await expect(page.getByRole("link", { name: "History" })).toHaveCount(0);
   });

@@ -30,24 +30,29 @@ export default async function SiteLayout({ children, params }: Props) {
       >
         {dict.common.skipToContent}
       </a>
-      <TopBar lang={lang} dict={dict} settings={settings} />
-      <SiteHeader
-        lang={lang}
-        dict={dict}
-        settings={settings}
-        name={name}
-        menu={buildMenu(menuRows, lang)}
-      />
+      {/* Printed pages (e.g. an application copy) show only the main content. */}
+      <div className="contents print:hidden">
+        <TopBar lang={lang} dict={dict} settings={settings} />
+        <SiteHeader
+          lang={lang}
+          dict={dict}
+          settings={settings}
+          name={name}
+          menu={buildMenu(menuRows, lang)}
+        />
+      </div>
       <main id="main" className="flex-1">
         {children}
       </main>
-      <SiteFooter
-        lang={lang}
-        dict={dict}
-        settings={settings}
-        name={name}
-        links={links.filter((l) => l.placement === "footer")}
-      />
+      <div className="contents print:hidden">
+        <SiteFooter
+          lang={lang}
+          dict={dict}
+          settings={settings}
+          name={name}
+          links={links.filter((l) => l.placement === "footer")}
+        />
+      </div>
     </div>
   );
 }

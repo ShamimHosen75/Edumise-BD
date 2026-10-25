@@ -14,6 +14,8 @@ describe("navForRole", () => {
     "home",
     "academic",
     "staff",
+    "admissions",
+    "students",
     "notices",
     "news",
     "events",

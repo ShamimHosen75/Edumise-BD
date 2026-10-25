@@ -499,13 +499,18 @@ Record before/after scores in docs/qa-report.md.
 14. **Guardian login (3.3):** how does the guardian receive the new account's password?
    Draft: login is the guardian's phone, a one-time password is shown on the approval
    screen to print or hand over, and `must_change_password` is set. No SMS provider.
+   **Used in 3.3 (draft adopted):** phone login, one-time password shown on approval.
 15. **Student login (3.3):** approval creates a guardian login. Should it also create a
    student login?
+   **3.3:** no student login on approval (student portal comes in 3.4).
 16. **Birth registration no (3.3):** draft rule is exactly 17 digits (current BD format).
+   **Used in 3.3 (draft adopted).**
 17. **Admission statuses (3.3):** draft: submitted, under_review, test_scheduled,
    approved, rejected, waitlisted.
+   **Used in 3.3 (draft adopted).**
 18. **Student ID format (3.4):** draft: `YYYY` + class + 4-digit serial, e.g. `2026060012`,
    unique for life and printed on the ID card QR.
+   **Used from 3.3 (approval creates the student).**
 19. **Promotion rolls (3.4):** new rolls by merit (final exam result, needs Step 4.x) or keep
    the old order? Draft: by merit when a final result exists, otherwise by previous roll.
 20. **SheetJS (3.4):** the npm `xlsx` package is outdated and has known vulnerabilities;

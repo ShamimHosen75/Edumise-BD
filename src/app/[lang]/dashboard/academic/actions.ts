@@ -93,6 +93,8 @@ export async function setCurrentSession(
   });
   if (error) return dbError(error);
   if (data !== true) return { ok: false, error: "errors.notAllowed" };
+  // The admission form offers the current session.
+  refresh();
   return { ok: true };
 }
 

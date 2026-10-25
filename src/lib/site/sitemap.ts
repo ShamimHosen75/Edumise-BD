@@ -34,4 +34,6 @@ export const STATIC_PATHS = [
   "/governing-body",
   "/ex-principals",
   "/contact",
+  "/admission/apply",
+  "/admission/status",
 ];

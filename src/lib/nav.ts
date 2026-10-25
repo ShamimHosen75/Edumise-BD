@@ -3,6 +3,8 @@ import { ROLE_HOME_SEGMENT, type Role } from "@/lib/auth/roles";
 
 /** Icon names are mapped to lucide icons in the sidebar component. */
 export type NavIcon =
+  | "admissions"
+  | "students"
   | "staff"
   | "academic"
   | "messages"
@@ -52,6 +54,20 @@ export const NAV_ITEMS: readonly NavItem[] = [
     href: "/staff",
     label: "nav.staff",
     icon: "staff",
+    roles: ADMINS,
+  },
+  {
+    key: "admissions",
+    href: "/admissions",
+    label: "nav.admissions",
+    icon: "admissions",
+    roles: ADMINS,
+  },
+  {
+    key: "students",
+    href: "/students",
+    label: "nav.students",
+    icon: "students",
     roles: ADMINS,
   },
   {

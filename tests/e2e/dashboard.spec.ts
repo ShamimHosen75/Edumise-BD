@@ -32,6 +32,8 @@ test("sidebar shows only the pages a role may open", async ({ page }, info) => {
     "Home",
     "Academic setup",
     "Staff",
+    "Admissions",
+    "Students",
     "Notices",
     "News",
     "Events",
