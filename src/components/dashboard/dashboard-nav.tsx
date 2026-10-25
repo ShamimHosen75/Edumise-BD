@@ -18,6 +18,7 @@ import {
   Menu,
   Newspaper,
   Settings,
+  Users,
   X,
   type LucideIcon,
 } from "lucide-react";
@@ -29,6 +30,7 @@ import { cn } from "@/lib/utils";
 const ICONS: Record<NavIcon, LucideIcon> = {
   home: Home,
   academic: BookOpen,
+  staff: Users,
   settings: Settings,
   pages: FileText,
   menu: ListTree,

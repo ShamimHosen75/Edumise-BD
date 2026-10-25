@@ -12,7 +12,7 @@
 | 2.3 Content modules | ✅ Done | See below |
 | 2.4 People + contact | ✅ Done | See below |
 | 3.1 Academic structure | ✅ Done | See below |
-| 3.2 Staff management | Not started | Title only; body still needed |
+| 3.2 Staff management | ✅ Done | Scope agreed 2026-10-25; see below |
 | 3.3 Online admission | Not started | Blocked on 3.2 |
 | 3.4 Student management | Not started | Blocked on 3.3 |
 | 3.5 Routine | Not started | Blocked on 3.4 |
@@ -506,4 +506,39 @@ Known issues:
   (database cascade from Step 1.2); sections with students cannot be deleted.
 - Class subject choices are saved per class and group; copying a group's subjects to
   another class is not built.
+
+## Step 3.2 — staff management ✅ (scope agreed after Step 3.1)
+
+Checks (run locally, 2026-10-25): `lint` ✅ · `typecheck` ✅ · `test` ✅ 289 · `db:test` ✅
+19 files / 263 tests · `db lint` ✅ · types up to date ✅ · `build` ✅ · `test:e2e` ✅
+177 passed, 5 skipped by design (desktop-only / phone-only checks) · `npm audit` 0.
+
+| Acceptance criterion (agreed scope) | Result | Evidence |
+|---|---|---|
+| Staff list with designation, subject, current/former and login status; filters, search, CSV | ✅ Pass | `/dashboard/staff` (DataTable); e2e filter "Former" in Bangla |
+| Designations managed (rank, EN/BN name, teaching post) | ✅ Pass | `/dashboard/staff/designations` (reuses the academic table and dialog); e2e duplicate rank refused |
+| Profile with public and private fields; private never on public pages | ✅ Pass | `/dashboard/staff/[id]`; e2e checks the public profile HTML has no NID, birth date, address or mobile; pgTAP: teachers see only their own private record |
+| Former staff via leaving date | ✅ Pass | `left_on`; public directory "Former" tab (Step 2.4) |
+| Teaching assignments per section, subject and session | ✅ Pass | e2e: add, refuse a subject another teacher teaches, subjects limited to the class, remove |
+| Staff logins with one-time password, forced change, switch off/on, new password | ✅ Pass | e2e: create → password shown once → teacher must change it → switched off → "no access" |
+
+Negative tests: bad NID, mobile, email, future birth date and leaving before joining are
+refused; an email already used by another login is refused; admins are not offered the
+admin role (only a super admin can give it) and cannot switch off a super admin; teachers
+get 403 on staff pages and cannot add or edit staff, assign subjects or raise their role.
+
+Decisions:
+- One-time passwords shown to the admin (copy button) instead of invitation emails: works
+  without an email service and suits a school office. The person must choose their own
+  password at first sign-in (existing Step 1.4 flow).
+- Deleting a member of staff switches their login off (it is not deleted), so records that
+  name the account stay readable.
+- Supabase saves a new login's app metadata after the profile trigger runs, so the role,
+  names and mobile are written to the profile by the server right after creating it.
+- Fixed while testing: email fields failed on leading/trailing spaces (contact form, school
+  settings, staff); two forms on one page shared field ids (fields can now take an id).
+
+Known issues:
+- Staff cannot yet view or edit their own profile from their dashboard (a later portal step).
+- No bulk import of staff from a spreadsheet.
 

@@ -17,8 +17,12 @@ import {
 } from "@/lib/validation/academic";
 import { assertId, assertOptionalId } from "@/lib/validation/ids";
 
-// Class and section counts appear on the public home page.
-const refresh = () => revalidateTag(TAGS.stats);
+// Class and section counts appear on the public home page; designations on the staff
+// directory.
+const refresh = () => {
+  revalidateTag(TAGS.stats);
+  revalidateTag(TAGS.staff);
+};
 
 /** Creates (id = null) or updates a session, class, section, group or subject. */
 export async function saveAcademic(

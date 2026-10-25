@@ -240,10 +240,20 @@ class routines.
 - Reusable FormDialog pattern with react-hook-form + Zod + server action + toast.
 - Tests: unit tests for Zod schemas; E2E: create session -> class -> section -> map subjects.
 
-## Step 3.2: staff management [TITLE ONLY]
-The owner's text under this heading was a duplicate of Step 3.1. Body still needed
-(likely: staff list/profile CRUD with private fields, designations, teacher
-assignments to sections/subjects, staff logins, former staff).
+## Step 3.2: staff management [AGREED 2026-10-25]
+Scope proposed after Step 3.1 and accepted by the owner ("continue"):
+- Staff list (DataTable): name, designation, subject, current/former, login status; filters
+  and CSV export. Designations managed in the same area (rank, EN/BN name, teaching post).
+- Staff profile: public fields (photo, name EN/BN, designation, subject, qualification, bio,
+  joining date, show on website, order) and private fields (NID, birth date, address,
+  personal mobile, personal email) that never reach public pages.
+- Former staff: set a leaving date; they show under "Former" on the public directory.
+- Teaching assignments: subject per section per session (subject must be taught in that
+  class; one teacher per subject per section).
+- Staff logins: admin creates a login (email, optional mobile, role teacher/accountant;
+  admin role only by a super admin) with a one-time password shown once; the person must
+  change it at first sign-in. Admin can issue a new one-time password and switch a login
+  off or on.
 
 ## Step 3.3: online admission (ADM-01 to ADM-04) [CONFIRMED]
 Public /[lang]/admission/apply multi-step form (progress bar, saves draft in localStorage):

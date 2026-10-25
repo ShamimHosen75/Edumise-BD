@@ -5,6 +5,7 @@ import {
   sessionSchema,
   subjectSchema,
 } from "@/lib/validation/academic";
+import { designationSchema } from "@/lib/validation/staff";
 
 /** The academic setup lists an admin edits, each with its table, schema and unique field. */
 export const ACADEMIC = {
@@ -17,6 +18,12 @@ export const ACADEMIC = {
   sections: { table: "sections", schema: sectionSchema, unique: "name_en" },
   groups: { table: "groups", schema: groupSchema, unique: "code" },
   subjects: { table: "subjects", schema: subjectSchema, unique: "code" },
+  // Staff designations (Head Teacher, ...) use the same table and dialog pattern.
+  designations: {
+    table: "designations",
+    schema: designationSchema,
+    unique: "rank",
+  },
 } as const;
 
 export type AcademicEntity = keyof typeof ACADEMIC;

@@ -60,10 +60,15 @@ export const contactSchema = z.object({
     .min(1, "errors.required")
     .transform((v) => normalizePhone(toAsciiDigits(v)))
     .refine(isBdPhone, "errors.mobile"),
-  email: z.union([
-    z.literal(""),
-    z.email("errors.email").trim().max(200, "errors.tooLong"),
-  ]),
+  email: z
+    .string()
+    .trim()
+    .pipe(
+      z.union([
+        z.literal(""),
+        z.email("errors.email").max(200, "errors.tooLong"),
+      ]),
+    ),
   subject: required(150),
   message: z
     .string()

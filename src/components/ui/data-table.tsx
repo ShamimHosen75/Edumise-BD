@@ -29,6 +29,8 @@ export type DataTableColumn<T> = {
   header: string;
   /** Plain value used to search, sort, filter and export. */
   value: (row: T) => Value;
+  /** Sort by this instead of the value (e.g. a name column sorted by rank). */
+  sortValue?: (row: T) => Value;
   /** How the cell looks; defaults to the value. */
   cell?: (row: T) => React.ReactNode;
   sortable?: boolean;
@@ -115,6 +117,18 @@ export function DataTable<T>({
         enableSorting: c.sortable !== false,
         filterFn: "equalsString",
         sortUndefined: "last",
+        ...(c.sortValue
+          ? {
+              sortingFn: (a, b) => {
+                const x = c.sortValue!(a.original);
+                const y = c.sortValue!(b.original);
+                if (x === y) return 0;
+                if (x === null) return 1;
+                if (y === null) return -1;
+                return x < y ? -1 : 1;
+              },
+            }
+          : {}),
         cell: (info) =>
           c.cell ? c.cell(info.row.original) : (info.getValue() ?? ""),
       })),

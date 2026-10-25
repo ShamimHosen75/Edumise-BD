@@ -13,6 +13,7 @@ describe("navForRole", () => {
   const ADMIN_NAV = [
     "home",
     "academic",
+    "staff",
     "notices",
     "news",
     "events",

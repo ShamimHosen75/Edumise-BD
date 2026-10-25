@@ -4,6 +4,7 @@ import type { FieldValues, UseFormReturn } from "react-hook-form";
 
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 // Small field helpers for the content form. All values live in one react-hook-form.
 
@@ -11,6 +12,8 @@ type Form = UseFormReturn<FieldValues>;
 export type Base = {
   form: Form;
   name: string;
+  /** Element id; defaults to the field name (set it when two forms share a page). */
+  id?: string;
   label: string;
   /** Translates an error key from the schema. */
   t: (key: string | undefined) => string | undefined;
@@ -23,6 +26,7 @@ export const errorOf = (form: Form, name: string) =>
 export function TextField({
   form,
   name,
+  id,
   label,
   t,
   hint,
@@ -36,7 +40,7 @@ export function TextField({
 }) {
   return (
     <FormField
-      id={name}
+      id={id ?? name}
       label={label}
       hint={hint}
       error={t(errorOf(form, name))}
@@ -61,6 +65,7 @@ export function TextField({
 export function SelectField({
   form,
   name,
+  id,
   label,
   t,
   hint,
@@ -76,7 +81,7 @@ export function SelectField({
 }) {
   return (
     <FormField
-      id={name}
+      id={id ?? name}
       label={label}
       hint={hint}
       error={t(errorOf(form, name))}
@@ -117,5 +122,36 @@ export function CheckboxField({ form, name, label, hint }: Omit<Base, "t">) {
       </label>
       {hint ? <p className="text-muted-foreground text-xs">{hint}</p> : null}
     </div>
+  );
+}
+
+export function TextAreaField({
+  form,
+  name,
+  id,
+  label,
+  t,
+  hint,
+  lang,
+  rows = 3,
+  maxLength,
+}: Base & { lang?: "en" | "bn"; rows?: number; maxLength?: number }) {
+  return (
+    <FormField
+      id={id ?? name}
+      label={label}
+      hint={hint}
+      error={t(errorOf(form, name))}
+    >
+      {(aria) => (
+        <Textarea
+          {...aria}
+          lang={lang}
+          rows={rows}
+          maxLength={maxLength}
+          {...form.register(name)}
+        />
+      )}
+    </FormField>
   );
 }

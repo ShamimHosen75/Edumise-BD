@@ -58,10 +58,15 @@ export const schoolSettingsSchema = z.object({
   address_en: text(300),
   address_bn: text(300),
   phone: digits(/^\+?[0-9][0-9 -]{5,18}$/, "errors.phone"),
-  email: z.union([
-    z.literal(""),
-    z.email("errors.email").max(200, "errors.tooLong"),
-  ]),
+  email: z
+    .string()
+    .trim()
+    .pipe(
+      z.union([
+        z.literal(""),
+        z.email("errors.email").max(200, "errors.tooLong"),
+      ]),
+    ),
   website_url: optionalUrl,
   facebook_url: optionalUrl,
   youtube_url: optionalUrl,

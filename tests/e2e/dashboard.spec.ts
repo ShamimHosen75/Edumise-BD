@@ -31,6 +31,7 @@ test("sidebar shows only the pages a role may open", async ({ page }, info) => {
   await expect(nav.getByRole("link")).toHaveText([
     "Home",
     "Academic setup",
+    "Staff",
     "Notices",
     "News",
     "Events",
