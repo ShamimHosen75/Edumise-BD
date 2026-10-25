@@ -18,7 +18,9 @@ export type NavIcon =
   | "news"
   | "events"
   | "gallery"
-  | "downloads";
+  | "downloads"
+  | "children"
+  | "profile";
 
 export type NavItem = {
   key: string;
@@ -69,6 +71,20 @@ export const NAV_ITEMS: readonly NavItem[] = [
     label: "nav.students",
     icon: "students",
     roles: ADMINS,
+  },
+  {
+    key: "my-children",
+    href: "/my-children",
+    label: "nav.myChildren",
+    icon: "children",
+    roles: ["guardian"],
+  },
+  {
+    key: "my-profile",
+    href: "/my-profile",
+    label: "nav.myProfile",
+    icon: "profile",
+    roles: ["student"],
   },
   {
     key: "notices",

@@ -13,7 +13,7 @@ export function TabLinks({
   return (
     <nav
       aria-label={label}
-      className="bg-muted flex w-fit gap-1 rounded-lg p-1"
+      className="bg-muted flex w-fit max-w-full flex-wrap gap-1 rounded-lg p-1"
     >
       {tabs.map((tab) => (
         <Link

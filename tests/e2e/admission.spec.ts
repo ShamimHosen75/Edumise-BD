@@ -124,11 +124,10 @@ test("apply online, check the status, approve, and the student joins the class l
 
   // 4. The student is in the class list; the merit list shows the marks.
   await page.goto("/en/dashboard/students");
-  await page.getByLabel("Section").selectOption({ label: "Class 6 B" });
-  await page.getByRole("button", { name: "Show" }).click();
-  await expect(page.getByRole("row", { name: new RegExp(name) })).toContainText(
-    phone,
-  );
+  await page.getByLabel("Search").fill(name);
+  const row = page.getByRole("row", { name: new RegExp(name) });
+  await expect(row).toContainText(phone);
+  await expect(row).toContainText("Class 6");
   await page.goto("/en/dashboard/admissions/merit");
   await expect(page.getByRole("row", { name: new RegExp(name) })).toContainText(
     "87.5",

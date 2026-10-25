@@ -41,7 +41,7 @@ export function ContentFile({
   const m = (key: string) => msg(messages, key)!;
   const image = kind === "image";
   const max = image ? IMAGE_MAX_BYTES : ATTACHMENT_MAX_BYTES;
-  const isImageUrl = url !== null && /\.(png|jpe?g|webp)$/i.test(url);
+  const isImageUrl = url !== null && /\.(png|jpe?g|webp)(\?|$)/i.test(url);
 
   const run = (
     action: () => Promise<{ ok: boolean; error?: string }>,

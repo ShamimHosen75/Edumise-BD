@@ -6,10 +6,12 @@ import { isLocale } from "@/i18n/config";
 import type { TranslationKey } from "@/i18n/t";
 import { dbError, invalid, type ActionResult } from "@/lib/actions";
 import { requireRole } from "@/lib/auth/session";
-import { tempPassword } from "@/lib/auth/temp-password";
+import {
+  createGuardianLogin,
+  type GuardianLogin,
+} from "@/lib/auth/linked-login";
 import { fromDhakaInput } from "@/lib/content/datetime";
 import { TAGS } from "@/lib/site/cache";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { reviewSchema } from "@/lib/validation/admission";
 import { assertId } from "@/lib/validation/ids";
@@ -19,10 +21,6 @@ type Failure = {
   error: TranslationKey;
   fieldErrors?: Record<string, TranslationKey>;
 };
-export type GuardianLogin =
-  | { status: "created"; phone: string; password: string }
-  | { status: "exists"; phone: string }
-  | { status: "failed" };
 export type ApproveResult =
   | { ok: true; studentCode: string; roll: number; login: GuardianLogin }
   | Failure;
@@ -75,64 +73,6 @@ export async function saveReview(
   return { ok: true };
 }
 
-/**
- * Logs the guardian in with their mobile number: their account email is a placeholder
- * under the reserved .invalid domain (never delivered). One-time password, must change.
- */
-async function guardianLogin(guardianId: number): Promise<GuardianLogin> {
-  const service = createAdminClient();
-  const { data: guardian } = await service
-    .from("guardians")
-    .select("id, profile_id, phone, full_name_en, full_name_bn, email")
-    .eq("id", guardianId)
-    .maybeSingle();
-  if (!guardian) return { status: "failed" };
-  if (guardian.profile_id) return { status: "exists", phone: guardian.phone };
-  const { data: taken } = await service
-    .from("profiles")
-    .select("id, role")
-    .eq("phone", guardian.phone)
-    .maybeSingle();
-  if (taken) {
-    // Same mobile already logs in as a guardian (e.g. a brother's father record): reuse it.
-    if (taken.role !== "guardian") return { status: "failed" };
-    await service
-      .from("guardians")
-      .update({ profile_id: taken.id })
-      .eq("id", guardian.id);
-    return { status: "exists", phone: guardian.phone };
-  }
-  const password = tempPassword();
-  const { data: created, error } = await service.auth.admin.createUser({
-    email: `guardian-${guardian.phone}@guardian.invalid`,
-    password,
-    email_confirm: true,
-  });
-  if (error || !created.user) return { status: "failed" };
-  const { error: profileError } = await service
-    .from("profiles")
-    .update({
-      role: "guardian",
-      phone: guardian.phone,
-      full_name_en: guardian.full_name_en,
-      full_name_bn: guardian.full_name_bn,
-      must_change_password: true,
-    })
-    .eq("id", created.user.id);
-  const { error: linkError } = profileError
-    ? { error: profileError }
-    : await service
-        .from("guardians")
-        .update({ profile_id: created.user.id })
-        .eq("id", guardian.id)
-        .is("profile_id", null);
-  if (linkError) {
-    await service.auth.admin.deleteUser(created.user.id);
-    return { status: "failed" };
-  }
-  return { status: "created", phone: guardian.phone, password };
-}
-
 /** Approves an application (one database transaction), then creates the guardian login. */
 export async function approveApplication(
   lang: string,
@@ -154,7 +94,7 @@ export async function approveApplication(
       fieldErrors: { section_id: "errors.sectionClass" },
     };
   if (error || !data) return dbError(error) as Failure;
-  const login = await guardianLogin(data.guardian_id);
+  const login = await createGuardianLogin(data.guardian_id);
   await supabase.rpc("record_audit", {
     p_action: `guardian.login.${login.status}`,
     p_entity: "guardian",
@@ -186,7 +126,7 @@ export async function retryGuardianLogin(
     .eq("is_primary", true)
     .maybeSingle();
   if (!link) return { ok: false, error: "errors.notAllowed" };
-  const login = await guardianLogin(link.guardian_id);
+  const login = await createGuardianLogin(link.guardian_id);
   await supabase.rpc("record_audit", {
     p_action: `guardian.login.${login.status}`,
     p_entity: "guardian",

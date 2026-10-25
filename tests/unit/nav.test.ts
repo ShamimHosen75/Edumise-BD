@@ -35,12 +35,13 @@ describe("navForRole", () => {
   it("teachers see only notices besides home", () => {
     expect(keys("teacher")).toEqual(["home", "notices"]);
   });
-  it.each(["accountant", "student", "guardian"] as const)(
-    "%s does not see content or settings",
-    (role) => {
-      expect(keys(role)).toEqual(["home"]);
-    },
-  );
+  it("accountants see only home for now", () => {
+    expect(keys("accountant")).toEqual(["home"]);
+  });
+  it("guardians see their children, students their profile", () => {
+    expect(keys("guardian")).toEqual(["home", "my-children"]);
+    expect(keys("student")).toEqual(["home", "my-profile"]);
+  });
   it("no role sees nothing", () => {
     expect(keys(null)).toEqual([]);
     expect(keys(undefined)).toEqual([]);

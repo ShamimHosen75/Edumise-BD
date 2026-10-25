@@ -9,7 +9,8 @@ export async function removeFiles(
   db: Pick<SupabaseClient, "storage">,
   paths: unknown[],
   prefixes: readonly string[],
+  bucket: "public-media" | "private-docs" = "public-media",
 ) {
   const ours = deletablePaths(paths, prefixes);
-  if (ours.length > 0) await db.storage.from("public-media").remove(ours);
+  if (ours.length > 0) await db.storage.from(bucket).remove(ours);
 }

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 
 import { isLocale, type Locale } from "@/i18n/config";
 import type { TranslationKey } from "@/i18n/t";
+import { studentEmail } from "@/lib/auth/linked-login";
 import { canSetPasswordWithoutCurrent } from "@/lib/auth/password-policy";
 import { isRole, roleHomePath, safeNextPath } from "@/lib/auth/roles";
 import { getSessionAmr, requireUser } from "@/lib/auth/session";
@@ -15,6 +16,7 @@ import { createClient } from "@/lib/supabase/server";
 import {
   forgotPasswordSchema,
   isBdPhone,
+  isStudentCode,
   loginSchema,
   newPasswordSchema,
   normalizePhone,
@@ -76,7 +78,9 @@ export async function signIn(
   // Same message for unknown accounts and wrong passwords, so accounts cannot be probed.
   const email = isBdPhone(identifier)
     ? await emailForPhone(identifier)
-    : identifier.toLowerCase();
+    : isStudentCode(identifier)
+      ? studentEmail(identifier.trim())
+      : identifier.toLowerCase();
   if (!email) return fail();
 
   const supabase = await createClient();

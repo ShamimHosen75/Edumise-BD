@@ -14,8 +14,8 @@
 | 3.1 Academic structure | ✅ Done | See below |
 | 3.2 Staff management | ✅ Done | Scope agreed 2026-10-25; see below |
 | 3.3 Online admission | ✅ Done | See below |
-| 3.4 Student management | Not started | Blocked on 3.3 |
-| 3.5 Routine | Not started | Blocked on 3.4 |
+| 3.4 Student management | ✅ Done | Excel (.xlsx) import waits for SheetJS; see below |
+| 3.5 Routine | Not started | Next |
 | 4.1 Student attendance | Not started | Blocked on 3.5 |
 | 4.2 Exams + marks | Not started | Blocked on 4.1 |
 | 4.3 Grading + results | Not started | Blocked on 4.2 |
@@ -593,4 +593,52 @@ Known issues:
   fresh database each run. The home page counter test reads the expected numbers.
 - Applicants' rejected-application files stay in the private bucket until the office
   removes them (clean-up tool later).
+
+## Step 3.4 — student management ✅ (ADM-06, ADM-08, AUTH-04)
+
+Checks (run locally, 2026-10-25): `lint` ✅ · `typecheck` ✅ · `test` ✅ 332 · `db:test` ✅
+21 files / 303 tests · `db lint` ✅ · types up to date ✅ · `build` ✅ · `test:e2e` ✅
+191 passed, 5 skipped by design (desktop-only / phone-only checks) · `npm audit` 0.
+
+| Acceptance criterion | Result | Evidence |
+|---|---|---|
+| Students list: filters session, class, section, group, status; search name/ID/roll/phone | ✅ Pass | `/dashboard/students` (session picker + DataTable filters and search); e2e search after import and after admission approval |
+| Profile tabs: Overview, Guardians, Academic history, Attendance/Results/Fees (placeholders), Documents | ✅ Pass | `/dashboard/students/[id]?tab=…` (link tabs, work without JavaScript) |
+| Add/edit a student manually | ✅ Pass | `add_student()` (student ID + enrolment with the next roll in one transaction); e2e add with a wrong birth registration number first |
+| Link several guardians; one guardian has many children | ✅ Pass | find by mobile shows existing guardians with their children; e2e links the demo father of Rahim and Karim to a new student |
+| Bulk import: template, upload, row-level preview, commit | 🟡 Pass for CSV | template CSV, preview lists each row's problems and final roll, import is all-or-nothing (`import_students()`); e2e imports 10 students after a file with a bad row is refused. Excel (.xlsx) needs SheetJS, which this sandbox cannot download (see known issues) |
+| Year-end promotion: session + class, promoted/retained per student, next-session enrolments with new rolls | ✅ Pass | `promote_students()`; pgTAP checks 6A → 7A with rolls 1–6 in the old order, retained stays in Class 6, no double promotion; e2e promotes 9 and retains 1 |
+| ID card PDF (front/back, photo, QR with the student ID) | ✅ Pass | `/dashboard/students/[id]/id-card` (@react-pdf/renderer + qrcode), admins only; e2e checks it is a PDF and that a teacher gets 403 |
+| Portal: guardian "My children", student "My profile" | ✅ Pass | `/dashboard/my-children`, `/dashboard/my-profile` (RLS limits the rows); e2e in English and Bangla digits, guardian page 403 for a student |
+| Student login (AUTH-04) | ✅ Pass | the office creates it on the profile; the student signs in with the student ID; e2e signs in and is sent to "choose a password" |
+| Unit tests: CSV row validation and roll assignment | ✅ Pass | `tests/unit/student-import.test.ts` (16), `tests/unit/student.test.ts` (12) |
+| New tables have RLS tests | ✅ Pass | pgTAP `280_student_management` (22): teacher/guardian cannot read documents or call the functions |
+
+Decisions (open questions 19–20 in requirements.md):
+- Promotion rolls keep the previous roll order (there are no final results yet; Step 4.3
+  can add "by merit"). Promoted students move to the same section name in the next class;
+  Class 10 students who are promoted are marked graduated.
+- Student logins: the student ID is the login name (account email is a placeholder under
+  the reserved `.invalid` domain, like guardians). Created by the office with a one-time
+  password.
+- Student photos are private (children): kept in the private bucket and shown with
+  10-minute links, never on the website.
+- The ID card is in English: the built-in PDF fonts have no Bangla letters and react-pdf
+  cannot join Bangla script correctly.
+- Import rows get their final roll before saving (written rolls are kept, empty rolls take
+  the next free number after the highest in that section), so the preview shows it.
+
+Known issues:
+- Excel (.xlsx) import: SheetJS ships from cdn.sheetjs.com, which this environment's network
+  policy blocks; the npm `xlsx` package is outdated with known vulnerabilities, so it is not
+  used. CSV works now (Excel: "Save as CSV UTF-8"). Once the host is allowed, `.xlsx` reading
+  is a small change in `import-tool.tsx`.
+- Spreadsheets may show a 17-digit birth registration number in scientific notation; the
+  cell must be formatted as text before saving the CSV (the row is then refused, not
+  saved wrongly).
+- Guardian and student portal pages show no photo yet (photos are private; signed links
+  for families come with the portal work in later steps).
+- Editing a guardian's own details (name, occupation) is not on the profile yet; remove and
+  add again, or change it in a later step.
+- Switching off a guardian login switches it off for all of that guardian's children.
 

@@ -513,9 +513,13 @@ Record before/after scores in docs/qa-report.md.
    **Used from 3.3 (approval creates the student).**
 19. **Promotion rolls (3.4):** new rolls by merit (final exam result, needs Step 4.x) or keep
    the old order? Draft: by merit when a final result exists, otherwise by previous roll.
+   **Used in 3.4:** previous roll order (no final results exist yet); merit order can be
+   added with Step 4.3.
 20. **SheetJS (3.4):** the npm `xlsx` package is outdated and has known vulnerabilities;
    SheetJS now ships from cdn.sheetjs.com. Draft: install the current version from that
    URL (needs network access to cdn.sheetjs.com).
+   **3.4:** cdn.sheetjs.com is blocked in the build sandbox, so the import reads CSV now;
+   `.xlsx` is added once the host is allowed (the npm `xlsx` package stays unused).
 21. **Rooms (3.5):** a managed `rooms` list, or free text per cell? Clash checks need the
    same room spelled the same way, so draft is a managed list.
 22. **Exam schedule visibility (3.5):** `exams.is_published` (1.3) is about results. The

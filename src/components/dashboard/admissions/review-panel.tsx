@@ -10,7 +10,6 @@ import {
   approveApplication,
   retryGuardianLogin,
   saveReview,
-  type GuardianLogin,
 } from "@/app/[lang]/dashboard/admissions/actions";
 import { translator } from "@/components/dashboard/academic/labels";
 import {
@@ -21,6 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import type { Locale } from "@/i18n/config";
+import type { GuardianLogin } from "@/lib/auth/linked-login";
 import type { Messages } from "@/i18n/messages";
 import { localizeDigits } from "@/lib/format";
 import { reviewSchema } from "@/lib/validation/admission";

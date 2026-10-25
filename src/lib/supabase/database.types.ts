@@ -1001,6 +1001,26 @@ isOneToOne: true
       referencedColumns: ["id"]
     }
                   ]
+                },"student_documents": {
+                  Row: {
+                    "created_at": string,"file_path": string,"file_size": number,"id": number,"label": string,"mime_type": string,"student_id": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"file_path": string,"file_size": number,"id"?: never,"label": string,"mime_type": string,"student_id": number
+                  }
+                  Update: {
+                    "created_at"?: string,"file_path"?: string,"file_size"?: number,"id"?: never,"label"?: string,"mime_type"?: string,"student_id"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "student_documents_student_id_fkey"
+      columns: ["student_id"]
+isOneToOne: false
+      referencedRelation: "students"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"student_guardians": {
                   Row: {
                     "created_at": string,"guardian_id": number,"is_primary": boolean,"relation": string,"student_id": number
@@ -1133,7 +1153,12 @@ isOneToOne: false
                 }
           }
           Functions: {
-            "approve_admission":
+            "add_student":
+{ Args: { "p_group_id": number,"p_roll": number,"p_section_id": number,"p_session_id": number,"p_student": Json }; Returns: {
+              "roll": number,"student_code": string,"student_id": number
+            }[]
+                           },
+"approve_admission":
 { Args: { "p_application_id": number,"p_section_id": number }; Returns: {
               "guardian_id": number,"roll": number,"student_code": string,"student_id": number
             }[]
@@ -1147,6 +1172,9 @@ isOneToOne: false
 "hit_rate_limit":
 { Args: { "p_key": string,"p_max": number,"p_window_seconds": number }; Returns: boolean
                            },
+"import_students":
+{ Args: { "p_rows": Json,"p_session_id": number }; Returns: number
+                           },
 "is_bd_phone":
 { Args: { "value": string }; Returns: boolean
                            },
@@ -1155,6 +1183,9 @@ isOneToOne: false
                            },
 "next_tracking_no":
 { Args: Record<PropertyKey, never>; Returns: string
+                           },
+"promote_students":
+{ Args: { "p_class_id": number,"p_decisions": Json,"p_from_session": number,"p_to_session": number }; Returns: number
                            },
 "public_stats":
 { Args: Record<PropertyKey, never>; Returns: Json

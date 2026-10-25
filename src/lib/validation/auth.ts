@@ -14,13 +14,18 @@ export function isBdPhone(value: string): boolean {
   return BD_PHONE.test(normalizePhone(value));
 }
 
+/** Student ID: year + 2-digit class + 4-digit serial, e.g. 2026060001. */
+export function isStudentCode(value: string): boolean {
+  return /^20[0-9]{2}(0[6-9]|10)[0-9]{4}$/.test(value.trim());
+}
+
 export const loginSchema = z.object({
   identifier: z
     .string()
     .trim()
     .min(1, "errors.required")
     .refine(
-      (v) => z.email().safeParse(v).success || isBdPhone(v),
+      (v) => z.email().safeParse(v).success || isBdPhone(v) || isStudentCode(v),
       "errors.emailOrPhone",
     ),
   password: z.string().min(1, "errors.required").max(200, "errors.tooLong"),

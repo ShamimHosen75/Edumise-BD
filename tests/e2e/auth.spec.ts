@@ -62,7 +62,7 @@ test("empty and malformed input show validation errors in both languages", async
   await page.getByRole("button", { name: "Log in" }).click();
   await expect(
     page.getByText(
-      "Enter an email or an 11-digit mobile number (01XXXXXXXXX).",
+      "Enter an email, an 11-digit mobile number (01XXXXXXXXX) or a 10-digit student ID.",
     ),
   ).toBeVisible();
 

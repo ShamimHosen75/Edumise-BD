@@ -6,7 +6,9 @@ import { useState } from "react";
 import {
   CalendarDays,
   BookOpen,
+  Baby,
   Download,
+  IdCard,
   FileText,
   ClipboardList,
   GraduationCap as StudentsIcon,
@@ -43,6 +45,8 @@ const ICONS: Record<NavIcon, LucideIcon> = {
   events: CalendarDays,
   gallery: Images,
   downloads: Download,
+  children: Baby,
+  profile: IdCard,
   governing: Landmark,
   principals: GraduationCap,
   messages: Inbox,
