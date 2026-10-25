@@ -177,3 +177,14 @@ html[lang="bn"] {
 .rich-text hr {
   border-color: var(--border);
 }
+
+/* Routines print on A4 landscape; other pages keep the default page. */
+@page landscape {
+  size: A4 landscape;
+  margin: 10mm;
+}
+@media print {
+  .print-landscape {
+    page: landscape;
+  }
+}

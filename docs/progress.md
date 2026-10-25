@@ -15,8 +15,8 @@
 | 3.2 Staff management | ✅ Done | Scope agreed 2026-10-25; see below |
 | 3.3 Online admission | ✅ Done | See below |
 | 3.4 Student management | ✅ Done | Excel (.xlsx) import waits for SheetJS; see below |
-| 3.5 Routine | Not started | Next |
-| 4.1 Student attendance | Not started | Blocked on 3.5 |
+| 3.5 Routine | ✅ Done | See below |
+| 4.1 Student attendance | Not started | Next |
 | 4.2 Exams + marks | Not started | Blocked on 4.1 |
 | 4.3 Grading + results | Not started | Blocked on 4.2 |
 | 4.4 Certificates | Not started | Blocked on 4.3 |
@@ -641,4 +641,40 @@ Known issues:
 - Editing a guardian's own details (name, occupation) is not on the profile yet; remove and
   add again, or change it in a later step.
 - Switching off a guardian login switches it off for all of that guardian's children.
+
+## Step 3.5 — routine, exam schedule and calendar ✅ (RTN-01, RTN-02, WEB-09)
+
+Checks (run locally, 2026-10-25): `lint` ✅ · `typecheck` ✅ · `test` ✅ 348 · `db:test` ✅
+22 files / 316 tests · `db lint` ✅ · types up to date ✅ · `build` ✅ · `test:e2e` ✅
+201 passed, 5 skipped by design (desktop-only / phone-only checks) · `npm audit` 0 · no browser console errors on the new pages.
+
+| Acceptance criterion | Result | Evidence |
+|---|---|---|
+| Periods setup (number, start/end, break) and working days (Sat–Thu default) | ✅ Pass | Academic setup → Periods (with working days) and Rooms; e2e: end before start refused, working days saved |
+| Routine builder: days × periods grid per section; subject + teacher (+ room) per cell | ✅ Pass | `/dashboard/routine`; click a class, choose subject/teacher/room, Apply, Save |
+| Block on save and highlight clashes (same teacher or room at the same time) | ✅ Pass | clashes shown on the cell as soon as they are made, Save disabled; the server checks again, then `save_section_routine()` (one transaction, unique indexes as backstop); e2e teacher and room clash with 6A |
+| Clash logic in `src/lib/routine.ts` with unit tests | ✅ Pass | `tests/unit/routine.test.ts` (16): `findClashes`, `invalidCells`, calendar helpers, schemas |
+| Views: by section, by teacher ("My routine"), printable A4 landscape | ✅ Pass | `/dashboard/routine`, `/dashboard/routine/teacher`, `/dashboard/my-routine` (teachers); print button, `@page landscape` (checked: one A4 landscape page) |
+| Exam schedule (exam, date, subject, time) with public view | ✅ Pass | `exam_schedule` table, `/dashboard/exam-schedule` (papers + publish/hide), public `/exam-routine`; e2e add paper, hide → gone from the site, publish again |
+| Academic calendar: holidays and events by month; public page | ✅ Pass | `holidays` table (Academic setup → Holidays), public `/calendar?month=` with published events; e2e new holiday shows on the calendar, English and Bangla |
+| Public `/[lang]/routine` with class + section selector | ✅ Pass | e2e: saved routine appears on the public page |
+| RLS tests for new tables | ✅ Pass | pgTAP `290_routine_calendar` (13): unpublished schedules hidden from visitors, staff see them; only admins write; clash and break rules |
+
+Decisions (open questions 21–23 in requirements.md):
+- Rooms are a managed list (the `rooms` table from Step 1.2), edited under Academic setup.
+- The exam schedule uses its own publish flag (`exams.schedule_published`, from Step 1.2),
+  separate from results.
+- Clashes are checked within the current session.
+- Days run down the side and periods across the top (the usual printed layout); the week
+  starts on Saturday.
+- The menu item "Academic calendar" now opens the calendar page; "Exam routine" was added
+  under Academic.
+
+Known issues:
+- Exams themselves are created in Step 4.2; for now the schedule is edited for the demo
+  exams (Half Yearly and Annual 2026).
+- The public routine shows a teacher's name only for staff listed on the public directory.
+- Deleting a period also removes the classes in that period from the routine (the admin
+  confirms the delete first).
+- On a phone the routine grid scrolls sideways inside its box (the page itself does not).
 

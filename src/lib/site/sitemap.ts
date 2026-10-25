@@ -36,4 +36,7 @@ export const STATIC_PATHS = [
   "/contact",
   "/admission/apply",
   "/admission/status",
+  "/routine",
+  "/exam-routine",
+  "/calendar",
 ];

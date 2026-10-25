@@ -16,12 +16,16 @@ import {
   classUsesGroups,
 } from "@/lib/validation/academic";
 import { assertId, assertOptionalId } from "@/lib/validation/ids";
+import { workingDaysSchema } from "@/lib/validation/routine";
 
 // Class and section counts appear on the public home page; designations on the staff
 // directory.
+// The routine, exam routine and calendar pages show periods, rooms, holidays and papers.
 const refresh = () => {
   revalidateTag(TAGS.stats);
   revalidateTag(TAGS.staff);
+  revalidateTag(TAGS.routine);
+  revalidateTag(TAGS.calendar);
 };
 
 /** Creates (id = null) or updates a session, class, section, group or subject. */
@@ -152,5 +156,25 @@ export async function saveClassSubjects(
     const { error } = await supabase.from("class_subjects").insert(add);
     if (error) return dbError(error);
   }
+  return { ok: true };
+}
+
+/** The days the school is open (0 = Sunday ... 6 = Saturday). */
+export async function saveWorkingDays(
+  lang: string,
+  input: unknown,
+): Promise<ActionResult> {
+  const supabase = await requireAdmin(lang);
+  const parsed = workingDaysSchema.safeParse(input);
+  if (!parsed.success) return invalid(parsed.error);
+  const { data, error } = await supabase
+    .from("school_settings")
+    .update({ working_days: [...parsed.data].sort() })
+    .eq("id", 1)
+    .select("id");
+  if (error) return dbError(error);
+  if (!data.length) return { ok: false, error: "errors.notAllowed" };
+  revalidateTag(TAGS.settings);
+  refresh();
   return { ok: true };
 }

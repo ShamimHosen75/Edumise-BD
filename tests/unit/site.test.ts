@@ -43,12 +43,15 @@ describe("route registry", () => {
       "/contact",
       "/admission/apply",
       "/admission/status",
+      "/routine",
+      "/exam-routine",
+      "/calendar",
     ])
       expect(isAvailableRoute(p)).toBe(true);
   });
   it("hides pages from later steps and odd paths", () => {
     for (const p of [
-      "/routine",
+      "/routine/1",
       "/teachers/0",
       "/teachers/kamal",
       "/notices/Exam",
@@ -120,7 +123,7 @@ describe("buildMenu", () => {
     }),
     row({ id: 6, label_en: "Result" }),
     row({ id: 7, parent_id: 6, label_en: "Find a result", url: "/result" }),
-    row({ id: 8, label_en: "Routine", url: "/routine" }),
+    row({ id: 8, label_en: "Attendance", url: "/attendance" }),
     row({
       id: 9,
       label_en: "Board",

@@ -122,4 +122,27 @@ export const academicData = {
     rows(
       await db.from("class_subjects").select("class_id, group_id, subject_id"),
     ),
+  periods: async (db: Client) =>
+    rows(
+      await db
+        .from("periods")
+        .select("id, number, starts_at, ends_at, is_break")
+        .order("number"),
+    ),
+  rooms: async (db: Client) =>
+    rows(await db.from("rooms").select("id, name").order("name")),
+  holidays: async (db: Client) =>
+    rows(
+      await db
+        .from("holidays")
+        .select("id, title_en, title_bn, starts_on, ends_on")
+        .order("starts_on", { ascending: false }),
+    ),
+  workingDays: async (db: Client) => {
+    const { data } = await db
+      .from("school_settings")
+      .select("working_days")
+      .maybeSingle();
+    return data?.working_days ?? [6, 0, 1, 2, 3, 4];
+  },
 };

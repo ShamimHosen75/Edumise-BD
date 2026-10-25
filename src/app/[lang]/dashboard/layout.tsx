@@ -40,7 +40,7 @@ export default async function DashboardLayout({ children, params }: Props) {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="relative flex h-14 items-center gap-3 border-b px-4">
+      <header className="relative flex h-14 items-center gap-3 border-b px-4 print:hidden">
         <DashboardMobileNav
           lang={lang}
           items={items}
@@ -75,8 +75,14 @@ export default async function DashboardLayout({ children, params }: Props) {
         </form>
       </header>
       <div className="flex flex-1">
-        <DashboardSidebar lang={lang} items={items} label={dict.nav.mainNav} />
-        <main className="min-w-0 flex-1 p-4 md:p-6">{children}</main>
+        <div className="contents print:hidden">
+          <DashboardSidebar
+            lang={lang}
+            items={items}
+            label={dict.nav.mainNav}
+          />
+        </div>
+        <main className="min-w-0 flex-1 p-4 md:p-6 print:p-0">{children}</main>
       </div>
       <Toaster position="bottom-center" richColors closeButton />
     </div>

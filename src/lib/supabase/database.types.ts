@@ -345,6 +345,38 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"exam_schedule": {
+                  Row: {
+                    "class_id": number,"created_at": string,"ends_at": string,"exam_date": string,"exam_id": number,"id": number,"starts_at": string,"subject_id": number,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "class_id": number,"created_at"?: string,"ends_at": string,"exam_date": string,"exam_id": number,"id"?: never,"starts_at": string,"subject_id": number,"updated_at"?: string
+                  }
+                  Update: {
+                    "class_id"?: number,"created_at"?: string,"ends_at"?: string,"exam_date"?: string,"exam_id"?: number,"id"?: never,"starts_at"?: string,"subject_id"?: number,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "exam_schedule_class_id_fkey"
+      columns: ["class_id"]
+isOneToOne: false
+      referencedRelation: "classes"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "exam_schedule_exam_id_fkey"
+      columns: ["exam_id"]
+isOneToOne: false
+      referencedRelation: "exams"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "exam_schedule_subject_id_fkey"
+      columns: ["subject_id"]
+isOneToOne: false
+      referencedRelation: "subjects"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"exam_subjects": {
                   Row: {
                     "class_id": number,"counts_in_gpa": boolean,"cq_full": number,"cq_pass": number | null,"created_at": string,"exam_id": number,"full_marks": number | null,"id": number,"locked": boolean,"mcq_full": number,"mcq_pass": number | null,"practical_full": number,"practical_pass": number | null,"subject_id": number,"updated_at": string
@@ -568,6 +600,20 @@ isOneToOne: true
       referencedRelation: "profiles"
       referencedColumns: ["id"]
     }
+                  ]
+                },"holidays": {
+                  Row: {
+                    "created_at": string,"ends_on": string,"id": number,"starts_on": string,"title_bn": string,"title_en": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"ends_on": string,"id"?: never,"starts_on": string,"title_bn"?: string,"title_en": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"ends_on"?: string,"id"?: never,"starts_on"?: string,"title_bn"?: string,"title_en"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    
                   ]
                 },"invoice_items": {
                   Row: {
@@ -1192,6 +1238,9 @@ isOneToOne: false
                            },
 "record_audit":
 { Args: { "p_action": string,"p_details": Json,"p_entity": string,"p_entity_id": string }; Returns: undefined
+                           },
+"save_section_routine":
+{ Args: { "p_cells": Json,"p_section_id": number,"p_session_id": number }; Returns: number
                            },
 "set_current_session":
 { Args: { "p_session_id": number }; Returns: boolean

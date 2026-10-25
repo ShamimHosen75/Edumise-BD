@@ -20,7 +20,9 @@ export type NavIcon =
   | "gallery"
   | "downloads"
   | "children"
-  | "profile";
+  | "profile"
+  | "routine"
+  | "exams";
 
 export type NavItem = {
   key: string;
@@ -71,6 +73,27 @@ export const NAV_ITEMS: readonly NavItem[] = [
     label: "nav.students",
     icon: "students",
     roles: ADMINS,
+  },
+  {
+    key: "routine",
+    href: "/routine",
+    label: "nav.routine",
+    icon: "routine",
+    roles: ADMINS,
+  },
+  {
+    key: "exam-schedule",
+    href: "/exam-schedule",
+    label: "nav.examSchedule",
+    icon: "exams",
+    roles: ADMINS,
+  },
+  {
+    key: "my-routine",
+    href: "/my-routine",
+    label: "nav.myRoutine",
+    icon: "routine",
+    roles: ["teacher"],
   },
   {
     key: "my-children",

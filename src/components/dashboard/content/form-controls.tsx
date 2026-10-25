@@ -35,7 +35,7 @@ export function TextField({
   onChange,
 }: Base & {
   lang?: "en" | "bn";
-  type?: "text" | "datetime-local" | "date" | "number";
+  type?: "text" | "datetime-local" | "date" | "number" | "time";
   onChange?: (value: string) => void;
 }) {
   return (

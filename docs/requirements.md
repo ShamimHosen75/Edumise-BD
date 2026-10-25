@@ -522,9 +522,12 @@ Record before/after scores in docs/qa-report.md.
    `.xlsx` is added once the host is allowed (the npm `xlsx` package stays unused).
 21. **Rooms (3.5):** a managed `rooms` list, or free text per cell? Clash checks need the
    same room spelled the same way, so draft is a managed list.
+   **Used in 3.5 (draft adopted):** managed list, Academic setup → Rooms.
 22. **Exam schedule visibility (3.5):** `exams.is_published` (1.3) is about results. The
    schedule must go public before results. Draft: separate `schedule_published` flag.
+   **Used in 3.5 (draft adopted).**
 23. **Clash scope (3.5):** clashes checked within the current session only? Draft: yes.
+   **Used in 3.5 (draft adopted).**
 24. **Attendance % (4.1):** draft formula: (Present + Late) / (working days − Leave days).
    Late counts as attended; Leave is removed from the denominator, not counted as absent.
    Correct?

@@ -18,6 +18,8 @@ export const TAGS = {
   downloads: "downloads",
   governing: "governing-body",
   exPrincipals: "ex-principals",
+  routine: "routine",
+  calendar: "calendar",
 } as const;
 
 /**

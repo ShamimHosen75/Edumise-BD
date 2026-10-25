@@ -15,7 +15,7 @@ select tables_are('public', array[
   'menu_items', 'site_links', 'page_attachments',
   'ex_principals', 'contact_messages',
   'admission_applications', 'admission_documents', 'tracking_counters', 'audit_log',
-  'student_documents'
+  'student_documents', 'exam_schedule', 'holidays'
 ], 'public schema has exactly the planned tables');
 
 select views_are('public', array['public_staff'], 'public schema has exactly the planned views');

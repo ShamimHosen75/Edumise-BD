@@ -4,6 +4,9 @@ import { notFound } from "next/navigation";
 import { ClassSubjectsEditor } from "@/components/dashboard/academic/class-subjects-editor";
 import { ClassesManager } from "@/components/dashboard/academic/classes-manager";
 import { GroupsManager } from "@/components/dashboard/academic/groups-manager";
+import { HolidaysManager } from "@/components/dashboard/academic/holidays-manager";
+import { PeriodsManager } from "@/components/dashboard/academic/periods-manager";
+import { RoomsManager } from "@/components/dashboard/academic/rooms-manager";
 import { SectionsManager } from "@/components/dashboard/academic/sections-manager";
 import { SessionsManager } from "@/components/dashboard/academic/sessions-manager";
 import { SubjectsManager } from "@/components/dashboard/academic/subjects-manager";
@@ -35,6 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 function messages(dict: Dictionary) {
   return pickMessages(dict, [
     ...leafKeys(dict.academic, "academic"),
+    ...leafKeys(dict.days, "days"),
     ...leafKeys(dict.table, "table"),
     ...leafKeys(dict.dialog, "dialog"),
     "contentAdmin.edit",
@@ -77,6 +81,21 @@ async function body(page: Page, lang: Locale, dict: Dictionary) {
         />
       );
     }
+    case "periods": {
+      const [rows, workingDays] = await Promise.all([
+        academicData.periods(db),
+        academicData.workingDays(db),
+      ]);
+      return (
+        <PeriodsManager {...common} rows={rows} workingDays={workingDays} />
+      );
+    }
+    case "rooms":
+      return <RoomsManager {...common} rows={await academicData.rooms(db)} />;
+    case "holidays":
+      return (
+        <HolidaysManager {...common} rows={await academicData.holidays(db)} />
+      );
     case "class-subjects": {
       const [classes, groups, subjects, mappings] = await Promise.all([
         academicData.classList(db),

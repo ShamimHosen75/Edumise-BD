@@ -5,6 +5,12 @@ import {
   sessionSchema,
   subjectSchema,
 } from "@/lib/validation/academic";
+import {
+  examScheduleSchema,
+  holidaySchema,
+  periodSchema,
+  roomSchema,
+} from "@/lib/validation/routine";
 import { designationSchema } from "@/lib/validation/staff";
 
 /** The academic setup lists an admin edits, each with its table, schema and unique field. */
@@ -24,6 +30,15 @@ export const ACADEMIC = {
     schema: designationSchema,
     unique: "rank",
   },
+  // Step 3.5: routine and calendar lists.
+  periods: { table: "periods", schema: periodSchema, unique: "number" },
+  rooms: { table: "rooms", schema: roomSchema, unique: "name" },
+  holidays: { table: "holidays", schema: holidaySchema, unique: "title_en" },
+  "exam-schedule": {
+    table: "exam_schedule",
+    schema: examScheduleSchema,
+    unique: "subject_id",
+  },
 } as const;
 
 export type AcademicEntity = keyof typeof ACADEMIC;
@@ -39,4 +54,7 @@ export const ACADEMIC_PAGES = [
   "groups",
   "subjects",
   "class-subjects",
+  "periods",
+  "rooms",
+  "holidays",
 ] as const;
