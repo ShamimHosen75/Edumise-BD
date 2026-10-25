@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
   // Enables forbidden() so wrong-role pages answer with a real 403.
   experimental: {
     authInterrupts: true,
-    // Logo uploads are up to 1 MB plus form fields.
+    // File uploads are up to 4 MB plus form fields (see src/lib/files.ts).
     serverActions: { bodySizeLimit: "5mb" },
   },
   images: {

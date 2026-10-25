@@ -6,6 +6,7 @@ import { CalendarDays, MapPin } from "lucide-react";
 
 import { ContentHeader } from "@/components/site/content/content-header";
 import { listHref, Pagination } from "@/components/site/content/pagination";
+import { TabLinks } from "@/components/site/content/tab-links";
 import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { contentLabels } from "@/lib/content/labels";
@@ -13,7 +14,6 @@ import { parsePage, totalPages } from "@/lib/content/pagination";
 import { formatDateTime, pickLocalized } from "@/lib/format";
 import { listEvents } from "@/lib/site/content-data";
 import { publicMediaUrl } from "@/lib/supabase/public";
-import { cn } from "@/lib/utils";
 
 type Props = {
   params: Promise<{ lang: string }>;
@@ -38,31 +38,17 @@ export default async function EventsPage({ params, searchParams }: Props) {
   const { rows, count } = await listEvents({ page, when });
   const labels = contentLabels(dict, lang);
   const base = `/${lang}/events`;
-  const tab = (value: "upcoming" | "past") => (
-    <Link
-      href={listHref(base, { when: value === "past" ? "past" : undefined })}
-      aria-current={when === value ? "page" : undefined}
-      className={cn(
-        "rounded-md px-4 py-2 text-sm font-medium",
-        when === value
-          ? "bg-primary text-primary-foreground"
-          : "hover:bg-accent",
-      )}
-    >
-      {value === "past" ? c.past : c.upcoming}
-    </Link>
-  );
-
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-10">
       <ContentHeader title={c.events} intro={c.intro.events} />
-      <nav
-        aria-label={c.events}
-        className="bg-muted flex w-fit gap-1 rounded-lg p-1"
-      >
-        {tab("upcoming")}
-        {tab("past")}
-      </nav>
+      <TabLinks
+        label={c.events}
+        tabs={(["upcoming", "past"] as const).map((value) => ({
+          href: listHref(base, { when: value === "past" ? "past" : undefined }),
+          label: value === "past" ? c.past : c.upcoming,
+          active: when === value,
+        }))}
+      />
       {rows.length > 0 ? (
         <ul className="flex flex-col gap-4">
           {rows.map((e) => {

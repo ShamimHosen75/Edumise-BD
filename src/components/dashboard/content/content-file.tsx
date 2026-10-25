@@ -4,43 +4,34 @@ import { FileText } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
-import {
-  removeContentFile,
-  uploadContentFile,
-} from "@/app/[lang]/dashboard/[module]/actions";
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
-import type { Locale } from "@/i18n/config";
 import { msg, type Messages } from "@/i18n/messages";
-import { MODULE_FILE, type ContentModule } from "@/lib/content/modules";
 import {
   ATTACHMENT_MAX_BYTES,
   fileTooLarge,
   IMAGE_MAX_BYTES,
 } from "@/lib/files";
 
-const LABEL_KEY: Record<ContentModule, string> = {
-  notices: "contentAdmin.attachment",
-  news: "contentAdmin.cover",
-  events: "contentAdmin.cover",
-  gallery: "contentAdmin.cover",
-  downloads: "contentAdmin.downloadFile",
-};
-
 /** Upload, replace or remove an item's file. The server checks the file again. */
+type Result = { ok: boolean; error?: string };
+
 export function ContentFile({
-  lang,
-  module,
-  id,
+  title,
+  kind,
   url,
   messages,
+  upload,
+  remove,
 }: {
-  lang: Locale;
-  module: ContentModule;
-  id: number;
+  title: string;
+  kind: "image" | "document";
   url: string | null;
   messages: Messages;
+  /** Server actions, already bound to the item. */
+  upload: (data: FormData) => Promise<Result>;
+  remove: () => Promise<Result>;
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -48,7 +39,7 @@ export function ContentFile({
     null,
   );
   const m = (key: string) => msg(messages, key)!;
-  const image = MODULE_FILE[module].kind === "image";
+  const image = kind === "image";
   const max = image ? IMAGE_MAX_BYTES : ATTACHMENT_MAX_BYTES;
   const isImageUrl = url !== null && /\.(png|jpe?g|webp)$/i.test(url);
 
@@ -80,7 +71,7 @@ export function ContentFile({
       className="flex max-w-4xl flex-col gap-3 rounded-xl border p-4"
     >
       <h2 id="file-title" className="font-semibold">
-        {m(LABEL_KEY[module])}
+        {title}
       </h2>
       {url ? (
         <div className="flex flex-wrap items-center gap-3 text-sm">
@@ -107,7 +98,7 @@ export function ContentFile({
             size="sm"
             variant="ghost"
             disabled={pending}
-            onClick={() => run(() => removeContentFile(lang, module, id))}
+            onClick={() => run(remove)}
           >
             {m("contentAdmin.removeFile")}
           </Button>
@@ -124,7 +115,7 @@ export function ContentFile({
             setStatus({ ok: false, text: m("errors.fileSize") });
             return;
           }
-          run(() => uploadContentFile(lang, module, id, data), form);
+          run(() => upload(data), form);
         }}
       >
         <FormField id="content-file" label={m("contentAdmin.file")}>

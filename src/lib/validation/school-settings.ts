@@ -13,14 +13,22 @@ const httpsUrl = z
 const optionalUrl = z.union([z.literal(""), httpsUrl]);
 
 /** Only Google Maps embed links may be shown in the contact page iframe. */
+export function isMapEmbedUrl(value: string): boolean {
+  try {
+    const u = new URL(value);
+    return (
+      u.protocol === "https:" &&
+      u.hostname === "www.google.com" &&
+      u.pathname.startsWith("/maps/embed")
+    );
+  } catch {
+    return false;
+  }
+}
+
 const mapEmbedUrl = z.union([
   z.literal(""),
-  httpsUrl.refine((v) => {
-    const u = new URL(v);
-    return (
-      u.hostname === "www.google.com" && u.pathname.startsWith("/maps/embed")
-    );
-  }, "errors.mapEmbed"),
+  httpsUrl.refine(isMapEmbedUrl, "errors.mapEmbed"),
 ]);
 
 const color = z.string().regex(/^#[0-9a-fA-F]{6}$/, "errors.color");

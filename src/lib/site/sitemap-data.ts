@@ -17,12 +17,13 @@ export const getSitemapEntries = cachedPublicQuery<SitemapEntry[], []>(
     TAGS.events,
     TAGS.gallery,
     TAGS.downloads,
+    TAGS.staff,
   ],
   async () => {
     const db = createPublicClient();
     const LIMIT = 5000;
-    const [pages, notices, news, events, albums, downloads] = await Promise.all(
-      [
+    const [pages, notices, news, events, albums, downloads, staff] =
+      await Promise.all([
         db
           .from("pages")
           .select("slug, updated_at")
@@ -37,9 +38,9 @@ export const getSitemapEntries = cachedPublicQuery<SitemapEntry[], []>(
         db.from("events").select("slug, updated_at").limit(LIMIT),
         db.from("gallery_albums").select("slug, updated_at").limit(LIMIT),
         db.from("downloads").select("id, updated_at").limit(LIMIT),
-      ],
-    );
-    const all = [pages, notices, news, events, albums, downloads];
+        db.from("public_staff").select("id").limit(LIMIT),
+      ]);
+    const all = [pages, notices, news, events, albums, downloads, staff];
     const failed = all.find((r) => r.error);
     if (failed?.error) throw new Error(failed.error.message);
     const bySlug = (prefix: string, rows: (Row & { slug: string })[] | null) =>
@@ -57,6 +58,7 @@ export const getSitemapEntries = cachedPublicQuery<SitemapEntry[], []>(
         path: `/downloads/${d.id}`,
         lastModified: d.updated_at,
       })),
+      ...(staff.data ?? []).map((p) => ({ path: `/teachers/${p.id}` })),
     ];
   },
   [],

@@ -20,8 +20,9 @@ import type { ContentModule } from "@/lib/content/modules";
 import { CONTENT_SCHEMAS } from "@/lib/validation/content";
 import { slugify } from "@/lib/validation/page";
 
-import { CheckboxField, RichField, TextField } from "./form-controls";
+import { CheckboxField, TextField } from "./form-controls";
 import { ModuleFields, type Option } from "./module-fields";
+import { RichField } from "./rich-field";
 
 type Props = {
   lang: Locale;

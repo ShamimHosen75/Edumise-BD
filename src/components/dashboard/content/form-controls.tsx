@@ -1,22 +1,14 @@
 "use client";
 
-import {
-  Controller,
-  type FieldValues,
-  type UseFormReturn,
-} from "react-hook-form";
+import type { FieldValues, UseFormReturn } from "react-hook-form";
 
-import {
-  RichTextEditor,
-  type EditorLabels,
-} from "@/components/dashboard/cms/rich-text-editor";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 
 // Small field helpers for the content form. All values live in one react-hook-form.
 
 type Form = UseFormReturn<FieldValues>;
-type Base = {
+export type Base = {
   form: Form;
   name: string;
   label: string;
@@ -25,7 +17,7 @@ type Base = {
   hint?: string;
 };
 
-const errorOf = (form: Form, name: string) =>
+export const errorOf = (form: Form, name: string) =>
   form.formState.errors[name]?.message as string | undefined;
 
 export function TextField({
@@ -39,7 +31,7 @@ export function TextField({
   onChange,
 }: Base & {
   lang?: "en" | "bn";
-  type?: "text" | "datetime-local" | "date";
+  type?: "text" | "datetime-local" | "date" | "number";
   onChange?: (value: string) => void;
 }) {
   return (
@@ -125,42 +117,5 @@ export function CheckboxField({ form, name, label, hint }: Omit<Base, "t">) {
       </label>
       {hint ? <p className="text-muted-foreground text-xs">{hint}</p> : null}
     </div>
-  );
-}
-
-export function RichField({
-  form,
-  name,
-  label,
-  t,
-  lang,
-  labels,
-  onUploadImage,
-}: Base & {
-  lang: "en" | "bn";
-  labels: EditorLabels;
-  onUploadImage?: (file: File) => Promise<string | null>;
-}) {
-  return (
-    <FormField id={name} label={label} error={t(errorOf(form, name))}>
-      {(aria) => (
-        <Controller
-          control={form.control}
-          name={name}
-          render={({ field }) => (
-            <RichTextEditor
-              id={aria.id}
-              lang={lang}
-              value={String(field.value ?? "")}
-              onChange={field.onChange}
-              labels={labels}
-              invalid={aria["aria-invalid"]}
-              describedBy={aria["aria-describedby"]}
-              onUploadImage={onUploadImage}
-            />
-          )}
-        />
-      )}
-    </FormField>
   );
 }

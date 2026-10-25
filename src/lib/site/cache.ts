@@ -16,6 +16,8 @@ export const TAGS = {
   pages: "pages",
   news: "news",
   downloads: "downloads",
+  governing: "governing-body",
+  exPrincipals: "ex-principals",
 } as const;
 
 /**

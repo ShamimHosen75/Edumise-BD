@@ -115,6 +115,20 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"contact_messages": {
+                  Row: {
+                    "created_at": string,"email": string,"id": number,"is_read": boolean,"message": string,"name": string,"phone": string,"read_at": string | null,"subject": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"email"?: string,"id"?: never,"is_read"?: boolean,"message": string,"name": string,"phone": string,"read_at"?: string | null,"subject": string
+                  }
+                  Update: {
+                    "created_at"?: string,"email"?: string,"id"?: never,"is_read"?: boolean,"message"?: string,"name"?: string,"phone"?: string,"read_at"?: string | null,"subject"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"designations": {
                   Row: {
                     "created_at": string,"id": number,"is_teaching": boolean,"name_bn": string,"name_en": string,"rank": number,"updated_at": string
@@ -212,6 +226,20 @@ isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
     }
+                  ]
+                },"ex_principals": {
+                  Row: {
+                    "created_at": string,"from_year": number,"full_name_bn": string,"full_name_en": string,"id": number,"note_bn": string,"note_en": string,"photo_path": string | null,"to_year": number,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"from_year": number,"full_name_bn"?: string,"full_name_en": string,"id"?: never,"note_bn"?: string,"note_en"?: string,"photo_path"?: string | null,"to_year": number,"updated_at"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"from_year"?: number,"full_name_bn"?: string,"full_name_en"?: string,"id"?: never,"note_bn"?: string,"note_en"?: string,"photo_path"?: string | null,"to_year"?: number,"updated_at"?: string
+                  }
+                  Relationships: [
+                    
                   ]
                 },"exam_classes": {
                   Row: {

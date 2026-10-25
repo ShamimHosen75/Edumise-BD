@@ -123,3 +123,8 @@ export function formatDateTime(value: DateInput, lang: Locale): string {
     hourCycle: "h23",
   }).format(date);
 }
+
+/** Bangla digits typed by the user -> ASCII digits ("০১৭" -> "017"). */
+export function toAsciiDigits(value: string): string {
+  return value.replace(/[০-৯]/g, (d) => String(d.charCodeAt(0) - 0x09e6));
+}

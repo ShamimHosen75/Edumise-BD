@@ -7,6 +7,9 @@ import {
   CalendarDays,
   Download,
   FileText,
+  GraduationCap,
+  Inbox,
+  Landmark,
   Home,
   Images,
   ListTree,
@@ -32,6 +35,9 @@ const ICONS: Record<NavIcon, LucideIcon> = {
   events: CalendarDays,
   gallery: Images,
   downloads: Download,
+  governing: Landmark,
+  principals: GraduationCap,
+  messages: Inbox,
 };
 
 export type NavLink = Pick<NavItem, "key" | "href" | "icon"> & {

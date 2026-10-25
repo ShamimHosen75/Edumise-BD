@@ -88,6 +88,8 @@ drop table seed_pages;
 insert into public.menu_items (parent_id, label_en, label_bn, url, sort_order)
 select m.id, i.label_en, i.label_bn, i.url, i.sort_order
 from (values
+  ('About', 'Governing body', 'পরিচালনা পর্ষদ', '/governing-body', 21),
+  ('About', 'Former head teachers', 'প্রাক্তন প্রধান শিক্ষক', '/ex-principals', 22),
   ('Information', 'Notices', 'নোটিশ', '/notices', 22),
   ('Information', 'Teachers and staff', 'শিক্ষক ও কর্মচারী', '/teachers', 23),
   ('Academic', 'Class routine', 'ক্লাস রুটিন', '/routine', 21),

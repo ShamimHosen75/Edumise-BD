@@ -2,6 +2,10 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import {
+  removeContentFile,
+  uploadContentFile,
+} from "@/app/[lang]/dashboard/[module]/actions";
 import { AlbumPhotos } from "@/components/dashboard/content/album-photos";
 import { ContentFile } from "@/components/dashboard/content/content-file";
 import { ContentForm } from "@/components/dashboard/content/content-form";
@@ -17,6 +21,14 @@ import {
 import { toFormValues } from "@/lib/content/rows";
 import { pickLocalized } from "@/lib/format";
 import { publicMediaUrl } from "@/lib/supabase/public";
+
+const FILE_LABEL = {
+  notices: "attachment",
+  news: "cover",
+  events: "cover",
+  gallery: "cover",
+  downloads: "downloadFile",
+} as const;
 
 type Props = { params: Promise<{ lang: string; module: string; id: string }> };
 
@@ -72,11 +84,12 @@ export default async function EditContent({ params }: Props) {
         {...formProps}
       />
       <ContentFile
-        lang={lang}
-        module={module}
-        id={id}
+        title={dict.contentAdmin[FILE_LABEL[module]]}
+        kind={MODULE_FILE[module].kind}
         url={publicMediaUrl(file)}
         messages={formProps.messages}
+        upload={uploadContentFile.bind(null, lang, module, id)}
+        remove={removeContentFile.bind(null, lang, module, id)}
       />
       {module === "gallery" ? (
         <AlbumPhotos

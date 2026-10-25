@@ -30,4 +30,8 @@ export const STATIC_PATHS = [
   "/events",
   "/gallery",
   "/downloads",
+  "/teachers",
+  "/governing-body",
+  "/ex-principals",
+  "/contact",
 ];

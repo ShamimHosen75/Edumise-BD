@@ -54,3 +54,28 @@ insert into public.downloads (title_en, title_bn, category, file_path, file_size
   ('Admission form 2027', 'ভর্তি ফরম ২০২৭', 'forms', 'demo/notice-sample.pdf', 1024, 'application/pdf', true, '2026-10-01 09:00+06'),
   ('Class 9 syllabus', 'নবম শ্রেণির সিলেবাস', 'syllabus', 'demo/notice-sample.pdf', 1024, 'application/pdf', true, '2026-01-10 09:00+06'),
   ('Draft circular', 'খসড়া পরিপত্র', 'general', 'demo/notice-sample.pdf', 1024, 'application/pdf', false, null);
+
+-- Step 2.4: an older governing body term and former head teachers.
+insert into public.governing_body (full_name_en, full_name_bn, position_en, position_bn, term_start, term_end, sort_order) values
+  ('Rokeya Khatun', 'রোকেয়া খাতুন', 'Guardian Member', 'অভিভাবক সদস্য', '2022-01-01', '2024-12-31', 2),
+  ('Md. Jalal Uddin', 'মোঃ জালাল উদ্দিন', 'Chairman', 'সভাপতি', '2019-01-01', '2021-12-31', 1);
+
+insert into public.ex_principals (full_name_en, full_name_bn, from_year, to_year, note_en, note_bn) values
+  ('Abul Kashem', 'আবুল কাশেম', 1975, 1990, 'Founding head teacher.', 'প্রতিষ্ঠাতা প্রধান শিক্ষক।'),
+  ('Momtaz Begum', 'মমতাজ বেগম', 1990, 2004, '', ''),
+  ('Nurul Islam', 'নুরুল ইসলাম', 2004, 2004, 'Acting head teacher.', 'ভারপ্রাপ্ত প্রধান শিক্ষক।');
+
+-- One message in the contact inbox.
+insert into public.contact_messages (name, phone, email, subject, message, created_at) values
+  ('Karim Mia', '01711000000', 'karim@example.test', 'Admission for Class 6',
+   'When does admission for Class 6 open next year?', '2026-10-20 10:00+06');
+
+update public.staff set
+  bio_en = 'Kamal teaches mathematics in Classes 9 and 10 and runs the school maths club.',
+  bio_bn = 'কামাল নবম ও দশম শ্রেণিতে গণিত পড়ান এবং বিদ্যালয়ের গণিত ক্লাব পরিচালনা করেন।',
+  qualification_bn = 'এমএসসি (গণিত), বিএড'
+where full_name_en = 'Kamal Hossain';
+
+-- A map for the contact page (any Google Maps "Embed a map" link works).
+update public.school_settings set
+  map_embed_url = 'https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d58403.0!2d90.39!3d23.78!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sbd';

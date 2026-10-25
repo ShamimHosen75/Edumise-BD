@@ -11,7 +11,7 @@ set local request.jwt.claims to '{"role": "anon"}';
 -- Allowed
 select is((select count(*)::int from public.school_settings), 1, 'anon reads school settings');
 select is((select count(*)::int from public.public_staff), 7, 'anon reads the public staff directory');
-select is((select count(*)::int from public.governing_body), 4, 'anon reads the governing body');
+select is((select count(*)::int from public.governing_body), 6, 'anon reads the governing body (current and former terms)');
 select is((select count(*)::int from public.routine), 6, 'anon reads the routine');
 select is((select count(*)::int from public.sections), 10, 'anon reads sections (for the routine page)');
 select is((select count(*)::int from public.notices

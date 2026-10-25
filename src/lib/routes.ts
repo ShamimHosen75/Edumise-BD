@@ -12,6 +12,9 @@ const AVAILABLE: readonly RegExp[] = [
   /^\/(notices|news|events|gallery|downloads)$/,
   /^\/(notices|news|events|gallery)\/[a-z0-9]+(?:-[a-z0-9]+)*$/,
   /^\/downloads\/[1-9][0-9]*$/,
+  // Step 2.4
+  /^\/(teachers|governing-body|ex-principals|contact)$/,
+  /^\/teachers\/[1-9][0-9]*$/,
 ];
 
 export function isAvailableRoute(path: string): boolean {

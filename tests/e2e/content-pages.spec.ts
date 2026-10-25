@@ -12,6 +12,12 @@ const PAGES = [
   "/gallery",
   "/gallery/annual-sports-2025",
   "/downloads",
+  "/teachers",
+  "/teachers?status=former",
+  "/governing-body",
+  "/governing-body?view=former",
+  "/ex-principals",
+  "/contact",
 ];
 
 for (const lang of ["en", "bn"] as const) {

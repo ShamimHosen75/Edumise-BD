@@ -10,8 +10,8 @@
 | 2.1 Site shell + home | ✅ Done | See below |
 | 2.2 CMS pages + menu | ✅ Done | See below |
 | 2.3 Content modules | ✅ Done | See below |
-| 2.4 People + contact | Not started | Next |
-| 3.1 Academic structure | Not started | Blocked on 2.4 |
+| 2.4 People + contact | ✅ Done | See below |
+| 3.1 Academic structure | Not started | Next |
 | 3.2 Staff management | Not started | Title only; body still needed |
 | 3.3 Online admission | Not started | Blocked on 3.2 |
 | 3.4 Student management | Not started | Blocked on 3.3 |
@@ -394,4 +394,50 @@ Known issues:
 - Teachers cannot delete files they uploaded to a draft (Storage has no delete policy for
   them); replaced files stay in Storage until an admin cleans up.
 - Detail pages do not repeat the school name in `og:site_name`.
+
+## Step 2.4 — people and contact pages ✅ (WEB-05, WEB-06, WEB-15)
+
+Checks (run locally, 2026-10-25): `lint` ✅ · `typecheck` ✅ · `test` ✅ 246 · `db:test` ✅
+16 files / 238 tests · `db lint` ✅ · types up to date ✅ · `build` ✅ · `test:e2e` ✅
+155 passed, 5 skipped by design (desktop-only / phone-only checks) · `npm audit` 0.
+
+| Acceptance criterion | Result | Evidence |
+|---|---|---|
+| Teachers and staff directory, current and former, grouped and ordered by designation rank | ✅ Pass | `/teachers` (Current / Former tabs); unit `groupByDesignation`; e2e "the directory groups by designation…" |
+| Cards with photo, name, designation, subject | ✅ Pass | shared `PersonCard` (initials when there is no photo), also used on the home page, which now links to profiles |
+| Profile page shows ONLY public fields (photo, name, designation, subjects, qualification, joining year, short bio) | ✅ Pass | `/teachers/[id]` reads the `public_staff` view (no private columns: pgTAP `hasnt_column` × 4) |
+| Governing body and ex-governing body grouped by term; ex-principals list | ✅ Pass | `/governing-body` (Current / Former, one heading per term), `/ex-principals`; unit `groupByTerm` |
+| Dashboard CRUD for governing body and ex-principals | ✅ Pass | `/dashboard/governing-body`, `/dashboard/ex-principals` (add, edit, delete, photo); e2e adds a member and sees it on the public page |
+| Contact form (name, phone, email, subject, message) with Zod validation | ✅ Pass | `contactSchema` on client and server; Bangla digits and +880 numbers accepted |
+| Honeypot + rate limit (5/hour per IP), saves to `contact_messages` | ✅ Pass | e2e "allows 5 messages an hour… and ignores bots" (6th refused, bot message not stored) |
+| Google Maps embed from settings; office hours | ✅ Pass | `/contact` (only Google Maps embed links are shown) |
+| Admin inbox to read and mark messages | ✅ Pass | `/dashboard/messages` (All / Unread, unread count, opening marks read, mark unread, delete) |
+| E2E: staff profile HTML has no seeded NID, birth date or address | ✅ Pass | `people.spec.ts` (en and bn) |
+| E2E: contact validation errors in both languages | ✅ Pass | `people.spec.ts` |
+
+Negative tests: visitors and teachers cannot read, write or mark contact messages, or
+change former head teachers; teachers get 403 on the inbox and the people editors; the
+database refuses messages without a valid mobile number or over 2000 characters, and a
+head teacher who left before joining; the forms reject a term that ends before it starts,
+years in the future and bad dates; unknown profile ids are 404.
+
+Decisions:
+- One directory page (`/teachers`) for teaching and office staff: the "Staff" designation
+  is its last group. Former staff are a tab, not a separate page.
+- "Current" governing body = terms with no end date or ending today or later (Bangladesh
+  date); everything else is shown under Former.
+- Contact messages are written by the server with the service role after validation, the
+  honeypot and the rate limit; there is no insert policy for anyone. The phone number is
+  required (the office calls back); email is optional.
+- Rate limit counts accepted messages only, so typing mistakes do not use up the limit.
+- The rich text editor field moved to its own file so simple dashboard forms do not load
+  the editor (governing body form: 299 kB → 163 kB).
+
+Known issues:
+- Staff photos and bios are edited in Step 3.2 (staff management); the seed has no photos,
+  so cards show initials.
+- No email notification for new contact messages (not in the spec); admins see them in
+  the inbox.
+- Governing body members are ordered by "Order in the list" within a term; there is no
+  drag-to-reorder.
 
