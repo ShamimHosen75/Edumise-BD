@@ -37,7 +37,8 @@
     "downloads": "Downloads",
     "governingBody": "Governing body",
     "exPrincipals": "Former head teachers",
-    "messages": "Messages"
+    "messages": "Messages",
+    "academic": "Academic setup"
   },
   "auth": {
     "loginTitle": "Log in",
@@ -103,7 +104,14 @@
     "imageType": "The image must be PNG, JPG or WebP.",
     "fileRequired": "Upload the file before publishing.",
     "messageShort": "Write at least 10 characters.",
-    "mobile": "Enter an 11-digit mobile number, e.g. 01712345678."
+    "mobile": "Enter an 11-digit mobile number, e.g. 01712345678.",
+    "classLevel": "Class must be a number from 6 to 10.",
+    "groupCode": "Use lowercase letters and underscores, e.g. science.",
+    "subjectCode": "Use 2 to 10 capital letters or digits, e.g. MATH.",
+    "capacity": "Enter a number from 1 to 200, or leave it empty.",
+    "inUse": "This is still in use, so it cannot be deleted.",
+    "duplicate": "This already exists.",
+    "groupRequired": "Choose a group for Classes 9 and 10."
   },
   "forbidden": {
     "title": "You do not have access to this page",
@@ -574,5 +582,91 @@
     "reply": "Reply by email",
     "call": "Call",
     "new": "New"
+  },
+  "table": {
+    "search": "Search",
+    "all": "All",
+    "empty": "Nothing here yet.",
+    "noMatches": "Nothing matches your search or filters.",
+    "exportCsv": "Export CSV",
+    "previous": "Previous",
+    "next": "Next",
+    "actions": "Actions",
+    "pageOf": "Page {page} of {pages}",
+    "count": "{count} rows",
+    "sortBy": "Sort by {column}"
+  },
+  "dialog": {
+    "save": "Save",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "close": "Close"
+  },
+  "academic": {
+    "title": "Academic setup",
+    "tabs": "Academic setup pages",
+    "sessions": "Sessions",
+    "classes": "Classes",
+    "sections": "Sections",
+    "groups": "Groups",
+    "subjects": "Subjects",
+    "classSubjects": "Class subjects",
+    "intro": {
+      "sessions": "School years. One session is the current one.",
+      "classes": "Classes taught at the school (6 to 10).",
+      "sections": "Sections of each class, with capacity and class teacher.",
+      "groups": "Groups for Classes 9 and 10.",
+      "subjects": "All subjects, with their type.",
+      "classSubjects": "Choose the subjects taught in each class (and group, for Classes 9 and 10)."
+    },
+    "item": {
+      "session": "session",
+      "class": "class",
+      "section": "section",
+      "group": "group",
+      "subject": "subject"
+    },
+    "add": "Add {item}",
+    "edit": "Edit {item}",
+    "editNamed": "Edit: {name}",
+    "delete": "Delete",
+    "deleteNamed": "Delete: {name}",
+    "deleteConfirm": "Delete {name}? This cannot be undone.",
+    "saved": "Saved.",
+    "deleted": "Deleted.",
+    "name": "Name",
+    "nameEn": "Name (English)",
+    "nameBn": "Name (Bangla)",
+    "startsOn": "Starts",
+    "endsOn": "Ends",
+    "status": "Status",
+    "current": "Current",
+    "notCurrent": "Not current",
+    "makeCurrent": "Make current",
+    "makeCurrentNamed": "Make {name} the current session",
+    "nowCurrent": "{name} is now the current session.",
+    "level": "Class (6 to 10)",
+    "code": "Code",
+    "class": "Class",
+    "capacity": "Capacity",
+    "capacityHint": "Leave empty for no limit.",
+    "classTeacher": "Class teacher",
+    "noTeacher": "No class teacher",
+    "type": "Type",
+    "sortOrder": "Order",
+    "group": "Group",
+    "noGroup": "No group",
+    "types": {
+      "compulsory": "Compulsory",
+      "optional": "Optional",
+      "fourth": "Fourth subject"
+    },
+    "chooseClass": "Class",
+    "chooseGroup": "Group",
+    "saveSubjects": "Save subjects",
+    "selectedCount": "{count} subjects chosen",
+    "groupsNote": "Classes 9 and 10 choose subjects for each group.",
+    "subjectsList": "Subjects taught",
+    "subjectCount": "Subjects"
   }
 }

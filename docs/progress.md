@@ -11,7 +11,7 @@
 | 2.2 CMS pages + menu | ✅ Done | See below |
 | 2.3 Content modules | ✅ Done | See below |
 | 2.4 People + contact | ✅ Done | See below |
-| 3.1 Academic structure | Not started | Next |
+| 3.1 Academic structure | ✅ Done | See below |
 | 3.2 Staff management | Not started | Title only; body still needed |
 | 3.3 Online admission | Not started | Blocked on 3.2 |
 | 3.4 Student management | Not started | Blocked on 3.3 |
@@ -467,4 +467,43 @@ Fixed (each with a regression test where it can be tested):
 Recorded for later: shared action helpers (Step 3.1), tabs as path segments and editor
 lazy-loading (Step 6.3), slide link column (ask the owner). Production note for Step 6.4:
 the contact form's per-IP limit relies on Vercel setting `X-Forwarded-For`.
+
+## Step 3.1 — academic structure management ✅
+
+Checks (run locally, 2026-10-25): `lint` ✅ · `typecheck` ✅ · `test` ✅ 278 · `db:test` ✅
+18 files / 254 tests · `db lint` ✅ · types up to date ✅ · `build` ✅ · `test:e2e` ✅
+167 passed, 5 skipped by design (desktop-only / phone-only checks) · `npm audit` 0.
+
+| Acceptance criterion | Result | Evidence |
+|---|---|---|
+| Dashboard pages: Sessions (set one as current), Classes, Sections (capacity, class teacher), Groups, Subjects (code, EN/BN name, type), Class-Subjects per class and group | ✅ Pass | `/dashboard/academic/{sessions,classes,sections,groups,subjects,class-subjects}` with tabs; "Make current" uses `set_current_session()` (one statement, never two current sessions) |
+| Reusable DataTable (TanStack): search, column filters, sort, pagination, CSV export, row actions, empty and loading states | ✅ Pass | `src/components/ui/data-table.tsx` (+ `data-table-skeleton.tsx`, `loading.tsx`); CSV via `src/lib/csv.ts` (BOM for Bangla, formulas defused); e2e search/filter/sort in Bangla and CSV download |
+| Reusable FormDialog: react-hook-form + Zod + server action + toast | ✅ Pass | `src/components/ui/form-dialog.tsx`, Sonner `Toaster` in the dashboard layout; used for add/edit on every academic page |
+| Unit tests for Zod schemas | ✅ Pass | `tests/unit/academic.test.ts` (13) |
+| E2E: create session → class → section → map subjects | ✅ Pass (see note) | `tests/e2e/academic.spec.ts` |
+
+Note on "create class": the school has Classes 6 to 10 and a class level is unique (6–10),
+so the e2e test checks that adding a class validates the level and refuses a duplicate,
+then edits Class 9. Creating a class works for a new school with no classes yet.
+
+Negative tests: a teacher gets 403 on the academic pages and cannot change the current
+session in the database; the current session and a subject still in use cannot be
+deleted ("still in use"); bad dates, an end before the start, levels outside 6–10, bad
+group/subject codes, capacity out of range, repeated subjects and a missing group for
+Classes 9–10 are refused; section names are unique per class whatever their case.
+
+Decisions:
+- One "Academic setup" item in the sidebar with tabs for the six pages.
+- Shared server-action helpers (`src/lib/actions.ts`: `requireAdmin`, `invalid`, `dbError`)
+  as recorded in the Phase 2 review; older action files move to them when next changed.
+- The role check also runs in the academic layout, because a page with a loading
+  skeleton starts streaming before the page itself can answer 403.
+- Lists are filtered and sorted in the browser: a school's sessions, classes, sections,
+  groups and subjects are a few dozen rows.
+
+Known issues:
+- Deleting a section that has a routine or attendance (but no students) also deletes those
+  (database cascade from Step 1.2); sections with students cannot be deleted.
+- Class subject choices are saved per class and group; copying a group's subjects to
+  another class is not built.
 

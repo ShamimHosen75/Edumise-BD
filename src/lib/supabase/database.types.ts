@@ -1058,6 +1058,9 @@ isOneToOne: false
                            },
 "public_stats":
 { Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"set_current_session":
+{ Args: { "p_session_id": number }; Returns: boolean
                            }
           }
           Enums: {

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
   CalendarDays,
+  BookOpen,
   Download,
   FileText,
   GraduationCap,
@@ -27,6 +28,7 @@ import { cn } from "@/lib/utils";
 
 const ICONS: Record<NavIcon, LucideIcon> = {
   home: Home,
+  academic: BookOpen,
   settings: Settings,
   pages: FileText,
   menu: ListTree,

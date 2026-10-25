@@ -30,6 +30,7 @@ test("sidebar shows only the pages a role may open", async ({ page }, info) => {
   const nav = page.getByRole("navigation", { name: "Dashboard navigation" });
   await expect(nav.getByRole("link")).toHaveText([
     "Home",
+    "Academic setup",
     "Notices",
     "News",
     "Events",

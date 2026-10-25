@@ -1,5 +1,6 @@
 import { LogOut } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
+import { Toaster } from "sonner";
 
 import { signOut } from "@/app/[lang]/(auth)/actions";
 import {
@@ -77,6 +78,7 @@ export default async function DashboardLayout({ children, params }: Props) {
         <DashboardSidebar lang={lang} items={items} label={dict.nav.mainNav} />
         <main className="min-w-0 flex-1 p-4 md:p-6">{children}</main>
       </div>
+      <Toaster position="bottom-center" richColors closeButton />
     </div>
   );
 }

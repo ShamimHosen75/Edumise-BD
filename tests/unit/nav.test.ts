@@ -12,6 +12,7 @@ const keys = (role: Role | null | undefined) =>
 describe("navForRole", () => {
   const ADMIN_NAV = [
     "home",
+    "academic",
     "notices",
     "news",
     "events",

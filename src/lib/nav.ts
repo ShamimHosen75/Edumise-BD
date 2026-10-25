@@ -3,6 +3,7 @@ import { ROLE_HOME_SEGMENT, type Role } from "@/lib/auth/roles";
 
 /** Icon names are mapped to lucide icons in the sidebar component. */
 export type NavIcon =
+  | "academic"
   | "messages"
   | "governing"
   | "principals"
@@ -38,6 +39,13 @@ const ADMINS: readonly Role[] = ["super_admin", "admin"];
 /** Sidebar items. Later steps add their pages here. */
 export const NAV_ITEMS: readonly NavItem[] = [
   { key: "home", href: "", label: "nav.home", icon: "home", roles: ALL_ROLES },
+  {
+    key: "academic",
+    href: "/academic",
+    label: "nav.academic",
+    icon: "academic",
+    roles: ADMINS,
+  },
   {
     key: "notices",
     href: "/notices",
