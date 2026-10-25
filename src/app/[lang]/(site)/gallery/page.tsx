@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Images } from "lucide-react";
 
 import { ContentHeader } from "@/components/site/content/content-header";
 import { listHref, Pagination } from "@/components/site/content/pagination";
 import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
+import { pageAlternates } from "@/lib/site/detail-metadata";
 import { t } from "@/i18n/t";
 import { contentLabels } from "@/lib/content/labels";
-import { parsePage, totalPages } from "@/lib/content/pagination";
+import { lastPage, parsePage, totalPages } from "@/lib/content/pagination";
 import { formatDate, localizeDigits, pickLocalized } from "@/lib/format";
 import { listAlbums } from "@/lib/site/content-data";
 import { publicMediaUrl } from "@/lib/supabase/public";
@@ -25,6 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!isLocale(lang)) return {};
   const dict = await getDictionary(lang);
   return {
+    alternates: pageAlternates(lang, "/gallery"),
     title: dict.content.gallery,
     description: dict.content.intro.gallery,
   };
@@ -39,6 +41,9 @@ export default async function GalleryPage({ params, searchParams }: Props) {
   const { rows, count } = await listAlbums({ page });
   const labels = contentLabels(dict, lang);
   const base = `/${lang}/gallery`;
+  // A page past the end (old link, fewer results) goes to the last page.
+  if (page > lastPage(count))
+    redirect(listHref(base, { page: lastPage(count) }));
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-10">

@@ -49,7 +49,6 @@ export async function generateMetadata({
     metadataBase: new URL(getSiteUrl()),
     title: { default: name, template: `%s | ${name}` },
     description: dict.meta.description,
-    alternates: { languages: { en: "/en", bn: "/bn" } },
     openGraph: { siteName: name, locale: lang === "bn" ? "bn_BD" : "en_GB" },
   };
 }

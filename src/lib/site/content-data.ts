@@ -4,7 +4,7 @@ import { pageRange } from "@/lib/content/pagination";
 import type { Tables } from "@/lib/supabase/database.types";
 import { createPublicClient } from "@/lib/supabase/public";
 
-import { cachedPublicQuery, TAGS } from "./cache";
+import { cachedDetailQuery, TAGS } from "./cache";
 
 const db = () => createPublicClient();
 
@@ -85,6 +85,20 @@ export type DownloadDetail = Pick<
   | "published_at"
 >;
 
+/**
+ * Throws on a failed list read and returns the total row count. A page past the end
+ * (PostgREST PGRST103, "range not satisfiable") is not an error; PostgREST then sends no
+ * count header, so the total is read from its message ("... there are only 14 rows").
+ */
+function listCount(
+  count: number | null,
+  error: { message: string; code?: string; details?: string } | null,
+): number {
+  if (!error) return count ?? 0;
+  if (error.code !== "PGRST103") throw new Error(error.message);
+  return Number(/only (\d+) rows?/.exec(error.details ?? "")?.[1] ?? 0);
+}
+
 type ListArgs = { q: string; page: number; category?: string };
 type Listed<T> = { rows: T[]; count: number };
 
@@ -109,8 +123,7 @@ export async function listNotices({ q, page, category }: ListArgs) {
     .order("is_pinned", { ascending: false })
     .order("published_at", { ascending: false })
     .range(from, to);
-  if (error) throw new Error(error.message);
-  return { rows: data ?? [], count: count ?? 0 };
+  return { rows: data ?? [], count: listCount(count, error) };
 }
 
 export async function listNews({ q, page }: ListArgs) {
@@ -127,8 +140,7 @@ export async function listNews({ q, page }: ListArgs) {
   const { data, count, error } = await query
     .order("published_at", { ascending: false })
     .range(from, to);
-  if (error) throw new Error(error.message);
-  return { rows: data ?? [], count: count ?? 0 };
+  return { rows: data ?? [], count: listCount(count, error) };
 }
 
 export async function listEvents({
@@ -156,8 +168,7 @@ export async function listEvents({
           .or(`ends_at.is.null,ends_at.lt.${now}`)
           .order("starts_at", { ascending: false });
   const { data, count, error } = await query.range(from, to);
-  if (error) throw new Error(error.message);
-  return { rows: data ?? [], count: count ?? 0 };
+  return { rows: data ?? [], count: listCount(count, error) };
 }
 
 export async function listAlbums({ page }: { page: number }) {
@@ -170,13 +181,12 @@ export async function listAlbums({ page }: { page: number }) {
     )
     .order("event_date", { ascending: false, nullsFirst: false })
     .range(from, to);
-  if (error) throw new Error(error.message);
   return {
     rows: (data ?? []).map(({ gallery_images, ...a }) => ({
       ...a,
       photos: (gallery_images as unknown as { count: number }[])[0]?.count ?? 0,
     })),
-    count: count ?? 0,
+    count: listCount(count, error),
   };
 }
 
@@ -193,13 +203,15 @@ export async function listDownloads({ q, page, category }: ListArgs) {
   const { data, count, error } = await query
     .order("published_at", { ascending: false })
     .range(from, to);
-  if (error) throw new Error(error.message);
-  return { rows: data ?? [], count: count ?? 0 } satisfies Listed<unknown>;
+  return {
+    rows: data ?? [],
+    count: listCount(count, error),
+  } satisfies Listed<unknown>;
 }
 
 // Detail pages are cached and refreshed when the content changes (revalidateTag).
 
-export const getNotice = cachedPublicQuery<NoticeDetail | null, [string]>(
+export const getNotice = cachedDetailQuery<NoticeDetail | null, [string]>(
   "notice",
   [TAGS.notices],
   async (slug: string) =>
@@ -213,10 +225,9 @@ export const getNotice = cachedPublicQuery<NoticeDetail | null, [string]>(
         .eq("audience", "public")
         .maybeSingle(),
     ),
-  null,
 );
 
-export const getNewsItem = cachedPublicQuery<NewsDetail | null, [string]>(
+export const getNewsItem = cachedDetailQuery<NewsDetail | null, [string]>(
   "news-item",
   [TAGS.news],
   async (slug: string) =>
@@ -229,10 +240,9 @@ export const getNewsItem = cachedPublicQuery<NewsDetail | null, [string]>(
         .eq("slug", slug)
         .maybeSingle(),
     ),
-  null,
 );
 
-export const getEvent = cachedPublicQuery<EventDetail | null, [string]>(
+export const getEvent = cachedDetailQuery<EventDetail | null, [string]>(
   "event",
   [TAGS.events, TAGS.gallery],
   async (slug: string) =>
@@ -245,10 +255,9 @@ export const getEvent = cachedPublicQuery<EventDetail | null, [string]>(
         .eq("slug", slug)
         .maybeSingle(),
     ),
-  null,
 );
 
-export const getAlbum = cachedPublicQuery<AlbumDetail | null, [string]>(
+export const getAlbum = cachedDetailQuery<AlbumDetail | null, [string]>(
   "album",
   [TAGS.gallery],
   async (slug: string) =>
@@ -261,10 +270,9 @@ export const getAlbum = cachedPublicQuery<AlbumDetail | null, [string]>(
         .eq("slug", slug)
         .maybeSingle(),
     ),
-  null,
 );
 
-export const getDownload = cachedPublicQuery<DownloadDetail | null, [number]>(
+export const getDownload = cachedDetailQuery<DownloadDetail | null, [number]>(
   "download",
   [TAGS.downloads],
   async (id: number) =>
@@ -277,5 +285,4 @@ export const getDownload = cachedPublicQuery<DownloadDetail | null, [number]>(
         .eq("id", id)
         .maybeSingle(),
     ),
-  null,
 );

@@ -5,7 +5,10 @@ import { FileText } from "lucide-react";
 
 import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
+import { pageAlternates } from "@/lib/site/detail-metadata";
+import { pageSeo } from "@/lib/site/seo";
 import { t } from "@/i18n/t";
+import { fileTypeLabel } from "@/lib/files";
 import { formatBytes, formatDate, pickLocalized } from "@/lib/format";
 import { sanitizeRichText } from "@/lib/sanitize";
 import { getPageAttachments, getPublishedPage } from "@/lib/site/data";
@@ -26,15 +29,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!isLocale(lang)) return {};
   const page = await load(slug);
   if (!page) return {};
-  const title =
-    pickLocalized(page, "seo_title", lang) ||
-    pickLocalized(page, "title", lang);
-  const description = pickLocalized(page, "seo_description", lang) || undefined;
+  const seo = pageSeo(page, lang);
+  const title = seo.title;
+  const description = seo.description || undefined;
   const cover = publicMediaUrl(page.cover_path);
   return {
     title,
     description,
-    alternates: { languages: { en: `/en/p/${slug}`, bn: `/bn/p/${slug}` } },
+    alternates: pageAlternates(lang, `/p/${slug}`),
     openGraph: {
       title,
       description,
@@ -68,6 +70,7 @@ export default async function CmsPage({ params }: Props) {
           width={1200}
           height={400}
           priority
+          sizes="(min-width: 768px) 768px, 100vw"
           className="aspect-[3/1] w-full rounded-xl object-cover"
         />
       ) : null}
@@ -102,11 +105,11 @@ export default async function CmsPage({ params }: Props) {
                   <FileText className="size-4 shrink-0" aria-hidden="true" />
                   <span>{pickLocalized(a, "label", lang)}</span>
                   <span className="text-muted-foreground text-xs">
-                    (
-                    {a.mime_type === "application/pdf"
-                      ? "PDF"
-                      : dict.site.page.download}
-                    , {formatBytes(a.file_size, lang)})
+                    {t(dict, "site.page.fileMeta", {
+                      type:
+                        fileTypeLabel(a.mime_type) || dict.site.page.download,
+                      size: formatBytes(a.file_size, lang),
+                    })}
                   </span>
                 </a>
               </li>

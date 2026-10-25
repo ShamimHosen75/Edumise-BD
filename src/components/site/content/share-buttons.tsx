@@ -82,7 +82,17 @@ export function ShareButtons({
         className={button}
         aria-label={copied ? labels.copied : labels.copy}
         onClick={async () => {
-          await navigator.clipboard?.writeText(url).catch(() => undefined);
+          const done = await (
+            navigator.clipboard?.writeText(url) ??
+            Promise.reject(new Error("no clipboard"))
+          )
+            .then(() => true)
+            .catch(() => false);
+          if (!done) {
+            // No clipboard (e.g. plain http): show the link so it can be copied by hand.
+            window.prompt(labels.copy, url);
+            return;
+          }
           setCopied(true);
           window.setTimeout(() => setCopied(false), 2000);
         }}

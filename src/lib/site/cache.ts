@@ -29,8 +29,9 @@ export function cachedPublicQuery<T, A extends unknown[]>(
   tags: string[],
   query: (...args: A) => Promise<T>,
   fallback: T,
+  revalidate = 3600,
 ) {
-  const cached = unstable_cache(query, [key], { tags, revalidate: 3600 });
+  const cached = unstable_cache(query, [key], { tags, revalidate });
   return async (...args: A): Promise<T> => {
     try {
       return await cached(...args);
@@ -42,3 +43,19 @@ export function cachedPublicQuery<T, A extends unknown[]>(
     }
   };
 }
+
+/**
+ * A cached query for detail pages. Errors are not swallowed: the page fails, so Next keeps
+ * the last good copy instead of caching a "not found" for an item that exists.
+ * Short lifetime (5 min) so scheduled items appear soon after their publish time.
+ */
+export function cachedDetailQuery<T, A extends unknown[]>(
+  key: string,
+  tags: string[],
+  query: (...args: A) => Promise<T>,
+) {
+  return unstable_cache(query, [key], { tags, revalidate: DETAIL_REVALIDATE });
+}
+
+/** Seconds before content that may be scheduled is read again. */
+export const DETAIL_REVALIDATE = 300;

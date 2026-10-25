@@ -16,7 +16,8 @@ import { publicMediaUrl } from "@/lib/supabase/public";
 
 type Props = { params: Promise<{ lang: string; slug: string }> };
 
-export const revalidate = 3600;
+// Five minutes: an item scheduled for later appears soon after its time.
+export const revalidate = 300;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang, slug } = await params;
@@ -52,7 +53,8 @@ export default async function NewsItemPage({ params }: Props) {
         href={`/${lang}/news`}
         className="text-primary text-sm hover:underline"
       >
-        ← {t(dict, "content.allItems", { section: dict.content.news })}
+        <span aria-hidden="true">←</span>{" "}
+        {t(dict, "content.allItems", { section: dict.content.news })}
       </Link>
       <header className="flex flex-col gap-2">
         <h1 className="text-2xl font-bold sm:text-3xl">{title}</h1>

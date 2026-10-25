@@ -7,6 +7,7 @@ import { TabLinks } from "@/components/site/content/tab-links";
 import { PersonCard } from "@/components/site/people/person-card";
 import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
+import { pageAlternates } from "@/lib/site/detail-metadata";
 import { pickLocalized } from "@/lib/format";
 import { groupByDesignation } from "@/lib/people";
 import { getDirectory } from "@/lib/site/people-data";
@@ -22,6 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!isLocale(lang)) return {};
   const dict = await getDictionary(lang);
   return {
+    alternates: pageAlternates(lang, "/teachers"),
     title: dict.people.teachers,
     description: dict.people.teachersIntro,
   };

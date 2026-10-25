@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { CalendarDays, MapPin } from "lucide-react";
 
 import { ContentHeader } from "@/components/site/content/content-header";
@@ -9,8 +9,9 @@ import { listHref, Pagination } from "@/components/site/content/pagination";
 import { TabLinks } from "@/components/site/content/tab-links";
 import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
+import { pageAlternates } from "@/lib/site/detail-metadata";
 import { contentLabels } from "@/lib/content/labels";
-import { parsePage, totalPages } from "@/lib/content/pagination";
+import { lastPage, parsePage, totalPages } from "@/lib/content/pagination";
 import { formatDateTime, pickLocalized } from "@/lib/format";
 import { listEvents } from "@/lib/site/content-data";
 import { publicMediaUrl } from "@/lib/supabase/public";
@@ -24,7 +25,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang } = await params;
   if (!isLocale(lang)) return {};
   const dict = await getDictionary(lang);
-  return { title: dict.content.events, description: dict.content.intro.events };
+  return {
+    alternates: pageAlternates(lang, "/events"),
+    title: dict.content.events,
+    description: dict.content.intro.events,
+  };
 }
 
 export default async function EventsPage({ params, searchParams }: Props) {
@@ -38,6 +43,14 @@ export default async function EventsPage({ params, searchParams }: Props) {
   const { rows, count } = await listEvents({ page, when });
   const labels = contentLabels(dict, lang);
   const base = `/${lang}/events`;
+  // A page past the end (old link, fewer results) goes to the last page.
+  if (page > lastPage(count))
+    redirect(
+      listHref(base, {
+        when: when === "past" ? "past" : undefined,
+        page: lastPage(count),
+      }),
+    );
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-10">
       <ContentHeader title={c.events} intro={c.intro.events} />

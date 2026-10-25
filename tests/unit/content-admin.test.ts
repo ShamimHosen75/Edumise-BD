@@ -96,6 +96,11 @@ describe("toContentRow", () => {
     });
     expect(row.is_published).toBe(false);
     expect(row.published_at).toBeNull();
+    const kept = toContentRow("notices", notice, {
+      canPublish: false,
+      existingPublishedAt: "2026-12-01T00:00:00.000Z",
+    });
+    expect(kept.published_at).toBe("2026-12-01T00:00:00.000Z");
   });
   it("converts event times and empty end, and album dates", () => {
     const event = CONTENT_SCHEMAS.events.parse({

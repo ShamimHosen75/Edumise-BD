@@ -52,3 +52,21 @@ export function fileTypeLabel(mime: string | null | undefined): string {
   const ext = EXTENSIONS[mime as DocumentType];
   return ext ? ext.toUpperCase() : "";
 }
+
+/**
+ * Storage paths that may be deleted: our own uploads under one of the expected folders.
+ * Demo files ship with the app, and a path stored in a row is never trusted to point
+ * anywhere else (a row could have been edited to name another file).
+ */
+export function deletablePaths(
+  paths: unknown[],
+  prefixes: readonly string[],
+): string[] {
+  return paths.filter(
+    (p): p is string =>
+      typeof p === "string" &&
+      !p.includes("..") &&
+      !p.startsWith("/") &&
+      prefixes.some((prefix) => p.startsWith(prefix)),
+  );
+}

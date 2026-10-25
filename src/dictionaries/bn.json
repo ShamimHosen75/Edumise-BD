@@ -241,7 +241,8 @@
     "page": {
       "updated": "সর্বশেষ হালনাগাদ {date}",
       "attachments": "সংযুক্তি",
-      "download": "ডাউনলোড"
+      "download": "ডাউনলোড",
+      "fileMeta": "({type}, {size})"
     }
   },
   "cms": {

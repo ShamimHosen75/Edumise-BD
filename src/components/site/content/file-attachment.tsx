@@ -58,6 +58,7 @@ export function FileAttachment({ url, isPdf, title, labels }: Props) {
           alt={title}
           width={1200}
           height={900}
+          sizes="(min-width: 768px) 768px, 100vw"
           className="h-auto w-full rounded-lg border"
         />
       )}

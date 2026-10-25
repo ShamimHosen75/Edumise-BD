@@ -7,6 +7,7 @@ import { TabLinks } from "@/components/site/content/tab-links";
 import { PersonCard } from "@/components/site/people/person-card";
 import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
+import { pageAlternates } from "@/lib/site/detail-metadata";
 import { t } from "@/i18n/t";
 import { formatDate, pickLocalized } from "@/lib/format";
 import { dhakaToday, groupByTerm } from "@/lib/people";
@@ -23,6 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!isLocale(lang)) return {};
   const dict = await getDictionary(lang);
   return {
+    alternates: pageAlternates(lang, "/governing-body"),
     title: dict.people.governingBody,
     description: dict.people.governingIntro,
   };

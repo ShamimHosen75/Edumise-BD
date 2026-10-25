@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { AtAGlance } from "@/components/site/home/at-a-glance";
@@ -12,6 +13,7 @@ import { TeacherHighlights } from "@/components/site/home/teacher-highlights";
 import { UpcomingEvents } from "@/components/site/home/upcoming-events";
 import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
+import { pageAlternates } from "@/lib/site/detail-metadata";
 import { t } from "@/i18n/t";
 import { localizeDigits, pickLocalized } from "@/lib/format";
 import { isAvailableRoute, localizeHref } from "@/lib/routes";
@@ -20,7 +22,7 @@ import {
   getGalleryPreview,
   getLatestNotices,
   getPublicStats,
-  getPublishedPage,
+  getPageLink,
   getSiteLinks,
   getSliders,
   getStaffHighlights,
@@ -31,7 +33,17 @@ import { publicMediaUrl } from "@/lib/supabase/public";
 type PageProps = { params: Promise<{ lang: string }> };
 
 // Static page, rebuilt hourly or as soon as content changes (revalidateTag).
-export const revalidate = 3600;
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+  return isLocale(lang) ? { alternates: pageAlternates(lang, "/") } : {};
+}
+
+// Five minutes: scheduled notices and events appear soon after their time.
+export const revalidate = 300;
 
 export default async function HomePage({ params }: PageProps) {
   const { lang } = await params;
@@ -57,7 +69,7 @@ export default async function HomePage({ params }: PageProps) {
     getStaffHighlights(6),
     getPublicStats(),
     getSiteLinks(),
-    getPublishedPage("principal-message"),
+    getPageLink("principal-message"),
   ]);
 
   const slides = sliders.flatMap((s, i) => {
@@ -87,7 +99,7 @@ export default async function HomePage({ params }: PageProps) {
     };
   });
   const headHref =
-    headPage && isAvailableRoute(`/p/${headPage.slug}`)
+    headPage?.has_content && isAvailableRoute(`/p/${headPage.slug}`)
       ? localizeHref(`/p/${headPage.slug}`, lang)
       : null;
 

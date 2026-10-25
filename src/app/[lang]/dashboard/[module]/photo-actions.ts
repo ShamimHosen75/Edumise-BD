@@ -4,9 +4,11 @@ import { randomUUID } from "node:crypto";
 
 import { z } from "zod";
 
-import { authorize, refreshModule, removeFiles } from "@/lib/content/server";
+import { authorize, refreshModule } from "@/lib/content/server";
+import { removeFiles } from "@/lib/storage-files";
 import { detectImageType, IMAGE_MAX_BYTES, imageExtension } from "@/lib/files";
 import { readUpload } from "@/lib/uploads";
+import { assertId } from "@/lib/validation/ids";
 
 import type { SimpleResult } from "./actions";
 
@@ -20,6 +22,7 @@ export async function addAlbumPhoto(
   albumId: number,
   formData: FormData,
 ): Promise<SimpleResult> {
+  assertId(albumId);
   const { db } = await gallery(lang);
   const read = await readUpload(formData, IMAGE_MAX_BYTES);
   if ("error" in read) return { ok: false, error: read.error };
@@ -60,7 +63,7 @@ export async function addAlbumPhoto(
     ),
   });
   if (error) {
-    await removeFiles(db, [path]);
+    await removeFiles(db, [path], ["gallery/"]);
     return { ok: false, error: "auth.unexpected" };
   }
   // The first photo becomes the cover when the album has none.
@@ -83,6 +86,7 @@ export async function savePhotoCaption(
   photoId: number,
   input: unknown,
 ): Promise<SimpleResult> {
+  assertId(photoId);
   const { db } = await gallery(lang);
   const parsed = captionSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "errors.tooLong" };
@@ -100,6 +104,7 @@ export async function removeAlbumPhoto(
   lang: string,
   photoId: number,
 ): Promise<SimpleResult> {
+  assertId(photoId);
   const { db } = await gallery(lang);
   const { data, error } = await db
     .from("gallery_images")
@@ -114,7 +119,7 @@ export async function removeAlbumPhoto(
     .update({ cover_path: null })
     .eq("id", photo.album_id)
     .eq("cover_path", photo.image_path);
-  await removeFiles(db, [photo.image_path]);
+  await removeFiles(db, [photo.image_path], ["gallery/"]);
   refreshModule("gallery");
   return { ok: true };
 }
@@ -123,6 +128,7 @@ export async function setAlbumCover(
   lang: string,
   photoId: number,
 ): Promise<SimpleResult> {
+  assertId(photoId);
   const { db } = await gallery(lang);
   const { data: photo } = await db
     .from("gallery_images")
@@ -130,11 +136,25 @@ export async function setAlbumCover(
     .eq("id", photoId)
     .maybeSingle();
   if (!photo) return { ok: false, error: "errors.notAllowed" };
+  const { data: album } = await db
+    .from("gallery_albums")
+    .select("cover_path")
+    .eq("id", photo.album_id)
+    .maybeSingle();
   const { error } = await db
     .from("gallery_albums")
     .update({ cover_path: photo.image_path })
     .eq("id", photo.album_id);
   if (error) return { ok: false, error: "auth.unexpected" };
+  // A separately uploaded cover is no longer used; a photo used as cover stays.
+  const old = album?.cover_path;
+  if (old) {
+    const { count } = await db
+      .from("gallery_images")
+      .select("id", { count: "exact", head: true })
+      .eq("image_path", old);
+    if (count === 0) await removeFiles(db, [old], ["gallery/"]);
+  }
   refreshModule("gallery");
   return { ok: true };
 }

@@ -113,15 +113,22 @@ export type EventInput = z.infer<typeof eventSchema>;
 export type AlbumInput = z.infer<typeof albumSchema>;
 export type DownloadInput = z.infer<typeof downloadSchema>;
 
-/** published_at for the database: the chosen time, or now when publishing without one. */
+/**
+ * published_at for the database: the chosen time, or "now" when publishing without one.
+ * A past publish date is kept when an item is saved again; a future (scheduled) date is
+ * replaced by now when the date is cleared, as the form's hint promises.
+ */
 export function publishedAt(
   isPublished: boolean,
   local: string,
   existing: string | null,
+  now = new Date(),
 ): string | null {
   if (local) return fromDhakaInput(local);
   if (!isPublished) return existing;
-  return existing ?? new Date().toISOString();
+  if (existing && new Date(existing).getTime() <= now.getTime())
+    return existing;
+  return now.toISOString();
 }
 
 /** The schema each dashboard module validates with (on the client and the server). */

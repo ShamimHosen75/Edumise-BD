@@ -2,13 +2,16 @@
 
 import { randomUUID } from "node:crypto";
 
+import type { SupabaseClient } from "@supabase/supabase-js";
+
 import type { TranslationKey } from "@/i18n/t";
 import {
   canPublish,
   MODULE_FILE,
   type ContentModule,
 } from "@/lib/content/modules";
-import { authorize, refreshModule, removeFiles } from "@/lib/content/server";
+import { authorize, refreshModule } from "@/lib/content/server";
+import { removeFiles } from "@/lib/storage-files";
 import { toContentRow } from "@/lib/content/rows";
 import {
   ATTACHMENT_MAX_BYTES,
@@ -18,6 +21,7 @@ import {
   imageExtension,
 } from "@/lib/files";
 import { readUpload } from "@/lib/uploads";
+import { assertId, assertOptionalId } from "@/lib/validation/ids";
 import { CONTENT_SCHEMAS } from "@/lib/validation/content";
 
 export type FieldErrors = Record<string, TranslationKey>;
@@ -25,6 +29,23 @@ export type SaveResult =
   | { ok: true; id: number }
   | { ok: false; error: TranslationKey; fieldErrors?: FieldErrors };
 export type SimpleResult = { ok: true } | { ok: false; error: TranslationKey };
+
+/** Deletes a replaced file, unless it is an album cover that is also one of its photos. */
+async function dropOldFile(
+  db: SupabaseClient,
+  module: ContentModule,
+  path: unknown,
+) {
+  if (typeof path !== "string") return;
+  if (module === "gallery") {
+    const { count } = await db
+      .from("gallery_images")
+      .select("id", { count: "exact", head: true })
+      .eq("image_path", path);
+    if (count !== 0) return;
+  }
+  await removeFiles(db, [path], [`${module}/`]);
+}
 
 const HAS_AUTHOR: readonly ContentModule[] = ["notices", "news", "events"];
 
@@ -35,6 +56,7 @@ export async function saveContent(
   id: number | null,
   input: unknown,
 ): Promise<SaveResult> {
+  assertOptionalId(id);
   const { module, user, db, table } = await authorize(lang, moduleName);
   const parsed = CONTENT_SCHEMAS[module].safeParse(input);
   if (!parsed.success) {
@@ -93,6 +115,7 @@ export async function deleteContent(
   moduleName: string,
   id: number,
 ): Promise<SimpleResult> {
+  assertId(id);
   const { module, db, table } = await authorize(lang, moduleName);
   const fileColumn = MODULE_FILE[module].column;
   const photos =
@@ -113,10 +136,14 @@ export async function deleteContent(
   // RLS hides rows the user may not delete, so nothing is returned for them.
   if (!data || data.length === 0)
     return { ok: false, error: "errors.notAllowed" };
-  await removeFiles(db, [
-    ...data.map((r) => (r as Record<string, unknown>)[fileColumn]),
-    ...photos.map((p) => p.image_path),
-  ]);
+  await removeFiles(
+    db,
+    [
+      ...data.map((r) => (r as Record<string, unknown>)[fileColumn]),
+      ...photos.map((p) => p.image_path),
+    ],
+    [`${module}/`],
+  );
   refreshModule(module);
   return { ok: true };
 }
@@ -128,6 +155,7 @@ export async function uploadContentFile(
   id: number,
   formData: FormData,
 ): Promise<SimpleResult> {
+  assertId(id);
   const { module, user, db, table } = await authorize(lang, moduleName);
   const { column, kind } = MODULE_FILE[module];
   const read = await readUpload(
@@ -170,15 +198,13 @@ export async function uploadContentFile(
     .eq("id", id)
     .select("id");
   if (error || !data || data.length === 0) {
-    await removeFiles(db, [path]);
+    await removeFiles(db, [path], [`${module}/`]);
     return {
       ok: false,
       error: error ? "auth.unexpected" : "errors.notAllowed",
     };
   }
-  // An album cover may be one of its photos, so only other modules drop the old file.
-  if (module !== "gallery")
-    await removeFiles(db, [(current as Record<string, unknown>)[column]]);
+  await dropOldFile(db, module, (current as Record<string, unknown>)[column]);
   refreshModule(module);
   return { ok: true };
 }
@@ -188,6 +214,7 @@ export async function removeContentFile(
   moduleName: string,
   id: number,
 ): Promise<SimpleResult> {
+  assertId(id);
   const { module, db, table } = await authorize(lang, moduleName);
   const { column } = MODULE_FILE[module];
   const { data: current } = await db
@@ -213,8 +240,7 @@ export async function removeContentFile(
       ok: false,
       error: error ? "auth.unexpected" : "errors.notAllowed",
     };
-  if (module !== "gallery")
-    await removeFiles(db, [(current as Record<string, unknown>)[column]]);
+  await dropOldFile(db, module, (current as Record<string, unknown>)[column]);
   refreshModule(module);
   return { ok: true };
 }
@@ -229,6 +255,7 @@ export async function uploadBodyImage(
   id: number,
   formData: FormData,
 ): Promise<UploadResult> {
+  assertId(id);
   const { module, user, db, table } = await authorize(lang, moduleName);
   const { data: item } = await db
     .from(table)

@@ -39,7 +39,7 @@ export function Section({
             href={more.href}
             className="text-primary text-sm font-medium hover:underline"
           >
-            {more.label} →
+            {more.label} <span aria-hidden="true">→</span>
           </Link>
         ) : null}
       </div>

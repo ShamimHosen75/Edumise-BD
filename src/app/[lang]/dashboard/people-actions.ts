@@ -17,7 +17,9 @@ import {
 } from "@/lib/people-admin";
 import { TAGS } from "@/lib/site/cache";
 import { createClient } from "@/lib/supabase/server";
+import { removeFiles } from "@/lib/storage-files";
 import { readUpload } from "@/lib/uploads";
+import { assertId, assertOptionalId } from "@/lib/validation/ids";
 
 export type PersonSaveResult =
   | { ok: true; id: number }
@@ -48,6 +50,7 @@ export async function savePerson(
   id: number | null,
   input: unknown,
 ): Promise<PersonSaveResult> {
+  assertOptionalId(id);
   const { db, kind, table } = await admin(lang, kindName);
   const parsed = PEOPLE_SCHEMAS[kind].safeParse(input);
   if (!parsed.success) {
@@ -72,16 +75,16 @@ export async function deletePerson(
   kindName: string,
   id: number,
 ): Promise<PersonResult> {
+  assertId(id);
   const { db, kind, table } = await admin(lang, kindName);
   const { data, error } = await db
     .from(table)
     .delete()
     .eq("id", id)
     .select("photo_path");
-  if (error || !data?.length) return { ok: false, error: "errors.notAllowed" };
-  const photo = data[0]?.photo_path as string | null;
-  if (photo && !photo.startsWith("demo/"))
-    await db.storage.from("public-media").remove([photo]);
+  if (error) return { ok: false, error: "auth.unexpected" };
+  if (!data?.length) return { ok: false, error: "errors.notAllowed" };
+  await removeFiles(db, [data[0]?.photo_path], [`people/${kind}/`]);
   revalidateTag(TAG[kind]);
   return { ok: true };
 }
@@ -92,6 +95,7 @@ export async function uploadPersonPhoto(
   id: number,
   formData: FormData,
 ): Promise<PersonResult> {
+  assertId(id);
   const { db, kind, table } = await admin(lang, kindName);
   const read = await readUpload(formData, IMAGE_MAX_BYTES);
   if ("error" in read) return { ok: false, error: read.error };
@@ -108,14 +112,17 @@ export async function uploadPersonPhoto(
     .from("public-media")
     .upload(path, read.bytes, { contentType: type });
   if (uploadError) return { ok: false, error: "errors.uploadFailed" };
-  const { error } = await db
+  const folder = [`people/${kind}/`];
+  const { data: saved, error } = await db
     .from(table)
     .update({ photo_path: path })
-    .eq("id", id);
-  if (error) return { ok: false, error: "auth.unexpected" };
-  const old = current.photo_path as string | null;
-  if (old && !old.startsWith("demo/"))
-    await db.storage.from("public-media").remove([old]);
+    .eq("id", id)
+    .select("id");
+  if (error || !saved?.length) {
+    await removeFiles(db, [path], folder);
+    return { ok: false, error: "auth.unexpected" };
+  }
+  await removeFiles(db, [current.photo_path], folder);
   revalidateTag(TAG[kind]);
   return { ok: true };
 }
@@ -125,13 +132,20 @@ export async function removePersonPhoto(
   kindName: string,
   id: number,
 ): Promise<PersonResult> {
+  assertId(id);
   const { db, kind, table } = await admin(lang, kindName);
-  const { data, error } = await db
+  const { data: current } = await db
+    .from(table)
+    .select("photo_path")
+    .eq("id", id)
+    .maybeSingle();
+  if (!current) return { ok: false, error: "errors.notAllowed" };
+  const { error } = await db
     .from(table)
     .update({ photo_path: null })
-    .eq("id", id)
-    .select("id");
-  if (error || !data?.length) return { ok: false, error: "errors.notAllowed" };
+    .eq("id", id);
+  if (error) return { ok: false, error: "auth.unexpected" };
+  await removeFiles(db, [current.photo_path], [`people/${kind}/`]);
   revalidateTag(TAG[kind]);
   return { ok: true };
 }

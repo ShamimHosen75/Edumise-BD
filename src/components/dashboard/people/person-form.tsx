@@ -131,7 +131,10 @@ export function PersonForm({
             className="text-destructive"
             onClick={async () => {
               if (!window.confirm(m("contentAdmin.deleteConfirm"))) return;
-              const result = await deletePerson(lang, kind, id);
+              const result = await deletePerson(lang, kind, id).catch(() => ({
+                ok: false as const,
+                error: "auth.unexpected" as const,
+              }));
               if (result.ok) router.replace(list);
               else setStatus({ ok: false, text: m(result.error)! });
             }}

@@ -18,7 +18,8 @@ import { publicDownloadUrl, publicMediaUrl } from "@/lib/supabase/public";
 
 type Props = { params: Promise<{ lang: string; id: string }> };
 
-export const revalidate = 3600;
+// Five minutes: an item scheduled for later appears soon after its time.
+export const revalidate = 300;
 
 const parseId = (raw: string) =>
   /^[1-9][0-9]{0,15}$/.test(raw) ? Number(raw) : null;
@@ -55,7 +56,8 @@ export default async function DownloadPage({ params }: Props) {
         href={`/${lang}/downloads`}
         className="text-primary text-sm hover:underline"
       >
-        ← {t(dict, "content.allItems", { section: dict.content.downloads })}
+        <span aria-hidden="true">←</span>{" "}
+        {t(dict, "content.allItems", { section: dict.content.downloads })}
       </Link>
       <header className="flex flex-col gap-2">
         <h1 className="text-2xl font-bold sm:text-3xl">{title}</h1>

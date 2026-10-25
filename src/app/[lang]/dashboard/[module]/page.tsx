@@ -71,11 +71,13 @@ export default async function ContentList({ params, searchParams }: Props) {
   if (status === "published")
     query = query.eq("is_published", true).lte("published_at", now);
   if (q) query = query.or(`title_en.ilike.%${q}%,title_bn.ilike.%${q}%`);
-  const { data, count } = await query
+  const { data, count, error } = await query
     .order(module === "events" ? "starts_at" : "updated_at", {
       ascending: false,
     })
     .range(from, to);
+  // A failed read shows the error page, not an empty list.
+  if (error && error.code !== "PGRST103") throw new Error(error.message);
   const rows = (data ?? []) as unknown as ContentRow[];
   const labels = contentLabels(dict, lang);
   const base = `/${lang}/dashboard/${module}`;

@@ -11,6 +11,7 @@ import { getDictionary } from "@/i18n/get-dictionary";
 import { t } from "@/i18n/t";
 import { formatDate, formatNumber, pickLocalized } from "@/lib/format";
 import { requireRole } from "@/lib/auth/session";
+import { cleanSearch } from "@/lib/content/share";
 import { createClient } from "@/lib/supabase/server";
 
 type Props = {
@@ -33,9 +34,9 @@ export default async function PagesList({ params, searchParams }: Props) {
   await requireRole(lang, ["super_admin", "admin"]);
   const dict = await getDictionary(lang);
   const c = dict.cms;
-  const { q = "", status: rawStatus } = await searchParams;
+  const { q, status: rawStatus } = await searchParams;
   const status = STATUSES.find((s) => s === rawStatus) ?? "all";
-  const search = q.trim().slice(0, 100);
+  const search = cleanSearch(q);
 
   const supabase = await createClient();
   let query = supabase
@@ -46,14 +47,12 @@ export default async function PagesList({ params, searchParams }: Props) {
     .order("title_en");
   if (status !== "all")
     query = query.eq("is_published", status === "published");
-  if (search) {
-    // Escape LIKE wildcards and the characters PostgREST uses inside or().
-    const term = search.replace(/[%_\\,()"]/g, " ");
+  if (search)
     query = query.or(
-      `title_en.ilike.%${term}%,title_bn.ilike.%${term}%,slug.ilike.%${term}%`,
+      `title_en.ilike.%${search}%,title_bn.ilike.%${search}%,slug.ilike.%${search}%`,
     );
-  }
-  const { data: pages = [] } = await query;
+  const { data: pages, error } = await query;
+  if (error) throw new Error(error.message);
 
   return (
     <div className="flex flex-col gap-6">

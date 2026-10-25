@@ -12,7 +12,8 @@ const year = z.coerce
   .number("errors.year")
   .int("errors.year")
   .min(1800, "errors.year")
-  .max(new Date().getFullYear(), "errors.year");
+  // Checked on each use, so the limit moves with the calendar on a long-running server.
+  .refine((v) => v <= new Date().getFullYear(), "errors.year");
 
 export const governingSchema = z
   .object({

@@ -6,7 +6,13 @@ export function excerpt(html: string | null | undefined, max = 160): string {
     allowedTags: [],
     allowedAttributes: {},
   })
+    // sanitize-html escapes the text again; turn entities back into characters (&amp; last,
+    // so "&amp;lt;" stays the literal text "&lt;").
     .replace(/&nbsp;/g, " ")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#0?39;|&#x27;|&apos;/g, "'")
     .replace(/&amp;/g, "&")
     .replace(/\s+/g, " ")
     .trim();

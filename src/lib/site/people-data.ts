@@ -3,7 +3,7 @@ import "server-only";
 import type { Tables } from "@/lib/supabase/database.types";
 import { createPublicClient } from "@/lib/supabase/public";
 
-import { cachedPublicQuery, TAGS } from "./cache";
+import { cachedDetailQuery, cachedPublicQuery, TAGS } from "./cache";
 
 const db = () => createPublicClient();
 
@@ -51,7 +51,7 @@ export const getDirectory = cachedPublicQuery<PublicStaff[], []>(
   [],
 );
 
-export const getStaffProfile = cachedPublicQuery<PublicStaff | null, [number]>(
+export const getStaffProfile = cachedDetailQuery<PublicStaff | null, [number]>(
   "staff-profile",
   [TAGS.staff],
   async (id: number) =>
@@ -62,7 +62,6 @@ export const getStaffProfile = cachedPublicQuery<PublicStaff | null, [number]>(
         .eq("id", id)
         .maybeSingle(),
     ) as PublicStaff | null,
-  null,
 );
 
 export type GoverningMember = Pick<

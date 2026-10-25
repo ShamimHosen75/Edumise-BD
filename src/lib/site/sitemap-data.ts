@@ -2,7 +2,7 @@ import "server-only";
 
 import { createPublicClient } from "@/lib/supabase/public";
 
-import { cachedPublicQuery, TAGS } from "./cache";
+import { cachedPublicQuery, DETAIL_REVALIDATE, TAGS } from "./cache";
 import type { SitemapEntry } from "./sitemap";
 
 type Row = { updated_at: string | null };
@@ -62,4 +62,5 @@ export const getSitemapEntries = cachedPublicQuery<SitemapEntry[], []>(
     ];
   },
   [],
+  DETAIL_REVALIDATE,
 );

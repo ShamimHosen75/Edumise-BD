@@ -3,7 +3,12 @@ import "server-only";
 import type { Tables } from "@/lib/supabase/database.types";
 import { createPublicClient } from "@/lib/supabase/public";
 
-import { cachedPublicQuery, TAGS } from "./cache";
+import {
+  cachedDetailQuery,
+  cachedPublicQuery,
+  DETAIL_REVALIDATE,
+  TAGS,
+} from "./cache";
 import type { MenuRow } from "./menu";
 
 const db = () => createPublicClient();
@@ -65,6 +70,7 @@ export const getLatestNotices = cachedPublicQuery(
         .limit(limit),
     ),
   [],
+  DETAIL_REVALIDATE,
 );
 
 export const getUpcomingEvents = cachedPublicQuery(
@@ -75,11 +81,13 @@ export const getUpcomingEvents = cachedPublicQuery(
       await db()
         .from("events")
         .select("id, slug, title_en, title_bn, venue_en, venue_bn, starts_at")
-        .gte("starts_at", nowIso())
+        // Same rule as the events page: not started yet, or still running.
+        .or(`starts_at.gte.${nowIso()},ends_at.gte.${nowIso()}`)
         .order("starts_at")
         .limit(limit),
     ),
   [],
+  DETAIL_REVALIDATE,
 );
 
 export const getSliders = cachedPublicQuery(
@@ -171,7 +179,7 @@ export type PageRow = Pick<
 >;
 
 /** A published page (RLS hides drafts from visitors), or null. */
-export const getPublishedPage = cachedPublicQuery<PageRow | null, [string]>(
+export const getPublishedPage = cachedDetailQuery<PageRow | null, [string]>(
   "page",
   [TAGS.pages],
   async (slug: string) =>
@@ -181,6 +189,23 @@ export const getPublishedPage = cachedPublicQuery<PageRow | null, [string]>(
         .select(
           "id, slug, title_en, title_bn, body_en, body_bn, seo_title_en, seo_title_bn, seo_description_en, seo_description_bn, updated_at, cover_path, has_content",
         )
+        .eq("slug", slug)
+        .maybeSingle(),
+    ),
+);
+
+/** Just enough to link to a page from elsewhere (the home page "read more"). */
+export const getPageLink = cachedPublicQuery<
+  { slug: string; has_content: boolean } | null,
+  [string]
+>(
+  "page-link",
+  [TAGS.pages],
+  async (slug: string) =>
+    check(
+      await db()
+        .from("pages")
+        .select("slug, has_content")
         .eq("slug", slug)
         .maybeSingle(),
     ),

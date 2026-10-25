@@ -24,10 +24,7 @@ export function detailMetadata({
   return {
     title,
     description,
-    alternates: {
-      canonical: `/${lang}${path}`,
-      languages: { en: `/en${path}`, bn: `/bn${path}` },
-    },
+    alternates: pageAlternates(lang, path),
     openGraph: {
       title,
       description,
@@ -38,5 +35,14 @@ export function detailMetadata({
       images: image ? [{ url: image }] : undefined,
     },
     twitter: { card: image ? "summary_large_image" : "summary" },
+  };
+}
+
+/** Canonical address and the same page in the other language (hreflang). */
+export function pageAlternates(lang: Locale, path: string) {
+  const suffix = path === "/" ? "" : path;
+  return {
+    canonical: `/${lang}${suffix}`,
+    languages: { en: `/en${suffix}`, bn: `/bn${suffix}` },
   };
 }

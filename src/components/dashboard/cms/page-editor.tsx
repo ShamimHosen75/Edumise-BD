@@ -50,7 +50,11 @@ export function PageEditor({
 
   const onSubmit = form.handleSubmit(async (values) => {
     setStatus(null);
-    const result = await savePage(lang, id, values);
+    const result = await savePage(lang, id, values).catch(() => ({
+      ok: false as const,
+      error: "auth.unexpected" as const,
+      fieldErrors: undefined,
+    }));
     if (!result.ok) {
       for (const [field, key] of Object.entries(result.fieldErrors ?? {}))
         form.setError(field as keyof PageInput, { message: key });
@@ -232,7 +236,10 @@ export function PageEditor({
             className="text-destructive"
             onClick={async () => {
               if (!window.confirm(m("cms.deleteConfirm"))) return;
-              const result = await deletePage(lang, id);
+              const result = await deletePage(lang, id).catch(() => ({
+                ok: false as const,
+                error: "auth.unexpected" as const,
+              }));
               if (result.ok) router.replace(`/${lang}/dashboard/pages`);
               else setStatus({ ok: false, text: m(result.error)! });
             }}

@@ -441,3 +441,30 @@ Known issues:
 - Governing body members are ordered by "Order in the list" within a term; there is no
   drag-to-reorder.
 
+## Phase 2 code review ✅
+
+Full report: [`docs/code-review-phase-2.md`](code-review-phase-2.md). Checks after the
+fixes: `lint` ✅ · `typecheck` ✅ · `test` ✅ 265 · `db:test` ✅ 17 files / 246 tests ·
+`db lint` ✅ · types up to date ✅ · `build` ✅ · `test:e2e` ✅ 159 passed, 5 skipped by
+design · `npm audit` 0.
+
+Fixed (each with a regression test where it can be tested):
+- Security: visitors could list every file in the public storage bucket (finding draft and
+  staff-only attachments by name); a teacher could point a draft at any file and get it
+  deleted by an admin's clean-up; ids sent to server actions were not validated; the
+  pages list crashed on a repeated search parameter.
+- Correctness: list pages past the end showed the error page (now go to the last page);
+  a database blip could cache a 404 for an existing item; scheduled items now appear
+  within 5 minutes (was up to an hour; supersedes the Step 2.3 known issue); wrong
+  hreflang on list pages; English SEO title on Bangla pages; home and events page
+  disagreed on running events; HTML entities in excerpts; "Link copied" shown when
+  nothing was copied; clearing a scheduled date did not publish now; unpublishing a page
+  lost its first publish date; a teacher's save erased an admin's date; unhandled save
+  errors; files left in storage after replace/remove/delete.
+- Also: five missing indexes, `sizes` on large images, translated attachment details,
+  arrows hidden from screen readers, keyboard-scrollable dashboard table.
+
+Recorded for later: shared action helpers (Step 3.1), tabs as path segments and editor
+lazy-loading (Step 6.3), slide link column (ask the owner). Production note for Step 6.4:
+the contact form's per-IP limit relies on Vercel setting `X-Forwarded-For`.
+

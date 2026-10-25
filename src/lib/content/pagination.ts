@@ -38,3 +38,8 @@ export function pageNumbers(current: number, total: number): (number | null)[] {
     i > 0 && p - sorted[i - 1]! > 1 ? [null, p] : [p],
   );
 }
+
+/** The last page that has rows (at least 1). Pages past it redirect there. */
+export function lastPage(count: number): number {
+  return Math.max(1, totalPages(count));
+}

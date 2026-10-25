@@ -51,7 +51,13 @@ export function ContentTable({
     );
   const link = "text-primary underline-offset-4 hover:underline";
   return (
-    <div className="overflow-x-auto rounded-xl border">
+    // Scrolls sideways on phones; focusable so keyboard users can scroll it too.
+    <div
+      className="overflow-x-auto rounded-xl border"
+      role="region"
+      aria-label={dict.content[module]}
+      tabIndex={0}
+    >
       <table className="w-full min-w-[36rem] text-sm">
         <thead className="bg-muted/50 text-left">
           <tr>

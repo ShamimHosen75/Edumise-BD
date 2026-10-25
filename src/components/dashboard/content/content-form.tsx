@@ -222,7 +222,12 @@ export function ContentForm(props: Props) {
             className="text-destructive"
             onClick={async () => {
               if (!window.confirm(m("contentAdmin.deleteConfirm"))) return;
-              const result = await deleteContent(lang, module, id);
+              const result = await deleteContent(lang, module, id).catch(
+                () => ({
+                  ok: false as const,
+                  error: "auth.unexpected" as const,
+                }),
+              );
               if (result.ok) router.replace(list);
               else setStatus({ ok: false, text: m(result.error)! });
             }}

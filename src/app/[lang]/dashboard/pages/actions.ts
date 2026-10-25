@@ -16,7 +16,9 @@ import {
 } from "@/lib/files";
 import { sanitizeRichText } from "@/lib/sanitize";
 import { TAGS } from "@/lib/site/cache";
+import { removeFiles } from "@/lib/storage-files";
 import { readUpload } from "@/lib/uploads";
+import { assertId, assertOptionalId } from "@/lib/validation/ids";
 import { createClient } from "@/lib/supabase/server";
 import { pageSchema, type PageInput } from "@/lib/validation/page";
 
@@ -47,6 +49,7 @@ export async function savePage(
   id: number | null,
   input: unknown,
 ): Promise<SaveResult> {
+  assertOptionalId(id);
   const supabase = await adminOnly(lang);
   const parsed = pageSchema.safeParse(input);
   if (!parsed.success) {
@@ -56,22 +59,25 @@ export async function savePage(
     return { ok: false, error: "cms.failed", fieldErrors };
   }
   const v = parsed.data;
-  const row = {
-    ...v,
-    body_en: sanitizeRichText(v.body_en, { mediaBaseUrl: mediaBaseUrl() }),
-    body_bn: sanitizeRichText(v.body_bn, { mediaBaseUrl: mediaBaseUrl() }),
-    published_at: v.is_published ? new Date().toISOString() : null,
-  };
-
-  // Keep the original publish date when a published page is edited again.
-  if (id !== null && v.is_published) {
+  // Keep the first publish date when a page is saved again (or unpublished and
+  // published later).
+  let existing: string | null = null;
+  if (id !== null) {
     const { data: current } = await supabase
       .from("pages")
       .select("published_at")
       .eq("id", id)
       .maybeSingle();
-    if (current?.published_at) row.published_at = current.published_at;
+    existing = current?.published_at ?? null;
   }
+  const row = {
+    ...v,
+    body_en: sanitizeRichText(v.body_en, { mediaBaseUrl: mediaBaseUrl() }),
+    body_bn: sanitizeRichText(v.body_bn, { mediaBaseUrl: mediaBaseUrl() }),
+    published_at: v.is_published
+      ? (existing ?? new Date().toISOString())
+      : existing,
+  };
 
   const query =
     id === null
@@ -93,9 +99,28 @@ export async function deletePage(
   lang: string,
   id: number,
 ): Promise<SimpleResult> {
+  assertId(id);
   const supabase = await adminOnly(lang);
-  const { error } = await supabase.from("pages").delete().eq("id", id);
+  const { data, error } = await supabase
+    .from("pages")
+    .delete()
+    .eq("id", id)
+    .select("id");
   if (error) return { ok: false, error: "auth.unexpected" };
+  if (!data?.length) return { ok: false, error: "errors.notAllowed" };
+  // The cover, body images and attachments live in this page's own folders.
+  const store = supabase.storage.from("public-media");
+  const listed = await Promise.all(
+    [`pages/${id}`, `attachments/${id}`].map(async (folder) =>
+      ((await store.list(folder, { limit: 1000 })).data ?? []).map(
+        (f) => `${folder}/${f.name}`,
+      ),
+    ),
+  );
+  await removeFiles(supabase, listed.flat(), [
+    `pages/${id}/`,
+    `attachments/${id}/`,
+  ]);
   refresh();
   return { ok: true };
 }
@@ -106,6 +131,7 @@ export async function uploadPageImage(
   pageId: number,
   formData: FormData,
 ): Promise<UploadResult> {
+  assertId(pageId);
   const supabase = await adminOnly(lang);
   const read = await readUpload(formData, IMAGE_MAX_BYTES);
   if ("error" in read) return { ok: false, error: read.error };
@@ -128,7 +154,14 @@ export async function setPageCover(
   pageId: number,
   formData: FormData,
 ): Promise<SimpleResult> {
+  assertId(pageId);
   const supabase = await adminOnly(lang);
+  const { data: page } = await supabase
+    .from("pages")
+    .select("cover_path")
+    .eq("id", pageId)
+    .maybeSingle();
+  if (!page) return { ok: false, error: "errors.notAllowed" };
   let coverPath: string | null = null;
   if (formData.get("remove") !== "1") {
     const read = await readUpload(formData, IMAGE_MAX_BYTES);
@@ -145,7 +178,12 @@ export async function setPageCover(
     .from("pages")
     .update({ cover_path: coverPath })
     .eq("id", pageId);
-  if (error) return { ok: false, error: "auth.unexpected" };
+  const folder = [`pages/${pageId}/`];
+  if (error) {
+    await removeFiles(supabase, [coverPath], folder);
+    return { ok: false, error: "auth.unexpected" };
+  }
+  await removeFiles(supabase, [page.cover_path], folder);
   refresh();
   return { ok: true };
 }
@@ -155,6 +193,7 @@ export async function addAttachment(
   pageId: number,
   formData: FormData,
 ): Promise<SimpleResult> {
+  assertId(pageId);
   const supabase = await adminOnly(lang);
   const label = String(formData.get("label") ?? "").trim();
   if (!label || label.length > 120)
@@ -179,7 +218,10 @@ export async function addAttachment(
     mime_type: type,
     file_size: read.bytes.byteLength,
   });
-  if (error) return { ok: false, error: "auth.unexpected" };
+  if (error) {
+    await removeFiles(supabase, [path], [`attachments/${pageId}/`]);
+    return { ok: false, error: "auth.unexpected" };
+  }
   refresh();
   return { ok: true };
 }
@@ -188,6 +230,7 @@ export async function removeAttachment(
   lang: string,
   attachmentId: number,
 ): Promise<SimpleResult> {
+  assertId(attachmentId);
   const supabase = await adminOnly(lang);
   const { data, error } = await supabase
     .from("page_attachments")
@@ -196,7 +239,7 @@ export async function removeAttachment(
     .select("file_path")
     .single();
   if (error || !data) return { ok: false, error: "auth.unexpected" };
-  await supabase.storage.from("public-media").remove([data.file_path]);
+  await removeFiles(supabase, [data.file_path], ["attachments/"]);
   refresh();
   return { ok: true };
 }

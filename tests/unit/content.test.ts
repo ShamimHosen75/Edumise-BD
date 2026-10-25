@@ -184,4 +184,14 @@ describe("content validation", () => {
     expect(publishedAt(false, "", null)).toBeNull();
     expect(publishedAt(true, "", null)).toMatch(/^\d{4}-\d{2}-\d{2}T/);
   });
+  it("publishes now when the date of a scheduled item is cleared", () => {
+    const now = new Date("2026-10-25T06:00:00Z");
+    expect(publishedAt(true, "", "2026-12-01T00:00:00Z", now)).toBe(
+      "2026-10-25T06:00:00.000Z",
+    );
+    // Unpublishing keeps the date, so it can be shown again later.
+    expect(publishedAt(false, "", "2026-12-01T00:00:00Z", now)).toBe(
+      "2026-12-01T00:00:00Z",
+    );
+  });
 });

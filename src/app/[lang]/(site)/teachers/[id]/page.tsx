@@ -64,7 +64,7 @@ export default async function StaffProfilePage({ params }: Props) {
         href={`/${lang}/teachers`}
         className="text-primary text-sm hover:underline"
       >
-        ← {p.allTeachers}
+        <span aria-hidden="true">←</span> {p.allTeachers}
       </Link>
       <header className="flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left">
         {photo ? (

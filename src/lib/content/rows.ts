@@ -38,9 +38,10 @@ export function toContentRow<M extends ContentModule>(
   const row: Record<string, unknown> = {
     ...rest,
     is_published: isPublished,
+    // A teacher's save keeps any date an admin set; only admins choose it.
     published_at: canPublish
       ? publishedAt(isPublished, localPublish, existingPublishedAt)
-      : null,
+      : existingPublishedAt,
   };
   for (const field of ["body_en", "body_bn"] as const) {
     if (field in row)

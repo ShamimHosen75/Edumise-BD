@@ -241,7 +241,8 @@
     "page": {
       "updated": "Last updated {date}",
       "attachments": "Attachments",
-      "download": "Download"
+      "download": "Download",
+      "fileMeta": "({type}, {size})"
     }
   },
   "cms": {

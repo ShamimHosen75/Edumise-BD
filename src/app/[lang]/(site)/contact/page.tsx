@@ -6,6 +6,7 @@ import { ContactForm } from "@/components/site/contact-form";
 import { ContentHeader } from "@/components/site/content/content-header";
 import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
+import { pageAlternates } from "@/lib/site/detail-metadata";
 import { errorKeys, pickMessages } from "@/i18n/messages";
 import { t, type TranslationKey } from "@/i18n/t";
 import { localizeDigits, pickLocalized } from "@/lib/format";
@@ -21,7 +22,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang } = await params;
   if (!isLocale(lang)) return {};
   const dict = await getDictionary(lang);
-  return { title: dict.contact.title, description: dict.contact.intro };
+  return {
+    alternates: pageAlternates(lang, "/contact"),
+    title: dict.contact.title,
+    description: dict.contact.intro,
+  };
 }
 
 export default async function ContactPage({ params }: Props) {

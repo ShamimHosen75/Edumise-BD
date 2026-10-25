@@ -47,11 +47,3 @@ const MODULE_TAGS: Record<ContentModule, string[]> = {
 export function refreshModule(module: ContentModule) {
   for (const tag of MODULE_TAGS[module]) revalidateTag(tag);
 }
-
-/** Deletes Storage files we uploaded (demo files ship with the app). Best effort. */
-export async function removeFiles(db: SupabaseClient, paths: unknown[]) {
-  const ours = paths.filter(
-    (p): p is string => typeof p === "string" && !p.startsWith("demo/"),
-  );
-  if (ours.length > 0) await db.storage.from("public-media").remove(ours);
-}

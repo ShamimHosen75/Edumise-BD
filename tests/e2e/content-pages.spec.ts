@@ -86,3 +86,20 @@ test("the event form rejects an end before the start and a bad address", async (
   ).toBeVisible();
   await expect(page).toHaveURL(/\/dashboard\/events\/new$/);
 });
+
+test("a list page past the end goes to the last page", async ({ page }) => {
+  await page.goto("/en/notices?page=99");
+  await expect(page).toHaveURL(/\/en\/notices\?page=2$/);
+  await expect(page.getByRole("status")).toHaveText(/^\d+ found$/);
+  await page.goto("/bn/downloads?category=forms&page=7");
+  await expect(page).toHaveURL(/\/bn\/downloads\?category=forms$/);
+  await expect(page.getByRole("main").getByRole("listitem")).not.toHaveCount(0);
+});
+
+test("list pages name their own Bangla and English versions", async ({
+  request,
+}) => {
+  const html = await (await request.get("/en/notices")).text();
+  expect(html).toMatch(/hrefLang="bn" href="[^"]*\/bn\/notices"/);
+  expect(html).toMatch(/rel="canonical" href="[^"]*\/en\/notices"/);
+});

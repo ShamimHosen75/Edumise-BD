@@ -55,7 +55,10 @@ export function MenuBuilder({ lang, items, pages, messages }: Props) {
 
   const act = (fn: () => Promise<{ ok: boolean; error?: string }>) =>
     start(async () => {
-      const result = await fn();
+      const result = await fn().catch(() => ({
+        ok: false,
+        error: "auth.unexpected",
+      }));
       setStatus(
         result.ok ? m("cms.menuSaved") : m(result.error ?? "auth.unexpected"),
       );
@@ -70,7 +73,10 @@ export function MenuBuilder({ lang, items, pages, messages }: Props) {
       }>,
     ) =>
     async () => {
-      const result = await fn();
+      const result = await fn().catch(() => ({
+        ok: false as const,
+        error: "auth.unexpected",
+      }));
       if (result.ok) {
         setEditing(null);
         setStatus(m("cms.menuSaved"));

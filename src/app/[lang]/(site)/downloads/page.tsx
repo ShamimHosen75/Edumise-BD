@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Download, FileText } from "lucide-react";
 
 import { ContentHeader } from "@/components/site/content/content-header";
@@ -10,9 +10,10 @@ import { listHref, Pagination } from "@/components/site/content/pagination";
 import { buttonVariants } from "@/components/ui/button";
 import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
+import { pageAlternates } from "@/lib/site/detail-metadata";
 import { t } from "@/i18n/t";
 import { contentLabels } from "@/lib/content/labels";
-import { parsePage, totalPages } from "@/lib/content/pagination";
+import { lastPage, parsePage, totalPages } from "@/lib/content/pagination";
 import { cleanSearch } from "@/lib/content/share";
 import { pickLocalized } from "@/lib/format";
 import { listDownloads } from "@/lib/site/content-data";
@@ -29,6 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!isLocale(lang)) return {};
   const dict = await getDictionary(lang);
   return {
+    alternates: pageAlternates(lang, "/downloads"),
     title: dict.content.downloads,
     description: dict.content.intro.downloads,
   };
@@ -46,6 +48,9 @@ export default async function DownloadsPage({ params, searchParams }: Props) {
   const { rows, count } = await listDownloads({ q, page, category });
   const labels = contentLabels(dict, lang);
   const base = `/${lang}/downloads`;
+  // A page past the end (old link, fewer results) goes to the last page.
+  if (page > lastPage(count))
+    redirect(listHref(base, { q, category, page: lastPage(count) }));
 
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-10">

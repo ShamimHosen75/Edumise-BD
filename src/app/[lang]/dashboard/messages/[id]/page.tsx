@@ -46,7 +46,7 @@ export default async function MessagePage({ params }: Props) {
         href={`/${lang}/dashboard/messages`}
         className="text-primary text-sm hover:underline"
       >
-        ← {m.back}
+        <span aria-hidden="true">←</span> {m.back}
       </Link>
       <header className="flex flex-col gap-1">
         <h1 className="text-2xl font-semibold break-words">
