@@ -87,5 +87,7 @@ export async function requireRole(
 ): Promise<CurrentUser> {
   const user = await requireUser(lang);
   if (!roles.includes(user.role)) forbidden();
+  // A one-time password must be changed before anything else is done with it.
+  if (user.mustChangePassword) redirect(`/${lang}/change-password`);
   return user;
 }

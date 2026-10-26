@@ -29,14 +29,24 @@ export default async function MeritPage({ params, searchParams }: Props) {
   const dict = await getDictionary(lang);
   const a = dict.admissionsAdmin;
   const db = await createClient();
-  const classes = await classOptions(db, lang);
+  const [classes, { data: session }] = await Promise.all([
+    classOptions(db, lang),
+    db
+      .from("academic_sessions")
+      .select("id")
+      .eq("is_current", true)
+      .maybeSingle(),
+  ]);
   const wanted = (await searchParams).class;
   const chosen = classes.find((c) => String(c.id) === wanted) ?? classes[0];
-  const rows = chosen
-    ? (await admissionQueue(db, lang, {})).filter(
-        (r) => r.class_name === chosen.name,
-      )
-    : [];
+  // This year's applicants to this class only.
+  const rows =
+    chosen && session
+      ? await admissionQueue(db, lang, {
+          classId: chosen.id,
+          sessionId: session.id,
+        })
+      : [];
 
   return (
     <div className="flex flex-col gap-6">

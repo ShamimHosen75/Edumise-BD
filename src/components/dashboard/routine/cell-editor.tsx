@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -51,6 +51,12 @@ export function CellEditor({
     cell?.staffId ? String(cell.staffId) : "",
   );
   const [room, setRoom] = useState(cell?.roomId ? String(cell.roomId) : "");
+  const heading = useRef<HTMLHeadingElement>(null);
+  // The editor opens below a wide grid: bring it into view and move focus to it.
+  useEffect(() => {
+    heading.current?.scrollIntoView({ block: "nearest" });
+    heading.current?.focus();
+  }, []);
   const num = (v: string) => (v ? Number(v) : null);
   const select = "bg-background h-10 w-full rounded-md border px-3 text-sm";
   const field = (
@@ -85,7 +91,12 @@ export function CellEditor({
       className="bg-card flex flex-col gap-3 rounded-xl border p-4 shadow-sm print:hidden"
       data-testid="cell-editor"
     >
-      <h2 id="cell-editor-title" className="font-semibold">
+      <h2
+        id="cell-editor-title"
+        ref={heading}
+        tabIndex={-1}
+        className="font-semibold outline-none"
+      >
         {title}
       </h2>
       <p className="text-muted-foreground text-xs">{hint}</p>

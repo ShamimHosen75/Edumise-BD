@@ -33,6 +33,8 @@ export async function promoteClass(
   if (error?.code === "23505") return { ok: false, error: "errors.enrolled" };
   if (error?.code === "22023")
     return { ok: false, error: "promotion.sameSession" };
+  if (error?.code === "23503")
+    return { ok: false, error: "promotion.missingSection" };
   if (error) return dbError(error) as PromotionResult;
   revalidateTag(TAGS.stats);
   return { ok: true, count: data };

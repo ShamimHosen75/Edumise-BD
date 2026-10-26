@@ -1,7 +1,8 @@
 import "server-only";
 
 import type { Locale } from "@/i18n/config";
-import { pickLocalized } from "@/lib/format";
+import { localizeDigits, pickLocalized } from "@/lib/format";
+import { fetchAll } from "@/lib/supabase/fetch-all";
 import type { createClient } from "@/lib/supabase/server";
 
 type Client = Awaited<ReturnType<typeof createClient>>;
@@ -22,12 +23,16 @@ export type StudentListRow = {
   phone: string;
 };
 
-export async function sessions(db: Client) {
+/** Sessions, newest first; names with Bangla digits in Bangla ("২০২৬"). */
+export async function sessions(db: Client, lang: Locale) {
   const { data } = await db
     .from("academic_sessions")
     .select("id, name, is_current, starts_on")
     .order("starts_on", { ascending: false });
-  return data ?? [];
+  return (data ?? []).map((s) => ({
+    ...s,
+    name: localizeDigits(s.name, lang),
+  }));
 }
 
 /** Everyone enrolled in a session, with class, section, group and primary guardian mobile. */
@@ -36,15 +41,17 @@ export async function studentList(
   sessionId: number,
   lang: Locale,
 ): Promise<StudentListRow[]> {
-  const { data, error } = await db
-    .from("enrollments")
-    .select(
-      "roll, section_id, group:groups(name_en, name_bn), section:sections(name_en, name_bn, class:classes(level, name_en, name_bn)), student:students(id, student_code, full_name_en, full_name_bn, status, student_guardians(is_primary, guardian:guardians(phone)))",
-    )
-    .eq("session_id", sessionId)
-    .limit(5000);
-  if (error) throw new Error(error.message);
-  return (data ?? [])
+  const data = await fetchAll((from, to) =>
+    db
+      .from("enrollments")
+      .select(
+        "roll, section_id, group:groups(name_en, name_bn), section:sections(name_en, name_bn, class:classes(level, name_en, name_bn)), student:students(id, student_code, full_name_en, full_name_bn, status, student_guardians(is_primary, guardian:guardians(phone)))",
+      )
+      .eq("session_id", sessionId)
+      .order("id")
+      .range(from, to),
+  );
+  return data
     .map((e) => {
       const section = one<Named & { class: Named & { level: number } }>(
         e.section,

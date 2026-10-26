@@ -3,6 +3,7 @@
 import { isLocale } from "@/i18n/config";
 import type { TranslationKey } from "@/i18n/t";
 import { invalid, type ActionResult } from "@/lib/actions";
+import { canManageLogin } from "@/lib/auth/roles";
 import { requireRole } from "@/lib/auth/session";
 import { tempPassword } from "@/lib/auth/temp-password";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -129,8 +130,8 @@ export async function resetStaffPassword(
     role: string;
   } | null;
   if (!profile) return { ok: false, error: "errors.notAllowed" };
-  // Admins cannot take over a super admin's account.
-  if (profile.role === "super_admin" && me.role !== "super_admin")
+  // Admins cannot take over another admin's or a super admin's account.
+  if (!canManageLogin(me, profile))
     return { ok: false, error: "errors.notAllowed" };
 
   const service = createAdminClient();
@@ -157,17 +158,20 @@ export async function setStaffLoginActive(
   const { me, supabase } = await admin(lang);
   const { data: staff } = await supabase
     .from("staff")
-    .select("profile_id")
+    .select("profile:profiles(id, role)")
     .eq("id", staffId)
     .maybeSingle();
-  if (!staff?.profile_id) return { ok: false, error: "errors.notAllowed" };
-  if (staff.profile_id === me.id)
+  const profile = staff?.profile as unknown as {
+    id: string;
+    role: string;
+  } | null;
+  if (!profile || !canManageLogin(me, profile))
     return { ok: false, error: "errors.notAllowed" };
   // The admin's own client: RLS and the profile guard stop changes to super admins.
   const { data, error } = await supabase
     .from("profiles")
     .update({ is_active: active })
-    .eq("id", staff.profile_id)
+    .eq("id", profile.id)
     .select("id");
   if (error || !data.length) return { ok: false, error: "errors.notAllowed" };
   return { ok: true };

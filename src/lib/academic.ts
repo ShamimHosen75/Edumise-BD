@@ -58,3 +58,20 @@ export const ACADEMIC_PAGES = [
   "rooms",
   "holidays",
 ] as const;
+
+/**
+ * The form field a unique-index error belongs to: the column named in the index
+ * ("designations_name_en_key" -> name_en) when the form has it, else the entity's main
+ * unique field.
+ */
+export function duplicateField(
+  message: string | undefined,
+  fields: readonly string[],
+  fallback: string,
+): string {
+  const index = /"([a-z0-9_]+)"/.exec(message ?? "")?.[1] ?? "";
+  const named = [...fields]
+    .sort((a, b) => b.length - a.length)
+    .find((f) => index.includes(`_${f}_`) || index.endsWith(`_${f}_key`));
+  return named ?? fallback;
+}

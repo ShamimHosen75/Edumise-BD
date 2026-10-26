@@ -49,8 +49,20 @@ export type StatusResult =
 // Applicants cannot write the admission tables: this server does it with the service
 // role, after validating everything and checking the per-address limit.
 const service = () => createAdminClient();
+/**
+ * Key for signing upload tokens. A separate ADMISSION_TOKEN_SECRET is preferred (it can be
+ * rotated on its own); the service-role key is the fallback for existing setups.
+ */
 const secret = () =>
-  z.string().min(1).parse(process.env.SUPABASE_SERVICE_ROLE_KEY);
+  z
+    .string()
+    .min(1)
+    .parse(
+      process.env.ADMISSION_TOKEN_SECRET ||
+        process.env.SUPABASE_SERVICE_ROLE_KEY,
+    );
+
+const UPLOADS_PER_APPLICATION = { max: 8, windowSeconds: 60 * 60 };
 
 async function limited(
   scope: string,
@@ -187,18 +199,29 @@ export async function uploadApplicationDocument(
   if (type !== "application/pdf" && type !== "image/jpeg")
     return { ok: false, error: "errors.documentType" };
 
+  // A valid token allows a few uploads per application (two documents, a few retries),
+  // and only while the application waits for review.
+  if (
+    await hitRateLimit(
+      rateKey("admission-upload", String(applicationId)),
+      UPLOADS_PER_APPLICATION,
+    )
+  )
+    return { ok: false, error: "errors.tooManyRequests" };
   const db = service();
-  const path = `admissions/${applicationId}/${randomUUID()}.${imageExtension(type)}`;
+  const { data: application } = await db
+    .from("admission_applications")
+    .select("status, photo_path")
+    .eq("id", applicationId)
+    .maybeSingle();
+  if (application?.status !== "submitted")
+    return { ok: false, error: "errors.notAllowed" };
+  const folder = `admissions/${applicationId}/`;
+  const path = `${folder}${randomUUID()}.${imageExtension(type)}`;
   const { error: uploadError } = await db.storage
     .from("private-docs")
     .upload(path, read.bytes, { contentType: type });
   if (uploadError) return { ok: false, error: "errors.uploadFailed" };
-  const { data: old } = await db
-    .from("admission_documents")
-    .select("file_path")
-    .eq("application_id", applicationId)
-    .eq("kind", parsedKind.data)
-    .maybeSingle();
   const { error } = await db.from("admission_documents").upsert(
     {
       application_id: applicationId,
@@ -213,8 +236,23 @@ export async function uploadApplicationDocument(
     await db.storage.from("private-docs").remove([path]);
     return { ok: false, error: "auth.unexpected" };
   }
-  if (old?.file_path)
-    await db.storage.from("private-docs").remove([old.file_path]);
+  // Remove every file in the folder that no row points to (replaced documents, and
+  // uploads that raced each other).
+  const [{ data: files }, { data: docs }] = await Promise.all([
+    db.storage.from("private-docs").list(folder.slice(0, -1), { limit: 100 }),
+    db
+      .from("admission_documents")
+      .select("file_path")
+      .eq("application_id", applicationId),
+  ]);
+  const keep = new Set([
+    application.photo_path,
+    ...(docs ?? []).map((d) => d.file_path),
+  ]);
+  const orphans = (files ?? [])
+    .map((f) => `${folder}${f.name}`)
+    .filter((f) => !keep.has(f));
+  if (orphans.length) await db.storage.from("private-docs").remove(orphans);
   return { ok: true };
 }
 

@@ -30,7 +30,12 @@ export function MonthGrid({
   const on = (date: string) =>
     items.filter((i) => i.start <= date && date <= i.end);
   return (
-    <div className="overflow-x-auto rounded-xl border">
+    <div
+      role="region"
+      tabIndex={0}
+      aria-label={labels.caption}
+      className="focus-visible:ring-ring overflow-x-auto rounded-xl border outline-none focus-visible:ring-2"
+    >
       <table className="w-full min-w-[40rem] table-fixed border-collapse text-sm">
         <caption className="sr-only">{labels.caption}</caption>
         <thead className="bg-muted">
@@ -76,9 +81,9 @@ export function MonthGrid({
                     {closed && !holiday ? (
                       <span className="sr-only">{labels.closed}</span>
                     ) : null}
-                    {here.map((x) => (
+                    {here.map((x, n) => (
                       <span
-                        key={`${x.kind}-${x.title}`}
+                        key={`${n}-${x.kind}`}
                         className={cn(
                           "mt-0.5 block truncate rounded px-1 text-xs",
                           x.kind === "holiday"

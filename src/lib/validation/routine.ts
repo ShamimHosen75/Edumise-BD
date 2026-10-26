@@ -80,5 +80,6 @@ export const routineSaveSchema = z.object({
         roomId: id.nullable(),
       }),
     )
-    .max(100),
+    // Up to 20 periods x 7 days.
+    .max(140),
 });

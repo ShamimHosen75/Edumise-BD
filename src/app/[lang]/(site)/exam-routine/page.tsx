@@ -53,7 +53,12 @@ export default async function ExamRoutinePage({ params }: Props) {
             {exam.classes.map((c) => (
               <div key={c.id} className="flex flex-col gap-2">
                 <h3 className="font-semibold">{c.name}</h3>
-                <div className="overflow-x-auto rounded-xl border">
+                <div
+                  role="region"
+                  tabIndex={0}
+                  aria-label={`${exam.name}: ${c.name}`}
+                  className="focus-visible:ring-ring overflow-x-auto rounded-xl border outline-none focus-visible:ring-2"
+                >
                   <table className="w-full text-sm">
                     <caption className="sr-only">{`${exam.name}: ${c.name}`}</caption>
                     <thead className="bg-muted">
@@ -73,8 +78,8 @@ export default async function ExamRoutinePage({ params }: Props) {
                       </tr>
                     </thead>
                     <tbody>
-                      {c.papers.map((p) => (
-                        <tr key={`${p.date}-${p.subject}`} className="border-t">
+                      {c.papers.map((p, n) => (
+                        <tr key={n} className="border-t">
                           <td className="px-3 py-2 whitespace-nowrap">
                             {formatDate(p.date, lang, "medium")}
                           </td>

@@ -3,7 +3,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { revalidateTag } from "next/cache";
 
-import { ACADEMIC, isAcademicEntity } from "@/lib/academic";
+import { ACADEMIC, duplicateField, isAcademicEntity } from "@/lib/academic";
 import {
   dbError,
   invalid,
@@ -17,6 +17,8 @@ import {
 } from "@/lib/validation/academic";
 import { assertId, assertOptionalId } from "@/lib/validation/ids";
 import { workingDaysSchema } from "@/lib/validation/routine";
+
+import { checkAcademicSave } from "./checks";
 
 // Class and section counts appear on the public home page; designations on the staff
 // directory.
@@ -42,6 +44,8 @@ export async function saveAcademic(
   const parsed = schema.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
   const row = parsed.data as Record<string, unknown>;
+  const check = await checkAcademicSave(supabase, entity, id, row);
+  if (check) return check;
 
   const { data, error } =
     id === null
@@ -52,7 +56,11 @@ export async function saveAcademic(
           .eq("id", id)
           .select("id")
           .maybeSingle();
-  if (error) return dbError(error, unique);
+  if (error)
+    return dbError(
+      error,
+      duplicateField(error.message, Object.keys(row), unique),
+    );
   if (!data) return { ok: false, error: "errors.notAllowed" };
   refresh();
   return { ok: true, id: data.id as number };
@@ -74,6 +82,14 @@ export async function deleteAcademic(
       .eq("id", id)
       .maybeSingle();
     if (data?.is_current) return { ok: false, error: "errors.inUse" };
+  }
+  if (entity === "periods") {
+    // Deleting a period would silently take its classes out of every routine.
+    const { count } = await supabase
+      .from("routine")
+      .select("id", { count: "exact", head: true })
+      .eq("period_id", id);
+    if (count) return { ok: false, error: "errors.inUse" };
   }
   const { data, error } = await supabase
     .from(ACADEMIC[entity].table)
@@ -145,15 +161,16 @@ export async function saveClassSubjects(
     .filter((s) => !have.has(s))
     .map((subject_id) => ({ class_id, group_id, subject_id }));
 
+  // Add first: if adding fails, nothing has been removed.
+  if (add.length) {
+    const { error } = await supabase.from("class_subjects").insert(add);
+    if (error) return dbError(error);
+  }
   if (remove.length) {
     const { error } = await supabase
       .from("class_subjects")
       .delete()
       .in("id", remove);
-    if (error) return dbError(error);
-  }
-  if (add.length) {
-    const { error } = await supabase.from("class_subjects").insert(add);
     if (error) return dbError(error);
   }
   return { ok: true };

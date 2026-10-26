@@ -17,7 +17,12 @@ export function StudentHistory({
   if (rows.length === 0)
     return <p className="text-muted-foreground text-sm">{p.historyEmpty}</p>;
   return (
-    <div className="max-w-4xl overflow-x-auto rounded-xl border">
+    <div
+      role="region"
+      tabIndex={0}
+      aria-label={p.history}
+      className="focus-visible:ring-ring max-w-4xl overflow-x-auto rounded-xl border outline-none focus-visible:ring-2"
+    >
       <table className="w-full text-sm">
         <caption className="sr-only">{p.history}</caption>
         <thead className="bg-muted text-left">

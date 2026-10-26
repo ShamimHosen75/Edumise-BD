@@ -6,6 +6,7 @@ import type { Locale } from "@/i18n/config";
 import { pickLocalized } from "@/lib/format";
 import type { Booking } from "@/lib/routine";
 import type { Database } from "@/lib/supabase/database.types";
+import { fetchAll } from "@/lib/supabase/fetch-all";
 
 type Db = SupabaseClient<Database>;
 type Named = { name_en: string; name_bn: string };
@@ -83,12 +84,13 @@ export async function routineEntries(
   lang: Locale,
   filter: { sectionId?: number; staffId?: number } = {},
 ): Promise<RoutineEntry[]> {
-  let q = db.from("routine").select(SELECT).eq("session_id", sessionId);
-  if (filter.sectionId) q = q.eq("section_id", filter.sectionId);
-  if (filter.staffId) q = q.eq("staff_id", filter.staffId);
-  const { data, error } = await q.limit(5000);
-  if (error) throw new Error(error.message);
-  return (data ?? []).map((r) => entry(r, lang));
+  const rows = await fetchAll((from, to) => {
+    let q = db.from("routine").select(SELECT).eq("session_id", sessionId);
+    if (filter.sectionId) q = q.eq("section_id", filter.sectionId);
+    if (filter.staffId) q = q.eq("staff_id", filter.staffId);
+    return q.order("id").range(from, to);
+  });
+  return rows.map((r) => entry(r, lang));
 }
 
 /** Subjects of a class (all groups, for Classes 9 and 10), in subject order. */

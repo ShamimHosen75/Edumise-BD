@@ -6,6 +6,7 @@ import { z } from "zod";
 import type { TranslationKey } from "@/i18n/t";
 import { requireAdmin } from "@/lib/actions";
 import { TAGS } from "@/lib/site/cache";
+import { fetchAll } from "@/lib/supabase/fetch-all";
 import {
   checkImportRows,
   IMPORT_MAX_ROWS,
@@ -32,20 +33,25 @@ const rawRows = z
 async function check(db: Db, sessionId: number, rows: unknown) {
   const parsed = rawRows.safeParse(rows);
   if (!parsed.success) return null;
-  const [{ data: sections }, { data: enrolled }, { data: regs }] =
-    await Promise.all([
-      db.from("sections").select("id, name_en, class:classes(level)"),
+  const [{ data: sections }, enrolled, regs] = await Promise.all([
+    db.from("sections").select("id, name_en, class:classes(level)"),
+    fetchAll((from, to) =>
       db
         .from("enrollments")
         .select("section_id, roll")
         .eq("session_id", sessionId)
-        .limit(10000),
+        .order("id")
+        .range(from, to),
+    ),
+    fetchAll((from, to) =>
       db
         .from("students")
         .select("birth_reg_no")
         .not("birth_reg_no", "is", null)
-        .limit(20000),
-    ]);
+        .order("id")
+        .range(from, to),
+    ),
+  ]);
   return checkImportRows(parsed.data, {
     sections: (sections ?? []).map((s) => ({
       id: s.id,
@@ -55,7 +61,7 @@ async function check(db: Db, sessionId: number, rows: unknown) {
     usedRolls: new Set(
       (enrolled ?? []).map((e) => `${e.section_id}:${e.roll}`),
     ),
-    usedBirthRegs: new Set((regs ?? []).map((r) => r.birth_reg_no!)),
+    usedBirthRegs: new Set(regs.map((r) => r.birth_reg_no!)),
   });
 }
 
@@ -89,7 +95,16 @@ export async function commitImport(
     p_session_id: sessionId,
     p_rows: checked.map((r) => r.row!),
   });
-  if (error?.code === "23505") return { ok: false, error: "errors.rollTaken" };
+  // Someone saved a student a moment ago with the same roll or birth registration number.
+  if (error?.code === "23505")
+    return {
+      ok: false,
+      error: /birth_reg/.test(error.message)
+        ? "errors.birthRegTaken"
+        : /roll/.test(error.message)
+          ? "errors.rollTaken"
+          : "errors.duplicate",
+    };
   if (error) return { ok: false, error: "auth.unexpected" };
   revalidateTag(TAGS.stats);
   return { ok: true, rows: checked, imported: data };

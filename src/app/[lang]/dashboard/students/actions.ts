@@ -12,6 +12,7 @@ import {
 } from "@/lib/actions";
 import { detectImageType, IMAGE_MAX_BYTES, imageExtension } from "@/lib/files";
 import { TAGS } from "@/lib/site/cache";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { removeFiles } from "@/lib/storage-files";
 import { readUpload } from "@/lib/uploads";
 import { assertId, assertOptionalId } from "@/lib/validation/ids";
@@ -111,7 +112,10 @@ export async function saveStudent(
   return { ok: true, id };
 }
 
-/** Deletes a student with their enrolments and files. Their login is switched off. */
+/**
+ * Deletes a student with their enrolments, files and login. A student still referenced
+ * elsewhere (fees) is not deleted ("in use"), and then nothing changes.
+ */
 export async function deleteStudent(
   lang: string,
   id: number,
@@ -124,13 +128,20 @@ export async function deleteStudent(
     .eq("id", id)
     .maybeSingle();
   if (!student) return { ok: false, error: "errors.notAllowed" };
-  if (student.profile_id)
-    await supabase
-      .from("profiles")
-      .update({ is_active: false })
-      .eq("id", student.profile_id);
   const { error } = await supabase.from("students").delete().eq("id", id);
   if (error) return dbError(error);
+  // The login goes too, so a new student can never sign in to it (service role, after
+  // the admin check; only a student account is removed).
+  if (student.profile_id) {
+    const service = createAdminClient();
+    const { data: profile } = await service
+      .from("profiles")
+      .select("role")
+      .eq("id", student.profile_id)
+      .maybeSingle();
+    if (profile?.role === "student")
+      await service.auth.admin.deleteUser(student.profile_id);
+  }
   await removeFiles(
     supabase,
     [student.photo_path, ...student.student_documents.map((d) => d.file_path)],

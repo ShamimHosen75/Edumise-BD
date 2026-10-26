@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { toAsciiDigits } from "@/lib/format";
+
 // Messages are dictionary keys (errors.*) so the UI shows them in the reader's language.
 
 const BD_PHONE = /^01[3-9][0-9]{8}$/;
@@ -20,10 +22,12 @@ export function isStudentCode(value: string): boolean {
 }
 
 export const loginSchema = z.object({
+  // Mobile numbers and student IDs may be typed with Bangla digits.
   identifier: z
     .string()
     .trim()
-    .min(1, "errors.required")
+    .transform(toAsciiDigits)
+    .pipe(z.string().min(1, "errors.required"))
     .refine(
       (v) => z.email().safeParse(v).success || isBdPhone(v) || isStudentCode(v),
       "errors.emailOrPhone",

@@ -11,6 +11,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 export type GuardianLogin =
   | { status: "created"; phone: string; password: string }
   | { status: "exists"; phone: string }
+  /** Another account already logs in with this mobile: the office decides. */
+  | { status: "taken"; phone: string }
   | { status: "failed" };
 export type StudentLogin =
   | { status: "created"; code: string; password: string }
@@ -60,20 +62,14 @@ export async function createGuardianLogin(
     .maybeSingle();
   if (!guardian) return { status: "failed" };
   if (guardian.profile_id) return { status: "exists", phone: guardian.phone };
-  const { data: taken } = await service
+  // A mobile that already logs in is never joined to this record automatically: anyone
+  // who knows a parent's mobile could otherwise see that family's children. If it is the
+  // same family, the office adds the existing guardian on the student's Guardians tab.
+  const { count } = await service
     .from("profiles")
-    .select("id, role")
-    .eq("phone", guardian.phone)
-    .maybeSingle();
-  if (taken) {
-    // Same mobile already logs in as a guardian (e.g. a brother's father record): reuse it.
-    if (taken.role !== "guardian") return { status: "failed" };
-    await service
-      .from("guardians")
-      .update({ profile_id: taken.id })
-      .eq("id", guardian.id);
-    return { status: "exists", phone: guardian.phone };
-  }
+    .select("id", { count: "exact", head: true })
+    .eq("phone", guardian.phone);
+  if (count) return { status: "taken", phone: guardian.phone };
   const password = tempPassword();
   const id = await createAccount(
     `guardian-${guardian.phone}@guardian.invalid`,
@@ -86,12 +82,14 @@ export async function createGuardianLogin(
     },
   );
   if (!id) return { status: "failed" };
-  const { error } = await service
+  // A second click may have linked another login a moment ago: then undo this one.
+  const { data: linked, error } = await service
     .from("guardians")
     .update({ profile_id: id })
     .eq("id", guardian.id)
-    .is("profile_id", null);
-  if (error) {
+    .is("profile_id", null)
+    .select("id");
+  if (error || !linked.length) {
     await service.auth.admin.deleteUser(id);
     return { status: "failed" };
   }
@@ -118,12 +116,13 @@ export async function createStudentLogin(
     full_name_bn: student.full_name_bn,
   });
   if (!id) return { status: "failed" };
-  const { error } = await service
+  const { data: linked, error } = await service
     .from("students")
     .update({ profile_id: id })
     .eq("id", student.id)
-    .is("profile_id", null);
-  if (error) {
+    .is("profile_id", null)
+    .select("id");
+  if (error || !linked.length) {
     await service.auth.admin.deleteUser(id);
     return { status: "failed" };
   }

@@ -85,6 +85,9 @@ export async function approveApplication(
   const { data, error } = await supabase
     .rpc("approve_admission", { p_application_id: id, p_section_id: sectionId })
     .single();
+  // The child may already be a student (same birth registration number).
+  if (error?.code === "23505" && /birth_reg/.test(error.message))
+    return { ok: false, error: "errors.birthRegTaken" };
   if (error?.code === "23505")
     return { ok: false, error: "errors.alreadyApproved" };
   if (error?.code === "23514")

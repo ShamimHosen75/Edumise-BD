@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { z } from "zod";
 
 import { AdmissionsHeader } from "@/components/dashboard/admissions/admissions-header";
 import { AdmissionsTable } from "@/components/dashboard/admissions/admissions-table";
@@ -17,8 +18,9 @@ type Props = {
   searchParams: Promise<{ from?: string; to?: string }>;
 };
 
+/** A real calendar date (2026-02-30 is not), else no filter. */
 const date = (v: unknown) =>
-  typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : undefined;
+  typeof v === "string" && z.iso.date().safeParse(v).success ? v : undefined;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang } = await params;

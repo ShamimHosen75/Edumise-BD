@@ -46,25 +46,18 @@ export async function findGuardians(
   }));
 }
 
-/** Makes one guardian the student's main contact (the others stop being main). */
+/** Makes one guardian the student's main contact, in one database step. */
 async function makePrimary(
   supabase: Awaited<ReturnType<typeof requireAdmin>>,
   studentId: number,
   guardianId: number,
 ) {
-  const { error } = await supabase
-    .from("student_guardians")
-    .update({ is_primary: false })
-    .eq("student_id", studentId)
-    .neq("guardian_id", guardianId);
+  const { data, error } = await supabase.rpc("set_primary_guardian", {
+    p_student_id: studentId,
+    p_guardian_id: guardianId,
+  });
   if (error) return error;
-  return (
-    await supabase
-      .from("student_guardians")
-      .update({ is_primary: true })
-      .eq("student_id", studentId)
-      .eq("guardian_id", guardianId)
-  ).error;
+  return data === true ? null : { code: "P0002" };
 }
 
 /** Links an existing guardian, or a new one, to the student. */
@@ -104,7 +97,12 @@ export async function linkGuardian(
     relation: v.relation,
     is_primary: false,
   });
-  if (error) return dbError(error, "guardian_id");
+  if (error) {
+    // Do not leave a new guardian behind that belongs to nobody.
+    if (v.guardian_id === null)
+      await supabase.from("guardians").delete().eq("id", guardianId);
+    return dbError(error, "guardian_id");
+  }
   if (v.is_primary || !count) {
     const primaryError = await makePrimary(supabase, studentId, guardianId);
     if (primaryError) return dbError(primaryError);
@@ -152,5 +150,6 @@ export async function setPrimaryGuardian(
   assertId(guardianId);
   const supabase = await requireAdmin(lang);
   const error = await makePrimary(supabase, studentId, guardianId);
+  if (error?.code === "P0002") return { ok: false, error: "errors.notAllowed" };
   return error ? dbError(error) : { ok: true };
 }

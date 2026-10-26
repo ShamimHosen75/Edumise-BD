@@ -2,7 +2,7 @@ import "server-only";
 
 import type { StaffListRow } from "@/components/dashboard/staff/staff-table";
 import type { Locale } from "@/i18n/config";
-import { pickLocalized } from "@/lib/format";
+import { localizeDigits, pickLocalized } from "@/lib/format";
 import type { createClient } from "@/lib/supabase/server";
 
 type Client = Awaited<ReturnType<typeof createClient>>;
@@ -111,7 +111,7 @@ export async function staffDetail(db: Client, id: number, lang: Locale) {
     } | null>(staff.profile),
     sessions: rows(sessions).map((s) => ({
       id: s.id,
-      label: s.name,
+      label: localizeDigits(s.name, lang),
       current: s.is_current,
     })),
     sections: rows(sections)
@@ -130,7 +130,7 @@ export async function staffDetail(db: Client, id: number, lang: Locale) {
       const { label, level } = sectionLabel(section);
       return {
         id: a.id,
-        session: one<{ name: string }>(a.session).name,
+        session: localizeDigits(one<{ name: string }>(a.session).name, lang),
         section: label,
         level,
         subject: local(one<Named>(a.subject)),

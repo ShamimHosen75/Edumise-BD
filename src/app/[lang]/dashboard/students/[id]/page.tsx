@@ -60,7 +60,7 @@ export default async function StudentPage({ params, searchParams }: Props) {
   const options =
     tab === "overview"
       ? await Promise.all([
-          sessionList(db),
+          sessionList(db, lang),
           sectionOptions(db, lang),
           groupOptions(db, lang),
         ])

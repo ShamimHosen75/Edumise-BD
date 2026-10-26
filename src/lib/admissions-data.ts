@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { Locale } from "@/i18n/config";
+import { fetchAll } from "@/lib/supabase/fetch-all";
 import { pickLocalized } from "@/lib/format";
 import type { createClient } from "@/lib/supabase/server";
 
@@ -24,22 +25,26 @@ export type QueueRow = {
 export async function admissionQueue(
   db: Client,
   lang: Locale,
-  range: { from?: string; to?: string },
+  range: { from?: string; to?: string; classId?: number; sessionId?: number },
 ): Promise<QueueRow[]> {
-  let query = db
-    .from("admission_applications")
-    .select(
-      "id, tracking_no, student_name_en, student_name_bn, status, guardian_phone, submitted_at, test_marks, class:classes(level, name_en, name_bn)",
-    )
-    .order("submitted_at", { ascending: false })
-    .limit(2000);
-  if (range.from)
-    query = query.gte("submitted_at", `${range.from}T00:00:00+06:00`);
-  if (range.to)
-    query = query.lte("submitted_at", `${range.to}T23:59:59.999+06:00`);
-  const { data, error } = await query;
-  if (error) throw new Error(error.message);
-  return (data ?? []).map((a) => {
+  const data = await fetchAll((from, to) => {
+    let query = db
+      .from("admission_applications")
+      .select(
+        "id, tracking_no, student_name_en, student_name_bn, status, guardian_phone, submitted_at, test_marks, class:classes(level, name_en, name_bn)",
+      );
+    if (range.classId) query = query.eq("class_id", range.classId);
+    if (range.sessionId) query = query.eq("session_id", range.sessionId);
+    if (range.from)
+      query = query.gte("submitted_at", `${range.from}T00:00:00+06:00`);
+    if (range.to)
+      query = query.lte("submitted_at", `${range.to}T23:59:59.999+06:00`);
+    return query
+      .order("submitted_at", { ascending: false })
+      .order("id")
+      .range(from, to);
+  }, 5000);
+  return data.map((a) => {
     const cls = one<Named & { level: number }>(a.class);
     return {
       id: a.id,

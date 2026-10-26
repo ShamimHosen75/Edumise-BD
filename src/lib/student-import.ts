@@ -1,5 +1,6 @@
 import { isBirthRegNo, normalizeBirthRegNo } from "@/lib/admission";
 import { toAsciiDigits } from "@/lib/format";
+import { dhakaToday } from "@/lib/people";
 import { BLOOD_GROUPS, RELIGIONS } from "@/lib/validation/admission";
 import { isBdPhone, normalizePhone } from "@/lib/validation/auth";
 
@@ -93,7 +94,7 @@ const RELATION: Record<string, ImportRow["relation"]> = {
   অভিভাবক: "other",
 };
 
-/** "Name (EN)" / " name_en " -> "name_en". */
+/** " Name EN " -> "name_en", "Guardian phone (01…)" -> "guardian_phone". */
 export function normalizeHeader(header: string): string {
   return header
     .trim()
@@ -123,7 +124,8 @@ export function parseDate(value: string): string | null {
   )
     return null;
   const out = date.toISOString().slice(0, 10);
-  return out < new Date().toISOString().slice(0, 10) ? out : null;
+  // "In the past" by the school's calendar (Dhaka), not UTC.
+  return out < dhakaToday() ? out : null;
 }
 
 /**

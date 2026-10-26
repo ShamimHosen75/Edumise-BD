@@ -27,7 +27,7 @@ export default async function ImportPage({ params, searchParams }: Props) {
   if (!isLocale(lang)) notFound();
   const dict = await getDictionary(lang);
   const m = dict.importStudents;
-  const all = await sessionList(await createClient());
+  const all = await sessionList(await createClient(), lang);
   const wanted = (await searchParams).session;
   const session =
     all.find((s) => String(s.id) === wanted) ??

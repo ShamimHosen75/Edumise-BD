@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { csvFileName, toCsv } from "@/lib/csv";
+import { toAsciiDigits } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 import { DataTableSkeleton } from "./data-table-skeleton";
@@ -74,14 +75,17 @@ type Props<T> = {
   loading?: boolean;
 };
 
+/** Search ignores case, and Bangla digits match English ones ("১২" finds roll 12). */
 const matchesSearch: FilterFn<unknown> = (row, _columnId, search: string) => {
-  const needle = search.trim().toLowerCase();
+  const needle = toAsciiDigits(search.trim().toLowerCase());
   if (!needle) return true;
-  return row.getAllCells().some((cell) =>
-    String(cell.getValue() ?? "")
-      .toLowerCase()
-      .includes(needle),
-  );
+  return row
+    .getAllCells()
+    .some((cell) =>
+      toAsciiDigits(String(cell.getValue() ?? "").toLowerCase()).includes(
+        needle,
+      ),
+    );
 };
 
 /**

@@ -28,7 +28,7 @@ export default async function StudentsPage({ params, searchParams }: Props) {
   const dict = await getDictionary(lang);
   const s = dict.students;
   const db = await createClient();
-  const all = await sessionList(db);
+  const all = await sessionList(db, lang);
   const wanted = (await searchParams).session;
   const session =
     all.find((x) => String(x.id) === wanted) ??

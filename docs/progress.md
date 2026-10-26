@@ -678,3 +678,22 @@ Known issues:
   confirms the delete first).
 - On a phone the routine grid scrolls sideways inside its box (the page itself does not).
 
+## Phase 3 code review ✅
+
+Findings and fixes: `docs/code-review-phase-3.md`. 8 security and 19 correctness
+findings. All the security and correctness items that could be fixed now are fixed, each
+with a regression test where it can be tested (unit `review-phase-3.test.ts`, pgTAP
+`300_phase3_review`). The rest are recorded with the step that takes them up.
+Database fixes are in `20261026003000_phase3_review_fixes.sql`.
+Checks: `lint` ✅ · `typecheck` ✅ · `test` ✅ 358 · `db:test` ✅ 23 files / 329 tests ·
+`build` ✅ · `test:e2e` ✅ 201 passed, 5 skipped by design.
+
+Behaviour changes to know:
+- Approving an application always creates new guardian records. If the guardian's mobile
+  already has a login, the office is told so and links the existing guardian on the
+  student's Guardians tab when it is the same family. This replaces the Step 3.3 rule
+  "reuse a guardian with the same mobile and name", which let anyone who knew a parent's
+  mobile join that family.
+- Student IDs are never reused (a counter per year and class).
+- Only a super admin can reset or switch off an admin's login.
+

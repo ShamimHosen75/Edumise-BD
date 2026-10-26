@@ -51,7 +51,8 @@ export function PromotionTool({
   const [promote, setPromote] = useState<Record<number, boolean>>(() =>
     Object.fromEntries(rows.map((r) => [r.id, true])),
   );
-  const [to, setTo] = useState(defaultTo ?? sessions[0]?.id ?? 0);
+  // No guess when there is no later session: the admin must choose one.
+  const [to, setTo] = useState(defaultTo ?? 0);
   const setAll = (value: boolean) =>
     setPromote(Object.fromEntries(rows.map((r) => [r.id, value])));
 
@@ -61,7 +62,7 @@ export function PromotionTool({
   const enrolments = rows.filter((r) => !(isLastClass && promote[r.id])).length;
 
   const run = () => {
-    if (to === fromSession) return void toast.error(p("sameSession"));
+    if (!to || to === fromSession) return void toast.error(p("sameSession"));
     if (
       !window.confirm(
         p("confirm", {
@@ -115,7 +116,12 @@ export function PromotionTool({
           {p("none")}
         </Button>
       </div>
-      <div className="overflow-x-auto rounded-xl border">
+      <div
+        role="region"
+        tabIndex={0}
+        aria-label={p("title")}
+        className="focus-visible:ring-ring overflow-x-auto rounded-xl border outline-none focus-visible:ring-2"
+      >
         <table className="w-full text-sm">
           <caption className="sr-only">{p("title")}</caption>
           <thead className="bg-muted text-left">
@@ -180,6 +186,7 @@ export function PromotionTool({
             onChange={(e) => setTo(Number(e.target.value))}
             className="bg-background h-10 rounded-md border px-3 text-sm"
           >
+            <option value={0}>—</option>
             {sessions.map((s) => (
               <option key={s.id} value={s.id}>
                 {s.name}

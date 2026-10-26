@@ -88,9 +88,9 @@ export default async function CalendarPage({ params, searchParams }: Props) {
           <p className="text-muted-foreground text-sm">{c.none}</p>
         ) : (
           <ul className="flex flex-col gap-2" data-testid="calendar-items">
-            {items.map((i) => (
+            {items.map((i, n) => (
               <li
-                key={`${i.kind}-${i.start}-${i.title}`}
+                key={`${n}-${i.kind}-${i.start}`}
                 className="flex flex-wrap items-baseline gap-x-3 gap-y-1 rounded-lg border p-3 text-sm"
               >
                 <span

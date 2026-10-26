@@ -152,7 +152,11 @@
     "time": "Enter a time as HH:MM.",
     "workingDays": "Choose at least one working day.",
     "clash": "A teacher or room is already used at that time.",
-    "routineCells": "A class is on a closed day or in a break."
+    "routineCells": "A class is on a closed day or in a break.",
+    "guardianPhoneLogin": "This mobile number already has a login. If it is the same family, add that guardian instead (find by mobile).",
+    "levelInUse": "This class has subjects set up. Remove them (Class subjects) before moving it between Classes 6–8 and 9–10.",
+    "examClass": "This class does not sit this exam.",
+    "examDate": "The date is outside the exam's dates."
   },
   "forbidden": {
     "title": "You do not have access to this page",
@@ -539,7 +543,8 @@
     "title": "Something went wrong",
     "body": "This page could not be loaded. Please try again in a moment.",
     "retry": "Try again",
-    "home": "Go to the home page"
+    "home": "Go to the home page",
+    "dashboard": "Dashboard home"
   },
   "people": {
     "teachers": "Teachers and staff",
@@ -959,7 +964,8 @@
     "meritFor": "Merit list for {class}",
     "rank": "Rank",
     "noMarks": "No marks yet",
-    "enrolledAs": "Enrolled: student ID {code}"
+    "enrolledAs": "Enrolled: student ID {code}",
+    "guardianLoginTaken": "The mobile number {phone} already has a login. If this is the same family, add that guardian on the student's Guardians tab (find by mobile)."
   },
   "students": {
     "title": "Students",
@@ -1111,8 +1117,9 @@
     "lastClass": "Students promoted from the last class are marked graduated.",
     "rule": "Promoted students go to the next class, same section; retained students stay. New rolls follow the old ones.",
     "empty": "No students in this class and session.",
-    "sameSession": "Choose a different session to promote into.",
-    "decision": "Decision"
+    "sameSession": "Choose a later session to promote into.",
+    "decision": "Decision",
+    "missingSection": "A section of this class has no section with the same name in the next class. Add it under Academic setup → Sections first."
   },
   "importStudents": {
     "title": "Import students",
@@ -1130,7 +1137,7 @@
     "committing": "Importing…",
     "done": "{count} students imported.",
     "reading": "Reading the file…",
-    "hint": "Columns: name_en, name_bn, gender, birth_date (DD/MM/YYYY), birth_reg_no, religion, blood_group, class, section, roll (empty = next), guardian_name, guardian_phone, relation. Save Excel sheets as \"CSV UTF-8\"; Excel (.xlsx) files can be read once the spreadsheet library is installed."
+    "hint": "Columns: name_en, name_bn, gender, birth_date (DD/MM/YYYY), birth_reg_no, religion, blood_group, class, section, roll (empty = next), guardian_name, guardian_phone, relation. Save Excel sheets as \"CSV UTF-8\" before uploading."
   },
   "portal": {
     "myChildren": "My children",
@@ -1190,7 +1197,8 @@
     "myRoutineIntro": "Your classes this week.",
     "notTeacher": "Your login is not linked to a staff record.",
     "teacherRoutine": "{name}: routine",
-    "cellLabel": "{day}, period {number}: {subject}"
+    "cellLabel": "{day}, period {number}: {subject}",
+    "dropped": "{count} classes are on a closed day or in a break; they are removed when you save."
   },
   "examSchedule": {
     "title": "Exam schedule",

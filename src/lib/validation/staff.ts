@@ -74,7 +74,9 @@ export const staffLoginSchema = z.object({
     .string()
     .trim()
     .toLowerCase()
-    .pipe(z.email("errors.email").max(200, "errors.tooLong")),
+    .pipe(z.email("errors.email").max(200, "errors.tooLong"))
+    // Reserved for student and guardian logins (signing in by student ID or mobile).
+    .refine((v) => !/@(student|guardian)\.invalid$/i.test(v), "errors.email"),
   phone: z
     .string()
     .trim()

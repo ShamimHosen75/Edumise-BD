@@ -40,7 +40,7 @@ type Row = {
   student_guardians: {
     relation: string;
     is_primary: boolean;
-    guardian: { full_name_en: string; full_name_bn: string };
+    guardian: { full_name_en: string; full_name_bn: string } | null;
   }[];
 };
 
@@ -60,10 +60,13 @@ function toPortal(r: Row, lang: Locale): PortalStudent {
           roll: e.roll,
         }
       : null,
+    // A guardian may only read their own guardian record (RLS), so the child's other
+    // guardians come back empty and are left out.
     guardians: r.student_guardians
+      .filter((g) => g.guardian !== null)
       .sort((a, b) => Number(b.is_primary) - Number(a.is_primary))
       .map((g) => ({
-        name: pickLocalized(g.guardian, "full_name", lang),
+        name: pickLocalized(g.guardian!, "full_name", lang),
         relation: g.relation,
       })),
   };

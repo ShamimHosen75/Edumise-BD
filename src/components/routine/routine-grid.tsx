@@ -32,8 +32,11 @@ export function RoutineGrid({
   const days = weekDays(workingDays);
   return (
     <div
+      role="region"
+      tabIndex={0}
+      aria-label={labels.caption}
       className={cn(
-        "overflow-x-auto rounded-xl border print:overflow-visible",
+        "focus-visible:ring-ring overflow-x-auto rounded-xl border outline-none focus-visible:ring-2 print:overflow-visible",
         className,
       )}
     >

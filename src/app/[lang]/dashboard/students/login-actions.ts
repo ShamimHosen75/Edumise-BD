@@ -52,11 +52,10 @@ export async function familyLogin(
       kind === "student"
         ? await createStudentLogin(id)
         : await createGuardianLogin(id);
+    if (login.status === "taken")
+      return { ok: false, error: "errors.guardianPhoneLogin" };
     if (login.status === "failed")
-      return {
-        ok: false,
-        error: kind === "guardian" ? "errors.phoneTaken" : "auth.unexpected",
-      };
+      return { ok: false, error: "auth.unexpected" };
     if (login.status === "created") password = login.password;
   } else {
     const profileId = await profileOf(supabase, kind, id);

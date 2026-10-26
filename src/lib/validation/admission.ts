@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { dhakaToday } from "@/lib/people";
+
 import { ageOn, isBirthRegNo, normalizeBirthRegNo } from "@/lib/admission";
 import { toAsciiDigits } from "@/lib/format";
 
@@ -38,7 +40,7 @@ export const ADMISSION_STATUSES = [
   "waitlisted",
 ] as const;
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => dhakaToday();
 
 /** Step 1: the student. Age 8 to 20 (Classes 6 to 10, with room for late starters). */
 export const studentStep = z.object({
@@ -138,7 +140,12 @@ export const reviewSchema = z.object({
       .number("errors.marks")
       .min(0, "errors.marks")
       .max(100, "errors.marks")
-      .refine((v) => Math.round(v * 100) === v * 100, "errors.marks"),
+      // At most two decimals. 72.1 * 100 is 7209.999… in floating point, so compare
+      // with a small tolerance instead of exactly.
+      .refine(
+        (v) => Math.abs(v * 100 - Math.round(v * 100)) < 1e-6,
+        "errors.marks",
+      ),
   ]),
   office_note: text(500),
 });

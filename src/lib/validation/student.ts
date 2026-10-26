@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { isBirthRegNo, normalizeBirthRegNo } from "@/lib/admission";
 import { toAsciiDigits } from "@/lib/format";
+import { dhakaToday } from "@/lib/people";
 
 import { BLOOD_GROUPS, GENDERS, RELIGIONS } from "./admission";
 import { isBdPhone, normalizePhone } from "./auth";
@@ -43,7 +44,7 @@ export const studentSchema = z.object({
   status: z.enum(STUDENT_STATUSES, "errors.required"),
   admitted_on: optionalDate,
   birth_date: optionalDate.refine(
-    (v) => v === "" || v < new Date().toISOString().slice(0, 10),
+    (v) => v === "" || v < dhakaToday(),
     "errors.date",
   ),
   birth_reg_no: z

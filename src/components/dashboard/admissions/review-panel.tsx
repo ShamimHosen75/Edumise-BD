@@ -235,6 +235,13 @@ export function ReviewPanel({
             })}
           </p>
         ) : null}
+        {login?.status === "taken" ? (
+          <p role="status" className="text-sm">
+            {a("guardianLoginTaken", {
+              phone: localizeDigits(login.phone, lang),
+            })}
+          </p>
+        ) : null}
         {login?.status === "failed" ? (
           <p role="alert" className="text-destructive text-sm">
             {a("guardianLoginFailed")}

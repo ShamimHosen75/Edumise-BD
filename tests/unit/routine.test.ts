@@ -168,8 +168,8 @@ describe("routine schemas", () => {
     expect(workingDaysSchema.safeParse([7]).success).toBe(false);
     expect(workingDaysSchema.safeParse([6, 0, 1, 2, 3, 4]).success).toBe(true);
   });
-  it("limits the routine to 100 classes", () => {
-    const cells = Array.from({ length: 101 }, () => cell());
+  it("limits the routine to 140 classes (20 periods x 7 days)", () => {
+    const cells = Array.from({ length: 141 }, () => cell());
     expect(
       routineSaveSchema.safeParse({ session_id: 1, section_id: 1, cells })
         .success,

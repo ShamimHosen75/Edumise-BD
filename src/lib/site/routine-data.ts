@@ -134,6 +134,10 @@ export type CalendarItem = {
   href?: string;
 };
 
+/** "2026-12-01T00:00:00" in Dhaka as an ISO instant (UTC). */
+const dhakaInstant = (local: string) =>
+  new Date(`${local}+06:00`).toISOString();
+
 /** Dhaka calendar date of a timestamp. */
 const dhakaDate = (ts: string) => dhakaToday(new Date(ts));
 
@@ -154,12 +158,14 @@ export const getCalendarMonth = cachedPublicQuery(
         .lte("starts_on", last)
         .gte("ends_on", first)
         .order("starts_on"),
-      // Events are stored with times; a day either side covers the time zone.
+      // Events that touch the month in Dhaka time, also ones that began earlier.
       db
         .from("events")
         .select("slug, title_en, title_bn, starts_at, ends_at")
-        .gte("starts_at", `${first}T00:00:00+06:00`)
-        .lte("starts_at", `${last}T23:59:59+06:00`)
+        .lte("starts_at", dhakaInstant(`${last}T23:59:59`))
+        .or(
+          `ends_at.gte.${dhakaInstant(`${first}T00:00:00`)},and(ends_at.is.null,starts_at.gte.${dhakaInstant(`${first}T00:00:00`)})`,
+        )
         .order("starts_at"),
     ]);
     if (holidays.error) throw new Error(holidays.error.message);

@@ -11,6 +11,9 @@ import {
   type ActionResult,
 } from "@/lib/actions";
 import { detectImageType, IMAGE_MAX_BYTES, imageExtension } from "@/lib/files";
+import type { Locale } from "@/i18n/config";
+import { canManageLogin } from "@/lib/auth/roles";
+import { requireRole } from "@/lib/auth/session";
 import { TAGS } from "@/lib/site/cache";
 import { removeFiles } from "@/lib/storage-files";
 import { readUpload } from "@/lib/uploads";
@@ -46,7 +49,11 @@ export async function saveStaff(
   const { error: privateError } = await supabase
     .from("staff_private")
     .upsert({ staff_id: data.id, ...rows.private });
-  if (privateError) return dbError(privateError);
+  if (privateError) {
+    // A new record without its private part would be saved twice on retry.
+    if (id === null) await supabase.from("staff").delete().eq("id", data.id);
+    return dbError(privateError);
+  }
   refresh();
   return { ok: true, id: data.id };
 }
@@ -58,12 +65,20 @@ export async function deleteStaff(
 ): Promise<ActionResult> {
   assertId(id);
   const supabase = await requireAdmin(lang);
+  const me = await requireRole(lang as Locale, ["super_admin", "admin"]);
   const { data: staff } = await supabase
     .from("staff")
-    .select("profile_id, photo_path")
+    .select("profile_id, photo_path, profile:profiles(id, role)")
     .eq("id", id)
     .maybeSingle();
   if (!staff) return { ok: false, error: "errors.notAllowed" };
+  const profile = staff.profile as unknown as {
+    id: string;
+    role: string;
+  } | null;
+  // Not your own record (you would lock yourself out), and not another admin's.
+  if (profile && !canManageLogin(me, profile))
+    return { ok: false, error: "errors.notAllowed" };
   if (staff.profile_id) {
     const { error } = await supabase
       .from("profiles")

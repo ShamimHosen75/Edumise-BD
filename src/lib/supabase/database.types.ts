@@ -1047,6 +1047,20 @@ isOneToOne: true
       referencedColumns: ["id"]
     }
                   ]
+                },"student_code_counters": {
+                  Row: {
+                    "last_value": number,"prefix": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "last_value": number,"prefix": string
+                  }
+                  Update: {
+                    "last_value"?: number,"prefix"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"student_documents": {
                   Row: {
                     "created_at": string,"file_path": string,"file_size": number,"id": number,"label": string,"mime_type": string,"student_id": number
@@ -1244,6 +1258,9 @@ isOneToOne: false
                            },
 "set_current_session":
 { Args: { "p_session_id": number }; Returns: boolean
+                           },
+"set_primary_guardian":
+{ Args: { "p_guardian_id": number,"p_student_id": number }; Returns: boolean
                            }
           }
           Enums: {

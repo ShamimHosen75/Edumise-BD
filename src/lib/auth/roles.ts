@@ -41,3 +41,18 @@ export function safeNextPath(next: unknown): string | null {
   if (!match || !isLocale(match[1])) return null;
   return next;
 }
+
+/**
+ * May this user reset, switch off or remove the login of another account? Never their
+ * own (they would lock themselves out), and only a super admin may touch an admin or
+ * super admin account (otherwise one admin could take over another).
+ */
+export function canManageLogin(
+  actor: { id: string; role: Role },
+  target: { id: string; role: string },
+): boolean {
+  if (actor.id === target.id) return false;
+  if (target.role === "admin" || target.role === "super_admin")
+    return actor.role === "super_admin";
+  return actor.role === "admin" || actor.role === "super_admin";
+}

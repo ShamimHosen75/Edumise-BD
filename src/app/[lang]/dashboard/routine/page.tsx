@@ -74,7 +74,16 @@ export default async function RoutinePage({ params, searchParams }: Props) {
     routineEntries(db, session.id, lang),
     classSubjectOptions(db, section.classId, lang),
   ]);
-  const mine = entries.filter((e) => e.sectionId === section.id);
+  const all = entries.filter((e) => e.sectionId === section.id);
+  // Classes on a day the school no longer opens, or in a period that is now a break,
+  // cannot be shown or saved: they are left out and removed on the next save.
+  const classPeriods = new Set(
+    periods.filter((p) => !p.is_break).map((p) => p.id),
+  );
+  const mine = all.filter(
+    (e) => workingDays.includes(e.day) && classPeriods.has(e.periodId),
+  );
+  const dropped = all.length - mine.length;
   // A subject already in the routine stays choosable even if the class list changed.
   const subjects = [
     ...classSubjects,
@@ -92,6 +101,11 @@ export default async function RoutinePage({ params, searchParams }: Props) {
           session: localizeDigits(session.name, lang),
         })}
       </h2>
+      {dropped > 0 ? (
+        <p role="status" className="rounded-xl border p-3 text-sm">
+          {t(dict, "routine.dropped", { count: localizeDigits(dropped, lang) })}
+        </p>
+      ) : null}
       <RoutineBuilder
         key={section.id}
         lang={lang}
@@ -118,10 +132,19 @@ export default async function RoutinePage({ params, searchParams }: Props) {
             section: e.section,
           }))}
         subjects={subjects}
-        teachers={teachers.map((x) => ({
-          id: x.id,
-          name: pickLocalized(x, "name", lang),
-        }))}
+        teachers={[
+          ...teachers.map((x) => ({
+            id: x.id,
+            name: pickLocalized(x, "name", lang),
+          })),
+          // Teachers who have left stay choosable for the classes they still have.
+          ...mine
+            .filter(
+              (e) => e.staffId && !teachers.some((x) => x.id === e.staffId),
+            )
+            .map((e) => ({ id: e.staffId!, name: e.teacher }))
+            .filter((x, i, a) => a.findIndex((y) => y.id === x.id) === i),
+        ]}
         rooms={rooms}
         messages={routineMessages(dict)}
       />

@@ -71,12 +71,13 @@ export function SectionsManager({
           // Sort by level, show the name.
           value: (r) => r.class_level,
           cell: className,
-          filter: classes.map((c) => ({
-            value: String(
-              rows.find((r) => r.class_id === c.id)?.class_level ?? "",
-            ),
-            label: pickLocalized(c, "name", lang),
-          })),
+          // Only classes that have sections (an empty value would mean "All").
+          filter: classes
+            .filter((c) => rows.some((r) => r.class_id === c.id))
+            .map((c) => ({
+              value: String(rows.find((r) => r.class_id === c.id)!.class_level),
+              label: pickLocalized(c, "name", lang),
+            })),
         },
         {
           id: "name",

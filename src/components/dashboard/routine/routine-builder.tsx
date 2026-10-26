@@ -89,6 +89,14 @@ export function RoutineBuilder({
   const n = (v: number) => localizeDigits(v, lang);
   const dayName = (d: number) => tr(`days.${d}`);
 
+  /** Back to the cell that was being edited (keyboard and screen reader users). */
+  const focusSlot = (key: string) =>
+    requestAnimationFrame(() =>
+      document
+        .querySelector<HTMLButtonElement>(`[data-slot="${key}"]`)
+        ?.focus(),
+    );
+
   const update = (key: string, cell: RoutineCell | null) => {
     setCells((cur) => {
       const next = new Map(cur);
@@ -99,6 +107,7 @@ export function RoutineBuilder({
     setServerClashes([]);
     setDirty(true);
     setSelected(null);
+    focusSlot(key);
   };
 
   const save = () =>
@@ -110,6 +119,8 @@ export function RoutineBuilder({
       }).catch(() => ({ ok: false, error: "auth.unexpected" }));
       if (!result.ok) {
         setServerClashes(result.clashes ?? []);
+        // Other sections may have changed since the page loaded.
+        router.refresh();
         return void toast.error(tr(result.error));
       }
       setDirty(false);
@@ -170,7 +181,6 @@ export function RoutineBuilder({
                 <span
                   key={`${x.kind}-${x.section}`}
                   className="text-destructive text-xs"
-                  role="alert"
                 >
                   {x.kind === "teacher"
                     ? r("clashTeacher", { section: x.section })
@@ -212,7 +222,10 @@ export function RoutineBuilder({
             })
           }
           onClear={() => update(editing, null)}
-          onClose={() => setSelected(null)}
+          onClose={() => {
+            setSelected(null);
+            focusSlot(editing);
+          }}
         />
       ) : null}
       <div className="bg-background sticky bottom-0 flex flex-wrap items-center gap-3 border-t py-3 print:hidden">

@@ -34,7 +34,7 @@ export default async function PromotionPage({ params, searchParams }: Props) {
   const p = dict.promotion;
   const db = await createClient();
   const [all, classes] = await Promise.all([
-    sessionList(db),
+    sessionList(db, lang),
     classChoices(db, lang),
   ]);
   const q = await searchParams;
