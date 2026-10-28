@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import { t } from "@/i18n/t";
@@ -9,10 +11,13 @@ export function PortalCard({
   lang,
   dict,
   student,
+  attendanceHref,
 }: {
   lang: Locale;
   dict: Dictionary;
   student: PortalStudent;
+  /** Link to the child's (or own) attendance calendar. */
+  attendanceHref?: string;
 }) {
   const p = dict.portal;
   const e = student.enrollment;
@@ -49,6 +54,14 @@ export function PortalCard({
             .map((g) => `${g.name} (${relations[g.relation] ?? g.relation})`)
             .join(", ")}
         </p>
+      ) : null}
+      {attendanceHref ? (
+        <Link
+          href={attendanceHref}
+          className="text-primary w-fit text-sm font-medium hover:underline"
+        >
+          {dict.attendance.viewSheet}
+        </Link>
       ) : null}
     </article>
   );

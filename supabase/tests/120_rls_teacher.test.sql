@@ -32,11 +32,11 @@ select is(app.auth_role(), 'teacher', 'teacher is recognised');
 select is(cardinality(app.teacher_section_ids()), 3, 'teacher_section_ids returns 6A, 6B and 9A');
 select is((select count(*)::int from public.students), 16, 'teacher reads students of own sections only (6+4+6)');
 select is((select count(*)::int from public.attendance), 30, 'teacher reads attendance of own sections');
-select lives_ok($$ insert into public.attendance (student_id, section_id, date, status)
-  select student_6b, section_6b, '2026-10-24', 'present' from ids $$,
-  'teacher marks attendance for own section');
-select is(pg_temp.affected($$ update public.attendance set status = 'late'
-  where student_id = (select student_6a from ids) and date = '2026-10-18' $$), 1,
+select lives_ok($$ insert into public.attendance (student_id, section_id, date, status, marked_by)
+  select student_6b, section_6b, app.dhaka_today(), 'present', auth.uid() from ids $$,
+  'teacher marks attendance for own section today');
+select is(pg_temp.affected($$ update public.attendance set status = 'late', marked_by = auth.uid()
+  where student_id = (select student_6b from ids) and date = app.dhaka_today() $$), 1,
   'teacher updates attendance for own section');
 select lives_ok($$ insert into public.marks (exam_subject_id, student_id, cq, mcq)
   select annual_math, student_6a, 50, 20 from ids $$,
@@ -48,11 +48,11 @@ select is((select count(*)::int from public.notices where audience = 'staff'), 1
 -- Forbidden
 select is((select count(*)::int from public.students where id = (select student_9b from ids)), 0,
   'teacher cannot see a student outside own sections');
-select throws_ok($$ insert into public.attendance (student_id, section_id, date, status)
-  select student_9b, section_9b, '2026-10-24', 'present' from ids $$,
+select throws_ok($$ insert into public.attendance (student_id, section_id, date, status, marked_by)
+  select student_9b, section_9b, app.dhaka_today(), 'present', auth.uid() from ids $$,
   '42501', null, 'teacher cannot mark attendance for another section');
-select throws_ok($$ insert into public.attendance (student_id, section_id, date, status)
-  select student_9b, section_6b, '2026-10-24', 'present' from ids $$,
+select throws_ok($$ insert into public.attendance (student_id, section_id, date, status, marked_by)
+  select student_9b, section_6b, app.dhaka_today(), 'present', auth.uid() from ids $$,
   '42501', null, 'teacher cannot record a student under the wrong section');
 select throws_ok($$ insert into public.marks (exam_subject_id, student_id, cq, mcq)
   select annual_bangla, student_6a, 50, 20 from ids $$,

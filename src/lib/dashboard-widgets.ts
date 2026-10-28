@@ -11,7 +11,6 @@ export const ROLE_WIDGETS: Record<Role, readonly TranslationKey[]> = {
   admin: [
     "dashboard.widgets.students",
     "dashboard.widgets.teachers",
-    "dashboard.widgets.todayAttendance",
     "dashboard.widgets.feesDue",
   ],
   teacher: [

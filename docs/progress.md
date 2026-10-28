@@ -16,8 +16,8 @@
 | 3.3 Online admission | ✅ Done | See below |
 | 3.4 Student management | ✅ Done | Excel (.xlsx) import waits for SheetJS; see below |
 | 3.5 Routine | ✅ Done | See below |
-| 4.1 Student attendance | Not started | Next |
-| 4.2 Exams + marks | Not started | Blocked on 4.1 |
+| 4.1 Student attendance | ✅ Done | See below |
+| 4.2 Exams + marks | Not started | Next |
 | 4.3 Grading + results | Not started | Blocked on 4.2 |
 | 4.4 Certificates | Not started | Blocked on 4.3 |
 | 5.1 Fee setup + invoices | Not started | Blocked on 4.4 |
@@ -696,4 +696,40 @@ Behaviour changes to know:
   mobile join that family.
 - Student IDs are never reused (a counter per year and class).
 - Only a super admin can reset or switch off an admin's login.
+
+## Step 4.1 — student attendance ✅ (ATT-01, ATT-02, ATT-03)
+
+Checks (run locally, 2026-10-28): `lint` ✅ · `typecheck` ✅ · `test` ✅ 372 · `db:test` ✅
+24 files / 338 tests · `db lint` ✅ · types up to date ✅ · `build` ✅ · `test:e2e` ✅
+209 passed, 5 skipped by design · no browser console errors on the new pages.
+
+| Acceptance criterion | Result | Evidence |
+|---|---|---|
+| "Take attendance": own sections only, date defaults to today, no future dates, 3-day edit window then admin only | ✅ Pass | `/dashboard/attendance`; RLS + server action; pgTAP `310_attendance` (9), e2e (other section not offered, old day read-only, future refused) |
+| Mobile-first list, big tap targets, default all Present, tap to cycle, "mark all", sticky Save bar with counts, upsert in one action | ✅ Pass | `attendance-taker.tsx`; one upsert statement; e2e at 360×740 with taps and no sideways scroll |
+| Monthly sheet: section × month (P/A/L/Lv), totals and % per student, print A4 landscape, export Excel | ✅ Pass | `/dashboard/attendance/sheet`; `.xlsx` export written by `src/lib/xlsx.ts` (checked with a spreadsheet reader); e2e checks totals and the file |
+| No public attendance sheet page | ✅ Pass | none exists (open question 26) |
+| Student/guardian portal: calendar of the child's attendance + monthly % | ✅ Pass | `/dashboard/my-children/[id]/attendance`, `/dashboard/my-profile/attendance`; e2e guardian sees the teacher's mark |
+| Admin widget: today's % per class, sections not yet marked | ✅ Pass | admin and super admin home (`attendance-today.tsx`) |
+| `src/lib/attendance.ts`: percentage, working days without holidays, absence streak; unit tests incl. holidays and leave | ✅ Pass | `tests/unit/attendance.test.ts` (14) |
+| RLS: teacher cannot mark another section; E2E teacher on 360px and guardian sees it | ✅ Pass | pgTAP `120_rls_teacher`, `310_attendance`; e2e `attendance.spec.ts` |
+
+Decisions (open questions 24–26 in requirements.md):
+- Attendance % = (Present + Late) ÷ (marked school days − Leave). Late counts as attended;
+  Leave is taken out of the days counted. School days not marked yet are not counted
+  either way, so a day the teacher missed does not lower a student's percentage.
+- 3 calendar days back from today (Dhaka time), enforced by the database policies and the
+  server action. Teachers can only record attendance in their own name.
+- No attendance on Fridays (non-working days) or holidays; marks on such days are ignored
+  in totals.
+- Excel export: SheetJS still cannot be downloaded here, so the app writes the `.xlsx`
+  file itself (`src/lib/xlsx.ts`, one sheet, no styles).
+
+Known issues:
+- The streak of absences is calculated (`absenceStreak`) but not yet shown anywhere; the
+  follow-up list for class teachers fits with notifications later.
+- The teacher home page still shows placeholder widgets ("attendance to take" comes with
+  the teacher dashboard work).
+- Changing a student's section mid-month keeps earlier marks under the old section on the
+  sheet.
 

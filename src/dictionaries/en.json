@@ -46,7 +46,8 @@
     "myProfile": "My profile",
     "routine": "Class routine",
     "myRoutine": "My routine",
-    "examSchedule": "Exam schedule"
+    "examSchedule": "Exam schedule",
+    "attendance": "Attendance"
   },
   "auth": {
     "loginTitle": "Log in",
@@ -156,7 +157,11 @@
     "guardianPhoneLogin": "This mobile number already has a login. If it is the same family, add that guardian instead (find by mobile).",
     "levelInUse": "This class has subjects set up. Remove them (Class subjects) before moving it between Classes 6–8 and 9–10.",
     "examClass": "This class does not sit this exam.",
-    "examDate": "The date is outside the exam's dates."
+    "examDate": "The date is outside the exam's dates.",
+    "attendanceWindow": "Teachers can change attendance only for today and the 3 days before.",
+    "attendanceFuture": "Attendance cannot be taken for a future date.",
+    "schoolClosed": "The school is closed on this day.",
+    "notInSection": "A student is not in this section."
   },
   "forbidden": {
     "title": "You do not have access to this page",
@@ -1234,5 +1239,66 @@
     "none": "No holidays or events this month.",
     "list": "This month",
     "month": "Month"
+  },
+  "attendance": {
+    "title": "Attendance",
+    "intro": "Mark today's attendance for your sections.",
+    "tabs": "Attendance pages",
+    "take": "Take attendance",
+    "sheet": "Monthly sheet",
+    "section": "Class and section",
+    "date": "Date",
+    "show": "Show",
+    "month": "Month",
+    "statuses": {
+      "present": "Present",
+      "absent": "Absent",
+      "late": "Late",
+      "leave": "Leave"
+    },
+    "codes": {
+      "present": "P",
+      "absent": "A",
+      "late": "L",
+      "leave": "Lv"
+    },
+    "tapHint": "Tap a student to change: Present → Absent → Late → Leave.",
+    "allPresent": "All present",
+    "allAbsent": "All absent",
+    "save": "Save attendance",
+    "saving": "Saving…",
+    "saved": "Attendance saved.",
+    "counts": "Present {present} · Absent {absent} · Late {late} · Leave {leave}",
+    "notSaved": "Not saved yet",
+    "savedAt": "Already saved for this day; you can change it.",
+    "readOnly": "This day can no longer be changed by teachers (3 days). Ask the office.",
+    "future": "Attendance cannot be taken for a future date.",
+    "closed": "The school is closed on this day.",
+    "noSections": "You have no sections this session.",
+    "noStudents": "No students in this section.",
+    "studentStatus": "{name}, roll {roll}: {status}. Tap to change.",
+    "roll": "Roll",
+    "name": "Name",
+    "total": "Total",
+    "percent": "%",
+    "streak": "Absent in a row",
+    "sheetTitle": "{section}: attendance, {month}",
+    "export": "Export to Excel",
+    "print": "Print",
+    "legend": "P present · A absent · L late · Lv leave · empty: not marked · grey: closed",
+    "noPercent": "—",
+    "myAttendance": "Attendance",
+    "calendarIntro": "Attendance by day, and the month's percentage.",
+    "monthPercent": "This month: {percent}",
+    "monthCounts": "Present {present}, late {late}, absent {absent}, leave {leave} of {days} school days",
+    "today": "Today's attendance",
+    "todayIntro": "Share of students present or late today, by class.",
+    "notMarked": "Not marked yet today",
+    "allMarked": "Every section is marked today.",
+    "marked": "{marked} of {total} marked",
+    "viewSheet": "Attendance",
+    "prev": "Previous month",
+    "next": "Next month",
+    "holiday": "Holiday"
   }
 }

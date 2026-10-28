@@ -16,6 +16,7 @@ describe("navForRole", () => {
     "staff",
     "admissions",
     "students",
+    "attendance",
     "routine",
     "exam-schedule",
     "notices",
@@ -35,7 +36,12 @@ describe("navForRole", () => {
     expect(keys("admin")).toEqual(ADMIN_NAV);
   });
   it("teachers see only notices besides home", () => {
-    expect(keys("teacher")).toEqual(["home", "my-routine", "notices"]);
+    expect(keys("teacher")).toEqual([
+      "home",
+      "attendance",
+      "my-routine",
+      "notices",
+    ]);
   });
   it("accountants see only home for now", () => {
     expect(keys("accountant")).toEqual(["home"]);

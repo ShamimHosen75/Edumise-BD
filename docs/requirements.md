@@ -531,9 +531,12 @@ Record before/after scores in docs/qa-report.md.
 24. **Attendance % (4.1):** draft formula: (Present + Late) / (working days − Leave days).
    Late counts as attended; Leave is removed from the denominator, not counted as absent.
    Correct?
+   **Used in 4.1:** yes, counting marked school days only (unmarked days are left out).
 25. **3-day edit window (4.1):** calendar days or working days? Draft: 3 calendar days
    after the date, enforced in RLS as well as the server action.
+   **Used in 4.1 (draft adopted).**
 26. **Excluded on purpose:** no public attendance sheet page (the reference site has one).
+   **4.1:** not built.
 27. **Exam status vs 1.3 (4.2):** Step 1.3 says "exam is published". Draft: published means
    `status = 'published'`; the 1.3 policies use that instead of a boolean.
 28. **Fourth subject (4.2):** where is each student's fourth-subject choice stored? Draft:

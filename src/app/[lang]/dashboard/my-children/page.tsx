@@ -38,7 +38,13 @@ export default async function MyChildrenPage({ params }: Props) {
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           {children.map((c) => (
-            <PortalCard key={c.id} lang={lang} dict={dict} student={c} />
+            <PortalCard
+              key={c.id}
+              lang={lang}
+              dict={dict}
+              student={c}
+              attendanceHref={`/${lang}/dashboard/my-children/${c.id}/attendance`}
+            />
           ))}
         </div>
       )}

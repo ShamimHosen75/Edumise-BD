@@ -27,7 +27,12 @@ export default async function MyProfilePage({ params }: Props) {
     <div className="flex max-w-2xl flex-col gap-6">
       <h1 className="text-2xl font-semibold">{dict.portal.myProfile}</h1>
       {profile ? (
-        <PortalCard lang={lang} dict={dict} student={profile} />
+        <PortalCard
+          lang={lang}
+          dict={dict}
+          student={profile}
+          attendanceHref={`/${lang}/dashboard/my-profile/attendance`}
+        />
       ) : (
         <p className="text-muted-foreground text-sm">
           {dict.portal.notEnrolled}

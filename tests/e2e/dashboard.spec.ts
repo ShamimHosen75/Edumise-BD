@@ -34,6 +34,7 @@ test("sidebar shows only the pages a role may open", async ({ page }, info) => {
     "Staff",
     "Admissions",
     "Students",
+    "Attendance",
     "Class routine",
     "Exam schedule",
     "Notices",
@@ -53,6 +54,7 @@ test("sidebar shows only the pages a role may open", async ({ page }, info) => {
   await loginAs(page, "teacher@sunrise.test");
   await expect(nav.getByRole("link")).toHaveText([
     "Home",
+    "Attendance",
     "My routine",
     "Notices",
   ]);
