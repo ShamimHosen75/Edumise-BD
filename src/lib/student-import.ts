@@ -110,6 +110,13 @@ const cell = (v: unknown) =>
 /** YYYY-MM-DD or DD/MM/YYYY (also with - or .) -> YYYY-MM-DD; "" if empty; null if invalid. */
 export function parseDate(value: string): string | null {
   if (!value) return "";
+  // A date typed into Excel is stored as a day number (1 = 1 January 1900).
+  if (/^\d{5}(\.\d+)?$/.test(value)) {
+    const serial = Math.floor(Number(value));
+    const date = new Date(Date.UTC(1899, 11, 30) + serial * 86_400_000);
+    const out = date.toISOString().slice(0, 10);
+    return out < dhakaToday() ? out : null;
+  }
   let y: number, m: number, d: number;
   const iso = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(value);
   const dmy = /^(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})$/.exec(value);

@@ -18,6 +18,8 @@ describe("navForRole", () => {
     "students",
     "attendance",
     "routine",
+    "exams",
+    "marks",
     "exam-schedule",
     "notices",
     "news",
@@ -39,6 +41,7 @@ describe("navForRole", () => {
     expect(keys("teacher")).toEqual([
       "home",
       "attendance",
+      "marks",
       "my-routine",
       "notices",
     ]);

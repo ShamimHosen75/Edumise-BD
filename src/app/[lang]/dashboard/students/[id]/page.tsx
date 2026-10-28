@@ -63,6 +63,11 @@ export default async function StudentPage({ params, searchParams }: Props) {
           sessionList(db, lang),
           sectionOptions(db, lang),
           groupOptions(db, lang),
+          db
+            .from("subjects")
+            .select("id, name_en, name_bn")
+            .eq("type", "fourth")
+            .order("sort_order"),
         ])
       : null;
 
@@ -114,6 +119,10 @@ export default async function StudentPage({ params, searchParams }: Props) {
           sessions={options[0]}
           sections={options[1]}
           groups={options[2]}
+          fourthSubjects={(options[3].data ?? []).map((s) => ({
+            id: s.id,
+            name: pickLocalized(s, "name", lang),
+          }))}
           messages={messages}
         />
       ) : tab === "guardians" ? (

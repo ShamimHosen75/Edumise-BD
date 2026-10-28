@@ -53,6 +53,8 @@ describe("parseDate", () => {
     expect(parseDate("2014-03-15")).toBe("2014-03-15");
     expect(parseDate("15/03/2014")).toBe("2014-03-15");
     expect(parseDate("5.3.2014")).toBe("2014-03-05");
+    // Excel's day number for 15 March 2014.
+    expect(parseDate("41713")).toBe("2014-03-15");
   });
   it("is empty for an empty cell", () => {
     expect(parseDate("")).toBe("");

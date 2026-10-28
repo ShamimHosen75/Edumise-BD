@@ -72,7 +72,7 @@ test("import 10 students from a CSV file, then promote the class", async ({
     ).toBeVisible();
 
     // A file with one bad row: the preview names the problem and nothing can be saved.
-    await page.getByLabel("CSV file").setInputFiles({
+    await page.getByLabel("Excel or CSV file").setInputFiles({
       name: "students.csv",
       mimeType: "text/csv",
       buffer: csv([
@@ -91,7 +91,7 @@ test("import 10 students from a CSV file, then promote the class", async ({
     ).toBeDisabled();
 
     // The fixed file imports all 10 in one go.
-    await page.getByLabel("CSV file").setInputFiles({
+    await page.getByLabel("Excel or CSV file").setInputFiles({
       name: "students.csv",
       mimeType: "text/csv",
       buffer: csv(rows),

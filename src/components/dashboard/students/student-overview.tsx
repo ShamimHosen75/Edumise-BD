@@ -27,6 +27,7 @@ export function StudentOverview({
   sessions,
   sections,
   groups,
+  fourthSubjects,
   messages,
 }: {
   lang: Locale;
@@ -35,6 +36,7 @@ export function StudentOverview({
   sessions: { id: number; name: string; is_current: boolean }[];
   sections: SectionOption[];
   groups: { id: number; name: string }[];
+  fourthSubjects: { id: number; name: string }[];
   messages: Messages;
 }) {
   const p = dict.studentProfile;
@@ -75,10 +77,12 @@ export function StudentOverview({
             section_id: current?.sectionId ?? null,
             roll: current ? String(current.roll) : "",
             group_id: current?.groupId ?? null,
+            fourth_subject_id: current?.fourthSubjectId ?? null,
           }}
           sessions={sessions}
           sections={sections}
           groups={groups}
+          fourthSubjects={fourthSubjects}
           messages={messages}
         />
       </section>

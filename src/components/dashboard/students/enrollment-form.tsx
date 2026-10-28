@@ -25,6 +25,7 @@ export function EnrollmentForm({
   sessions,
   sections,
   groups,
+  fourthSubjects,
   messages,
 }: {
   lang: Locale;
@@ -33,6 +34,7 @@ export function EnrollmentForm({
   sessions: { id: number; name: string }[];
   sections: SectionOption[];
   groups: { id: number; name: string }[];
+  fourthSubjects: { id: number; name: string }[];
   messages: Messages;
 }) {
   const tr = translator(messages);
@@ -100,6 +102,16 @@ export function EnrollmentForm({
         numeric
         empty={p("noGroup")}
         options={groups.map((g) => ({ value: g.id, label: g.name }))}
+      />
+      <SelectField
+        {...base}
+        id="enrol-fourth"
+        name="fourth_subject_id"
+        label={p("fourthSubject")}
+        hint={p("fourthSubjectHint")}
+        numeric
+        empty={p("noFourthSubject")}
+        options={fourthSubjects.map((s) => ({ value: s.id, label: s.name }))}
       />
       <Button type="submit" className="w-fit" disabled={isSubmitting}>
         {isSubmitting ? tr("dialog.saving") : p("saveEnrollment")}

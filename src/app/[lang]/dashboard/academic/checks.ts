@@ -40,6 +40,48 @@ export async function checkAcademicSave(
         };
     }
   }
+  if (entity === "exam-subjects") {
+    const examId = Number(row.exam_id);
+    if (id !== null) {
+      const { data: current } = await db
+        .from("exam_subjects")
+        .select("exam_id, class_id, subject_id")
+        .eq("id", id)
+        .maybeSingle();
+      // Marks belong to this exam, class and subject: only the marks setup can change.
+      if (
+        !current ||
+        current.exam_id !== examId ||
+        current.class_id !== Number(row.class_id) ||
+        current.subject_id !== Number(row.subject_id)
+      )
+        return { ok: false, error: "errors.notAllowed" };
+    }
+    const [{ count: sits }, { count: taught }] = await Promise.all([
+      db
+        .from("exam_classes")
+        .select("class_id", { count: "exact", head: true })
+        .eq("exam_id", examId)
+        .eq("class_id", Number(row.class_id)),
+      db
+        .from("class_subjects")
+        .select("id", { count: "exact", head: true })
+        .eq("class_id", Number(row.class_id))
+        .eq("subject_id", Number(row.subject_id)),
+    ]);
+    if (!sits)
+      return {
+        ok: false,
+        error: "errors.examClass",
+        fieldErrors: { class_id: "errors.examClass" },
+      };
+    if (!taught)
+      return {
+        ok: false,
+        error: "errors.notTaught",
+        fieldErrors: { subject_id: "errors.notTaught" },
+      };
+  }
   if (entity === "exam-schedule") {
     const examId = Number(row.exam_id);
     if (id !== null) {

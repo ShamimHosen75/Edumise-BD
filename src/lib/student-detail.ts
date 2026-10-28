@@ -29,6 +29,7 @@ export type HistoryRow = {
   section: string;
   sectionId: number;
   groupId: number | null;
+  fourthSubjectId: number | null;
   group: string;
   roll: number;
 };
@@ -51,7 +52,7 @@ export async function studentDetail(db: Client, id: number, lang: Locale) {
   const { data: student } = await db
     .from("students")
     .select(
-      "*, profile:profiles(is_active), enrollments(id, session_id, section_id, group_id, roll, session:academic_sessions(name, starts_on, is_current), section:sections(name_en, name_bn, class:classes(level, name_en, name_bn)), group:groups(name_en, name_bn)), student_guardians(relation, is_primary, guardian:guardians(id, full_name_en, full_name_bn, phone, occupation, profile:profiles(is_active)))",
+      "*, profile:profiles(is_active), enrollments(id, session_id, section_id, group_id, fourth_subject_id, roll, session:academic_sessions(name, starts_on, is_current), section:sections(name_en, name_bn, class:classes(level, name_en, name_bn)), group:groups(name_en, name_bn)), student_guardians(relation, is_primary, guardian:guardians(id, full_name_en, full_name_bn, phone, occupation, profile:profiles(is_active)))",
     )
     .eq("id", id)
     .maybeSingle();
@@ -63,6 +64,7 @@ export async function studentDetail(db: Client, id: number, lang: Locale) {
       session_id: number;
       section_id: number;
       group_id: number | null;
+      fourth_subject_id: number | null;
       roll: number;
       session: { name: string; starts_on: string; is_current: boolean };
       section: Named & { class: Named & { level: number } };
@@ -79,6 +81,7 @@ export async function studentDetail(db: Client, id: number, lang: Locale) {
       section: pickLocalized(e.section, "name", lang),
       sectionId: e.section_id,
       groupId: e.group_id,
+      fourthSubjectId: e.fourth_subject_id,
       group: e.group ? pickLocalized(e.group, "name", lang) : "",
       roll: e.roll,
     }));

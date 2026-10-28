@@ -11,6 +11,7 @@ import {
   periodSchema,
   roomSchema,
 } from "@/lib/validation/routine";
+import { examSubjectSchema } from "@/lib/validation/marks";
 import { designationSchema } from "@/lib/validation/staff";
 
 /** The academic setup lists an admin edits, each with its table, schema and unique field. */
@@ -34,6 +35,11 @@ export const ACADEMIC = {
   periods: { table: "periods", schema: periodSchema, unique: "number" },
   rooms: { table: "rooms", schema: roomSchema, unique: "name" },
   holidays: { table: "holidays", schema: holidaySchema, unique: "title_en" },
+  "exam-subjects": {
+    table: "exam_subjects",
+    schema: examSubjectSchema,
+    unique: "subject_id",
+  },
   "exam-schedule": {
     table: "exam_schedule",
     schema: examScheduleSchema,

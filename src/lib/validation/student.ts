@@ -69,6 +69,8 @@ export const enrollmentSchema = z.object({
   section_id: id,
   roll,
   group_id: id.nullable(),
+  /** Classes 9-10: the student's fourth subject (open question 28). */
+  fourth_subject_id: id.nullable().default(null),
 });
 
 /** A new student is enrolled in the current session straight away; empty roll = next. */

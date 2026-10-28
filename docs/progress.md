@@ -17,8 +17,8 @@
 | 3.4 Student management | ✅ Done | Excel (.xlsx) import waits for SheetJS; see below |
 | 3.5 Routine | ✅ Done | See below |
 | 4.1 Student attendance | ✅ Done | See below |
-| 4.2 Exams + marks | Not started | Next |
-| 4.3 Grading + results | Not started | Blocked on 4.2 |
+| 4.2 Exams + marks | ✅ Done | See below |
+| 4.3 Grading + results | Not started | Next |
 | 4.4 Certificates | Not started | Blocked on 4.3 |
 | 5.1 Fee setup + invoices | Not started | Blocked on 4.4 |
 | 5.2 Collection + reports | Not started | Blocked on 5.1 |
@@ -732,4 +732,36 @@ Known issues:
   the teacher dashboard work).
 - Changing a student's section mid-month keeps earlier marks under the old section on the
   sheet.
+
+## Step 4.2 — exams and marks ✅ (EXM-01, EXM-02)
+
+Checks (run locally, 2026-10-28): `lint` ✅ · `typecheck` ✅ · `test` ✅ 383 · `db:test` ✅
+25 files / 352 tests · `db lint` ✅ · types up to date ✅ · `build` ✅ · `test:e2e` ✅
+211 passed + the marks test re-run after a fix (it assumed Class 6 B had 4 students; the admission test adds one), 5 skipped by design · no browser console errors on the new pages.
+
+| Acceptance criterion | Result | Evidence |
+|---|---|---|
+| Exams: names EN/BN, session, classes, dates, status draft → marks_entry → review → published | ✅ Pass | `/dashboard/exams` (list, add/edit with classes) and `/dashboard/exams/[id]` (status buttons with what each means) |
+| Exam subjects per class: full and pass marks for CQ, MCQ, practical; total; counts in GPA | ✅ Pass | Subjects tab per class; "Add Class 6's subjects" fills them in (CQ 70/23, MCQ 30/10), each editable |
+| Fourth subject per student | ✅ Pass | enrolment form (Classes 9–10): one of the group's fourth subjects (`enrollments.fourth_subject_id`, open question 28) |
+| Marks entry: teacher picks exam + section + subject (only their assignments), inputs per part, 0..full, absent, autosave, "Submit & lock" | ✅ Pass | `/dashboard/marks`; saves 0.8 s after typing; Bangla digits accepted; e2e |
+| Admin can unlock; completion status per subject for admin | ✅ Pass | Marks completion tab (entered / students, submitted or open, unlock) |
+| Bulk import marks from an Excel template | ✅ Pass | template `.xlsx` with the class list; upload Excel or CSV, preview per line, save; e2e imports an Excel file |
+| RLS: teacher cannot write other subjects or after lock; validation unit tests; E2E enter and lock marks | ✅ Pass | pgTAP `320_exams_marks` (14), `120_rls_teacher`; unit `marks.test.ts` (8), `xlsx-read.test.ts` (3); e2e `marks.spec.ts` |
+
+Decisions (open questions 27–29):
+- Published means `exams.status = 'published'` (the Step 1.3 policies already use it).
+- Fourth subject on the student's enrolment, chosen from the subjects of type "fourth" taught
+  in the class and group.
+- "Submit & lock" locks one subject for one section (`mark_locks`); other sections stay
+  open. Teachers can write marks only while the exam is in "marks entry"; in "review" only
+  admins can change them.
+- Excel files are read on the server with a small built-in reader (`src/lib/xlsx-read.ts`,
+  first sheet, size limits against oversized files). This also lets the student import
+  (Step 3.4) take Excel files, and Excel's date numbers are understood there.
+
+Known issues:
+- Grades, GPA and results are Step 4.3; the marks grid shows the total only.
+- The marks inputs show the digits as typed (English digits are kept in the boxes in Bangla).
+- Exams can be created for the current session only.
 

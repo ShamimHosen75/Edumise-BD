@@ -24,6 +24,8 @@ grant select on ids to authenticated;
 
 select plan(20);
 
+-- Marks are entered while an exam takes marks (Step 4.2).
+update public.exams set status = 'marks_entry' where status = 'draft';
 set local role authenticated;
 set local request.jwt.claims to '{"sub": "00000000-0000-4000-a000-000000000003", "role": "authenticated"}';
 

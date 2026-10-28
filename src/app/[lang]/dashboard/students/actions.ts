@@ -163,6 +163,33 @@ export async function saveEnrollment(
   const parsed = enrollmentSchema.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
   const v = parsed.data;
+  if (v.fourth_subject_id !== null) {
+    // A fourth subject is one of the group's "fourth" subjects in Classes 9-10.
+    const { data: section } = await supabase
+      .from("sections")
+      .select("class_id")
+      .eq("id", v.section_id)
+      .maybeSingle();
+    const { count } =
+      section && v.group_id !== null
+        ? await supabase
+            .from("class_subjects")
+            .select("id, subject:subjects!inner(type)", {
+              count: "exact",
+              head: true,
+            })
+            .eq("class_id", section.class_id)
+            .eq("group_id", v.group_id)
+            .eq("subject_id", v.fourth_subject_id)
+            .eq("subject.type", "fourth")
+        : { count: 0 };
+    if (!count)
+      return {
+        ok: false,
+        error: "errors.fourthSubject",
+        fieldErrors: { fourth_subject_id: "errors.fourthSubject" },
+      };
+  }
   const { error } = await supabase
     .from("enrollments")
     .upsert(

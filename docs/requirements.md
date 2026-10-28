@@ -539,11 +539,14 @@ Record before/after scores in docs/qa-report.md.
    **4.1:** not built.
 27. **Exam status vs 1.3 (4.2):** Step 1.3 says "exam is published". Draft: published means
    `status = 'published'`; the 1.3 policies use that instead of a boolean.
+   **Used in 4.2 (draft adopted).**
 28. **Fourth subject (4.2):** where is each student's fourth-subject choice stored? Draft:
    `enrollments.fourth_subject_id`, set in Class 9 per group.
+   **Used in 4.2 (draft adopted):** set on the student's enrolment (Classes 9–10).
 29. **Lock scope (4.2):** "Submit & lock" locks one exam_subject for one section, but
    `exam_subjects` is per class. Draft: a lock per exam_subject + section
    (`mark_locks` table), so one teacher's submit does not lock other sections.
+   **Used in 4.2 (draft adopted).**
 30. **Percent rounding (4.3):** the scale uses whole numbers. Is 79.5% an A or an A+?
    Draft: compare the exact percentage, no rounding (79.5 → A; 80 → A+).
 31. **Optional (non-fourth) subjects (4.3):** 3.1 has type compulsory / optional / fourth.

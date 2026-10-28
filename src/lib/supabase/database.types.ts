@@ -679,6 +679,38 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"mark_locks": {
+                  Row: {
+                    "exam_subject_id": number,"locked_at": string,"locked_by": string | null,"section_id": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "exam_subject_id": number,"locked_at"?: string,"locked_by"?: string | null,"section_id": number
+                  }
+                  Update: {
+                    "exam_subject_id"?: number,"locked_at"?: string,"locked_by"?: string | null,"section_id"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "mark_locks_exam_subject_id_fkey"
+      columns: ["exam_subject_id"]
+isOneToOne: false
+      referencedRelation: "exam_subjects"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "mark_locks_locked_by_fkey"
+      columns: ["locked_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "mark_locks_section_id_fkey"
+      columns: ["section_id"]
+isOneToOne: false
+      referencedRelation: "sections"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"marks": {
                   Row: {
                     "cq": number | null,"created_at": string,"entered_by": string | null,"exam_subject_id": number,"id": number,"is_absent": boolean,"mcq": number | null,"practical": number | null,"student_id": number,"updated_at": string
@@ -1261,6 +1293,12 @@ isOneToOne: false
                            },
 "set_primary_guardian":
 { Args: { "p_guardian_id": number,"p_student_id": number }; Returns: boolean
+                           },
+"submit_marks":
+{ Args: { "p_exam_subject_id": number,"p_section_id": number }; Returns: number
+                           },
+"unlock_marks":
+{ Args: { "p_exam_subject_id": number,"p_section_id": number }; Returns: boolean
                            }
           }
           Enums: {

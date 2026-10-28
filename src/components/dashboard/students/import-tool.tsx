@@ -16,7 +16,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { Locale } from "@/i18n/config";
 import type { Messages } from "@/i18n/messages";
-import { toCsv } from "@/lib/csv";
+import { readSpreadsheet } from "@/app/[lang]/dashboard/spreadsheet-actions";
+import { toXlsx } from "@/lib/xlsx";
 import { csvRecords } from "@/lib/csv-parse";
 import { localizeDigits } from "@/lib/format";
 import {
@@ -50,14 +51,18 @@ export function ImportTool({
   const ready = checked !== null && valid === checked.length;
 
   const template = () => {
-    const csv = toCsv(
+    const file = toXlsx("Students", [
       [...IMPORT_COLUMNS],
-      [IMPORT_COLUMNS.map((c) => IMPORT_EXAMPLE[c])],
+      IMPORT_COLUMNS.map((c) => IMPORT_EXAMPLE[c]),
+    ]);
+    const url = URL.createObjectURL(
+      new Blob([new Uint8Array(file)], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      }),
     );
-    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
     const a = document.createElement("a");
     a.href = url;
-    a.download = "students-import-template.csv";
+    a.download = "students-import-template.xlsx";
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -67,7 +72,19 @@ export function ImportTool({
     setRaw(null);
     if (!file) return;
     start(async () => {
-      const rows = csvRecords(await file.text());
+      let rows: Record<string, string>[];
+      if (/\.csv$/i.test(file.name)) rows = csvRecords(await file.text());
+      else {
+        // Excel files are read on the server (nothing is saved).
+        const data = new FormData();
+        data.set("file", file);
+        const read = await readSpreadsheet(lang, data).catch(() => ({
+          ok: false as const,
+          error: "errors.spreadsheet" as const,
+        }));
+        if (!read.ok) return void toast.error(tr(read.error));
+        rows = read.rows;
+      }
       if (rows.length === 0 || rows.length > IMPORT_MAX_ROWS)
         return void toast.error(tr("errors.fileRows"));
       const result = await previewImport(lang, sessionId, rows).catch(failed);
@@ -102,7 +119,7 @@ export function ImportTool({
           <Input
             id="import-file"
             type="file"
-            accept=".csv,text/csv"
+            accept=".xlsx,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv"
             onChange={(e) => read(e.target.files?.[0])}
           />
         </div>
