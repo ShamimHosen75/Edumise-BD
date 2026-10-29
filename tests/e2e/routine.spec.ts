@@ -145,9 +145,11 @@ test("exam schedule: add a paper, hide and publish the schedule on the website",
     await page.goto("/en/dashboard/exam-schedule");
     await page.getByLabel("Exam").selectOption({ label: "Annual Exam 2026" });
     await page.getByRole("button", { name: "Show" }).click();
-    const publish = page.getByRole("button", { name: "Publish the schedule" });
-    if (await publish.isVisible()) {
-      await publish.click();
+    // Wait for the page before deciding (isVisible() does not wait).
+    const status = page.getByTestId("schedule-status");
+    await expect(status).toBeVisible();
+    if ((await status.textContent()) !== "Published on the website") {
+      await page.getByRole("button", { name: "Publish the schedule" }).click();
       await expect(page.getByTestId("schedule-status")).toHaveText(
         "Published on the website",
       );

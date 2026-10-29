@@ -22,6 +22,7 @@ describe("navForRole", () => {
     "marks",
     "board-results",
     "certificates",
+    "fees",
     "exam-schedule",
     "notices",
     "news",
@@ -48,8 +49,8 @@ describe("navForRole", () => {
       "notices",
     ]);
   });
-  it("accountants see only home for now", () => {
-    expect(keys("accountant")).toEqual(["home"]);
+  it("accountants see home and fees", () => {
+    expect(keys("accountant")).toEqual(["home", "fees"]);
   });
   it("guardians see their children, students their profile", () => {
     expect(keys("guardian")).toEqual(["home", "my-children"]);

@@ -21,8 +21,8 @@
 | 4.3 Grading + results | ✅ Done | See below |
 | 4.4 Certificates | ✅ Done | See below |
 | Phase 4 code review | ✅ Done | `docs/code-review-phase-4.md` |
-| 5.1 Fee setup + invoices | Not started | Next |
-| 5.2 Collection + reports | Not started | Blocked on 5.1 |
+| 5.1 Fee setup + invoices | ✅ Done | See below |
+| 5.2 Collection + reports | Not started | Next |
 | 5.3 Payment gateway adapter | Not started | Blocked on 5.2 |
 | 6.1 Regression + traceability | Not started | Blocked on 5.3 |
 | 6.2 Security audit | Not started | Blocked on 6.1 |
@@ -877,4 +877,48 @@ Behaviour changes to know:
 - Exam subjects cannot change while results are published; a subject or exam with marks
   cannot be deleted.
 - Before publication only the office and the class teacher can read a section's results.
+
+## Step 5.1 — fee setup and invoices ✅ (FEE-01, FEE-02)
+
+Checks (run locally, 2026-10-30): `lint` ✅ · `typecheck` ✅ · `test` ✅ 479 · `db:test` ✅
+29 files / 426 tests · `db lint` ✅ · types up to date ✅ · `build` ✅ · `test:e2e` ✅
+233 passed, 5 skipped by design (one Step 3.5 test had a cleanup race that could leave the Annual exam schedule hidden; fixed) · no browser console errors · the fee pages fit 360px.
+
+| Acceptance criterion | Result | Evidence |
+|---|---|---|
+| Fee heads: monthly or one-time, EN/BN names | ✅ Pass | `/dashboard/fees/heads`; a head cannot switch between monthly and one-time once it has been billed |
+| Fee structure: class (+ optional group) × head × amount per session; copy from the previous session | ✅ Pass | `/dashboard/fees/structure`: a grid in taka (group rows for Classes 9–10 replace the class amount); "Copy from <previous session>" keeps amounts already set (`copy_fee_structure()`) |
+| Waivers per student: percent or fixed, per head, reason, approved by an admin | ✅ Pass | `/dashboard/fees/waivers`; a waiver saved by the accountant waits ("Waiting for approval") until an admin approves it; only approved waivers are applied (database trigger, pgTAP) |
+| Invoice generator: session, month or one-time head (+ exam), classes → preview count and total → generate with items after waivers | ✅ Pass | `/dashboard/fees/generate`; e2e previews, makes the invoices and checks the items |
+| Idempotent: never a second invoice for the same student + head + period | ✅ Pass | unique index on items plus `create_invoices()` skips what is billed and never leaves an empty invoice; pgTAP "running it again adds nothing"; e2e "Nothing to bill" the second time |
+| Optional late fine after the due date (amount per day, cap) | ✅ Pass | `/dashboard/fees/settings` (fine per day, cap, grace days, default days to pay); shown live on invoices |
+| All money as integer poisha in the database; formatted in the UI | ✅ Pass | `bigint` columns; `toPoisha` / `formatCurrency`; Bangla digits accepted in amounts |
+| `src/lib/fees.ts`: waivers, totals, late fine, invoice status from payments; exhaustive tests (rounding, 100% waiver, partial payments, overpayment rejected) | ✅ Pass | `tests/unit/fees.test.ts` (22 tests, 100% statements and branches) |
+
+Negative tests:
+- teachers and students cannot change fee settings, make invoices or open the fee pages (403);
+- an accountant cannot approve a waiver, even by sending an approval;
+- a monthly head cannot be billed for a one-time period;
+- bad periods and due dates in the past are refused;
+- bad amounts are refused in the grid, the waiver form and the fine settings;
+- fee codes are checked.
+
+Decisions (open questions 37–39, drafts adopted):
+- A percent waiver is rounded **down** to the whole poisha.
+- Percent waivers add up (at most 100%) and come first, then fixed ones; the net is
+  never below 0.
+- The late fine is worked out live from the due date (per invoice, after grace days, up to
+  the cap). Step 5.2 freezes it onto the invoice as a fine item when a payment is
+  recorded.
+- Periods are `YYYY-MM` for monthly heads, `session:<id>` for a one-time fee, and
+  `exam:<id>` for an exam fee.
+- Invoice numbers are `INV-YYYY-NNNNNN`, from a counter per year.
+- A fully waived invoice is "paid" at once.
+- The generator bills students still at school (not transferred or inactive).
+- An admin's save of a waiver approves it; an accountant's change needs approval again.
+
+Known issues:
+- Collection, receipts, dues reports and the families' view of invoices are Step 5.2.
+- Invoices cannot be cancelled or edited yet (Step 5.2 adds cancelling with payments).
+- The invoice list has no paging yet (it loads a session's invoices; fine for one school).
 

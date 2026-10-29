@@ -51,7 +51,8 @@
     "exams": "Exams",
     "marks": "Marks entry",
     "boardResults": "Board results",
-    "certificates": "Certificates"
+    "certificates": "Certificates",
+    "fees": "Fees"
   },
   "auth": {
     "loginTitle": "Log in",
@@ -178,7 +179,15 @@
     "paperGroup": "Use up to 20 letters, digits, - or _.",
     "studentCode": "Enter the 10-digit student ID.",
     "examPublished": "Results of this exam are published: its subjects cannot change. Move the exam back to Review first.",
-    "belowSavedMarks": "Saved marks are above these full marks. Correct those marks first."
+    "belowSavedMarks": "Saved marks are above these full marks. Correct those marks first.",
+    "money": "Enter an amount in taka, e.g. 600 or 1,200.50.",
+    "feeCode": "Use 2–20 capital letters, digits or _ (e.g. TUITION).",
+    "percent": "Enter a percent from 1 to 100.",
+    "feeClasses": "Choose at least one class.",
+    "month": "Choose a month in the session.",
+    "graceDays": "Enter 0 to 60 days.",
+    "dueDays": "Enter 0 to 90 days.",
+    "dueDate": "The due date cannot be in the past."
   },
   "forbidden": {
     "title": "You do not have access to this page",
@@ -1680,5 +1689,147 @@
     "revokedOn": "Revoked on",
     "another": "Check another",
     "close": "Close"
+  },
+  "fees": {
+    "title": "Fees",
+    "intro": "Fee heads, amounts per class, waivers and invoices. Amounts are in taka.",
+    "tabs": "Fee pages",
+    "nav": {
+      "invoices": "Invoices",
+      "generate": "Make invoices",
+      "structure": "Fee structure",
+      "waivers": "Waivers",
+      "heads": "Fee heads",
+      "settings": "Late fine"
+    },
+    "heads": {
+      "title": "Fee heads",
+      "item": "fee head",
+      "code": "Code",
+      "nameEn": "Name (English)",
+      "nameBn": "Name (Bangla)",
+      "name": "Name",
+      "frequency": "Charged",
+      "frequencies": {
+        "monthly": "Every month",
+        "one_time": "Once"
+      },
+      "sortOrder": "Order"
+    },
+    "structure": {
+      "title": "Fee structure",
+      "intro": "Amount in taka per class and fee head for a session. A group row (Classes 9–10) replaces the class amount for that group; leave a cell empty for no charge.",
+      "session": "Session",
+      "show": "Show",
+      "class": "Class",
+      "save": "Save",
+      "saving": "Saving…",
+      "saved": "Fee structure saved.",
+      "copy": "Copy from {session}",
+      "copyConfirm": "Copy every amount from {from} into {to}? Amounts already set are kept.",
+      "copied": "{count} amounts copied.",
+      "cellLabel": "{head} for {row}",
+      "noHeads": "Add fee heads first.",
+      "unsaved": "Not saved yet",
+      "groupHint": "Group amounts replace the class amount."
+    },
+    "waivers": {
+      "title": "Waivers",
+      "intro": "Discounts per student and fee head for the current session. Waivers entered by the accountant apply after an admin approves them.",
+      "item": "waiver",
+      "student": "Student",
+      "studentCode": "Student ID",
+      "head": "Fee head",
+      "kind": "Kind",
+      "kinds": {
+        "percent": "Percent",
+        "fixed": "Fixed amount (Tk)"
+      },
+      "value": "Value",
+      "reason": "Reason",
+      "status": "Status",
+      "approved": "Approved",
+      "pending": "Waiting for approval",
+      "approve": "Approve",
+      "approveNamed": "Approve waiver for {name}",
+      "approvedDone": "Waiver approved.",
+      "valueHint": "Percent: 1–100. Fixed: taka per bill."
+    },
+    "generate": {
+      "title": "Make invoices",
+      "intro": "Bill a month (all monthly fees) or a one-time fee for the chosen classes. Students already billed for that fee and period are skipped, so running it again is safe.",
+      "session": "Session",
+      "kind": "Bill for",
+      "kinds": {
+        "monthly": "A month (monthly fees)",
+        "one_time": "A one-time fee"
+      },
+      "month": "Month",
+      "head": "Fee head",
+      "exam": "For exam (optional)",
+      "noExam": "Not for an exam",
+      "classes": "Classes",
+      "dueOn": "Due date",
+      "preview": "Preview",
+      "previewing": "Working…",
+      "summary": "{invoices} invoices, total {total} (waivers {waived}). {skipped} already billed, skipped.",
+      "none": "Nothing to bill: no amounts set, or everyone is billed already.",
+      "make": "Make {count} invoices",
+      "making": "Making invoices…",
+      "confirm": "Make {count} invoices for {total}?",
+      "made": "{created} invoices made; {skipped} already billed.",
+      "seeInvoices": "See the invoices"
+    },
+    "invoices": {
+      "title": "Invoices",
+      "filter": "Show",
+      "status": "Status",
+      "statuses": {
+        "unpaid": "Unpaid",
+        "partial": "Partly paid",
+        "paid": "Paid",
+        "cancelled": "Cancelled"
+      },
+      "anyStatus": "Any status",
+      "period": "Period",
+      "periodHint": "e.g. 2026-10",
+      "class": "Class",
+      "anyClass": "Any class",
+      "invoiceNo": "Invoice",
+      "student": "Student",
+      "due": "Due",
+      "total": "Total",
+      "paid": "Paid",
+      "outstanding": "Due now",
+      "fine": "Late fine",
+      "none": "No invoices match.",
+      "count": "{count} invoices · due {due}",
+      "view": "View",
+      "viewNamed": "View invoice {no}",
+      "back": "Invoices",
+      "issued": "Issued",
+      "items": "Items",
+      "head": "Fee",
+      "gross": "Amount",
+      "waiver": "Waiver",
+      "net": "Net",
+      "roll": "Roll",
+      "print": "Print",
+      "fineNote": "The late fine is added when the bill is paid.",
+      "periods": {
+        "session": "Session {id}",
+        "exam": "Exam"
+      }
+    },
+    "settings": {
+      "title": "Late fine and due date",
+      "intro": "A late fine per day after the due date (and grace days), up to a limit per bill. 0 means no fine.",
+      "perDay": "Fine per day (Tk)",
+      "cap": "Most per bill (Tk, 0 = no limit)",
+      "graceDays": "Grace days",
+      "dueDays": "Days to pay (default due date)",
+      "save": "Save",
+      "saved": "Saved."
+    }
   }
 }

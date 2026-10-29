@@ -26,7 +26,8 @@ export type NavIcon =
   | "attendance"
   | "marks"
   | "results"
-  | "certificates";
+  | "certificates"
+  | "fees";
 
 export type NavItem = {
   key: string;
@@ -119,6 +120,13 @@ export const NAV_ITEMS: readonly NavItem[] = [
     label: "nav.certificates",
     icon: "certificates",
     roles: ADMINS,
+  },
+  {
+    key: "fees",
+    href: "/fees",
+    label: "nav.fees",
+    icon: "fees",
+    roles: [...ADMINS, "accountant"],
   },
   {
     key: "exam-schedule",

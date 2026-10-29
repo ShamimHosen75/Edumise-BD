@@ -13,7 +13,7 @@ select is(app.auth_role(), 'accountant', 'accountant is recognised');
 select is((select count(*)::int from public.students), 20, 'accountant reads all students');
 select is((select count(*)::int from public.guardians), 19, 'accountant reads guardians (for dues follow-up)');
 select is((select count(*)::int from public.invoices), 3, 'accountant reads all invoices');
-select lives_ok($$ insert into public.fee_heads (code, name_en, frequency) values ('LAB', 'Lab fee', 'one_time') $$,
+select lives_ok($$ insert into public.fee_heads (code, name_en, frequency) values ('LIBRARY', 'Library fee', 'one_time') $$,
   'accountant creates fee heads');
 select is(pg_temp.affected($$ update public.invoices set due_on = due_on + 1 $$), 3, 'accountant updates invoices');
 select lives_ok($$ update public.fee_structures set amount = amount + 100 $$, 'accountant edits the fee structure');

@@ -54,3 +54,10 @@ export function dbError(
   if (error?.code === "23503") return { ok: false, error: "errors.inUse" };
   return { ok: false, error: "auth.unexpected" };
 }
+
+/** Checks the language and that the user may manage fees (office or accountant). */
+export async function requireFeeStaff(lang: string) {
+  if (!isLocale(lang)) throw new Error("Invalid language");
+  const me = await requireRole(lang, ["super_admin", "admin", "accountant"]);
+  return { me, db: await createClient() };
+}

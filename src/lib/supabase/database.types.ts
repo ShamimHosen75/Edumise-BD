@@ -489,6 +489,20 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"fee_settings": {
+                  Row: {
+                    "due_days": number,"grace_days": number,"id": number,"late_fine_cap": number,"late_fine_per_day": number,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "due_days"?: number,"grace_days"?: number,"id"?: number,"late_fine_cap"?: number,"late_fine_per_day"?: number,"updated_at"?: string
+                  }
+                  Update: {
+                    "due_days"?: number,"grace_days"?: number,"id"?: number,"late_fine_cap"?: number,"late_fine_per_day"?: number,"updated_at"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"fee_structures": {
                   Row: {
                     "amount": number,"class_id": number,"created_at": string,"fee_head_id": number,"group_id": number | null,"id": number,"session_id": number,"updated_at": string
@@ -657,6 +671,20 @@ isOneToOne: true
                   }
                   Update: {
                     "created_at"?: string,"ends_on"?: string,"id"?: never,"starts_on"?: string,"title_bn"?: string,"title_en"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"invoice_counters": {
+                  Row: {
+                    "last_no": number,"year": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "last_no": number,"year": number
+                  }
+                  Update: {
+                    "last_no"?: number,"year"?: number
                   }
                   Relationships: [
                     
@@ -1346,6 +1374,12 @@ isOneToOne: false
                            },
 "class_allows_group":
 { Args: { "p_class_id": number }; Returns: boolean
+                           },
+"copy_fee_structure":
+{ Args: { "p_from": number,"p_to": number }; Returns: number
+                           },
+"create_invoices":
+{ Args: { "p_due_on": string,"p_period_key": string,"p_rows": Json,"p_session_id": number }; Returns: Json
                            },
 "custom_access_token_hook":
 { Args: { "event": Json }; Returns: Json

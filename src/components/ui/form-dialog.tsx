@@ -36,6 +36,11 @@ type Props = {
   translate: (key: string) => string;
   labels: Labels;
   children: (form: UseFormReturn<FieldValues>) => React.ReactNode;
+  /**
+   * Validate in the browser but send the values as typed. Use when the schema converts
+   * values (e.g. taka to poisha) and the server parses them again.
+   */
+  submitRaw?: boolean;
 };
 
 /**
@@ -53,12 +58,15 @@ export function FormDialog({
   translate,
   labels,
   children,
+  submitRaw = false,
 }: Props) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [error, setError] = useState("");
   const form = useForm<FieldValues>({
-    resolver: zodResolver(schema) as unknown as Resolver<FieldValues>,
+    resolver: (submitRaw
+      ? zodResolver(schema, undefined, { raw: true })
+      : zodResolver(schema)) as unknown as Resolver<FieldValues>,
     defaultValues,
   });
   const { isSubmitting } = form.formState;

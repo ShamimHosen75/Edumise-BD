@@ -577,11 +577,14 @@ Record before/after scores in docs/qa-report.md.
    **Used in 4.4 (draft adopted):** status becomes "transferred"; revoking does not undo it.
 37. **Waiver rounding (5.1):** percent waivers can give fractions of a poisha. Draft: round
    the waiver *down* to the whole poisha (school never under-charges by rounding).
+   **Used in 5.1 (draft adopted).**
 38. **Stacking waivers (5.1):** a student with half-free and a sibling discount on the same
    head: apply both? Draft: percent waivers first, then fixed; net never below 0.
+   **Used in 5.1 (draft adopted):** percents add up to at most 100%, taken from the gross.
 39. **Late fine (5.1):** stored on the invoice when charged, or computed live? Draft:
    computed live for display; frozen onto the invoice as a fine item when a payment is
    recorded. Applies per invoice, not per item.
+   **Used in 5.1 (draft adopted):** shown live with grace days and a cap; frozen in 5.2.
 40. **Allocation (5.2):** "select items" and "allocate to oldest first" together. Draft: the
    accountant ticks items; a partial amount is spread over the ticked items oldest due
    date first, fine items before the fee itself.

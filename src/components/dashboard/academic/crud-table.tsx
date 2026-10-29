@@ -18,9 +18,14 @@ import { ACADEMIC, type AcademicEntity } from "@/lib/academic";
 
 import { dialogLabels, tableLabels, type Translate } from "./labels";
 
+type Result =
+  | { ok: true }
+  | { ok: false; error: string; fieldErrors?: Record<string, string> };
+
 type Props<T extends { id: number }> = {
   lang: Locale;
-  entity: AcademicEntity;
+  /** An academic list, or any list with its own `actions` and `schema`. */
+  entity: AcademicEntity | string;
   tr: Translate;
   title: string;
   /** "session", "class", ... (for "Add session"). */
@@ -34,6 +39,14 @@ type Props<T extends { id: number }> = {
   fields: (form: UseFormReturn<FieldValues>) => React.ReactNode;
   extraActions?: (row: T) => React.ReactNode;
   initialSort?: { id: string; desc?: boolean };
+  /** Server actions for lists outside the academic setup (e.g. fees, other roles). */
+  actions?: {
+    save: (id: number | null, values: FieldValues) => Promise<Result>;
+    remove: (id: number) => Promise<Result>;
+  };
+  schema?: Parameters<typeof FormDialog>[0]["schema"];
+  /** Send the form values as typed (see FormDialog). */
+  submitRaw?: boolean;
 };
 
 /** A DataTable with add / edit dialogs and delete for one academic list. */
@@ -41,20 +54,27 @@ export function CrudTable<T extends { id: number }>(props: Props<T>) {
   const { lang, entity, tr, item, rowName } = props;
   const router = useRouter();
   const [pending, start] = useTransition();
-  const schema = ACADEMIC[entity].schema;
+  const schema = props.schema ?? ACADEMIC[entity as AcademicEntity].schema;
+  const save = (id: number | null, values: FieldValues) =>
+    props.actions
+      ? props.actions.save(id, values)
+      : saveAcademic(lang, entity, id, values);
+  const removeRow = (id: number) =>
+    props.actions ? props.actions.remove(id) : deleteAcademic(lang, entity, id);
   const common = {
     schema,
     successMessage: tr("academic.saved"),
     translate: (key: string) => tr(key),
     labels: dialogLabels(tr),
     children: props.fields,
+    submitRaw: props.submitRaw,
   };
 
   const remove = (row: T) => {
     if (!window.confirm(tr("academic.deleteConfirm", { name: rowName(row) })))
       return;
     start(async () => {
-      const result = await deleteAcademic(lang, entity, row.id).catch(() => ({
+      const result = await removeRow(row.id).catch(() => ({
         ok: false as const,
         error: "auth.unexpected" as const,
       }));
@@ -81,7 +101,7 @@ export function CrudTable<T extends { id: number }>(props: Props<T>) {
           {...common}
           title={tr("academic.add", { item })}
           defaultValues={props.defaults(null)}
-          onSubmit={(values) => saveAcademic(lang, entity, null, values)}
+          onSubmit={(values) => save(null, values)}
           trigger={
             <Button type="button">
               <Plus aria-hidden="true" />
@@ -96,7 +116,7 @@ export function CrudTable<T extends { id: number }>(props: Props<T>) {
             {...common}
             title={tr("academic.editNamed", { name: rowName(row) })}
             defaultValues={props.defaults(row)}
-            onSubmit={(values) => saveAcademic(lang, entity, row.id, values)}
+            onSubmit={(values) => save(row.id, values)}
             trigger={
               <Button
                 type="button"
