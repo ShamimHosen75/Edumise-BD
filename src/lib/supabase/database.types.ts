@@ -161,6 +161,38 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"certificates": {
+                  Row: {
+                    "body_bn": string,"body_en": string,"created_at": string,"id": number,"issued_by": string | null,"issued_on": string,"reference": string,"revoke_reason": string | null,"revoked_at": string | null,"revoked_by": string | null,"student_id": number | null,"student_name_bn": string,"student_name_en": string,"type": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "body_bn"?: string,"body_en": string,"created_at"?: string,"id"?: never,"issued_by"?: string | null,"issued_on"?: string,"reference": string,"revoke_reason"?: string | null,"revoked_at"?: string | null,"revoked_by"?: string | null,"student_id"?: number | null,"student_name_bn"?: string,"student_name_en": string,"type": string
+                  }
+                  Update: {
+                    "body_bn"?: string,"body_en"?: string,"created_at"?: string,"id"?: never,"issued_by"?: string | null,"issued_on"?: string,"reference"?: string,"revoke_reason"?: string | null,"revoked_at"?: string | null,"revoked_by"?: string | null,"student_id"?: number | null,"student_name_bn"?: string,"student_name_en"?: string,"type"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "certificates_issued_by_fkey"
+      columns: ["issued_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "certificates_revoked_by_fkey"
+      columns: ["revoked_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "certificates_student_id_fkey"
+      columns: ["student_id"]
+isOneToOne: false
+      referencedRelation: "students"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"class_subjects": {
                   Row: {
                     "class_id": number,"created_at": string,"group_id": number | null,"id": number,"subject_id": number
@@ -1325,6 +1357,9 @@ isOneToOne: false
 "is_rate_limited":
 { Args: { "p_key": string,"p_max": number,"p_window_seconds": number }; Returns: boolean
                            },
+"issue_certificate":
+{ Args: { "p_body_bn": string,"p_body_en": string,"p_reference": string,"p_student_id": number,"p_type": string }; Returns: number
+                           },
 "lookup_result":
 { Args: { "p_exam_id": number,"p_group_id"?: number,"p_roll": number,"p_section_id": number }; Returns: Json
                            },
@@ -1339,6 +1374,9 @@ isOneToOne: false
                            },
 "record_audit":
 { Args: { "p_action": string,"p_details": Json,"p_entity": string,"p_entity_id": string }; Returns: undefined
+                           },
+"revoke_certificate":
+{ Args: { "p_id": number,"p_reason": string }; Returns: boolean
                            },
 "save_exam_results":
 { Args: { "p_exam_id": number,"p_rows": Json }; Returns: number
@@ -1357,6 +1395,9 @@ isOneToOne: false
                            },
 "unlock_marks":
 { Args: { "p_exam_subject_id": number,"p_section_id": number }; Returns: boolean
+                           },
+"verify_certificate":
+{ Args: { "p_reference": string }; Returns: Json
                            }
           }
           Enums: {

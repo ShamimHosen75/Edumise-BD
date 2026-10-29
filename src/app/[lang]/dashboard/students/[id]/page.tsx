@@ -103,6 +103,12 @@ export default async function StudentPage({ params, searchParams }: Props) {
               ? ` · ${current.className} ${current.section}, ${p.roll} ${localizeDigits(current.roll, lang)}`
               : ""}
           </p>
+          <Link
+            href={`/${lang}/dashboard/certificates/new?code=${student.student_code}`}
+            className="text-primary text-sm font-medium hover:underline"
+          >
+            {dict.certificates.issue}
+          </Link>
         </div>
       </header>
       <TabLinks

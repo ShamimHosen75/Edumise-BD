@@ -59,7 +59,7 @@ describe("route registry", () => {
       "/downloads/abc",
       "/news/a/b",
       "/admission/other",
-      "/verify",
+      "/alumni",
       "/p/",
       "/p/About",
       "/p/a/b",
@@ -77,7 +77,7 @@ describe("route registry", () => {
   it("shows external https links and internal pages that exist", () => {
     expect(isShowableLink("https://moedu.gov.bd/")).toBe(true);
     expect(isShowableLink("/login")).toBe(true);
-    expect(isShowableLink("/verify")).toBe(false);
+    expect(isShowableLink("/alumni")).toBe(false);
     expect(isShowableLink(null)).toBe(false);
   });
   it("adds the language to internal links only", () => {
@@ -126,7 +126,7 @@ describe("buildMenu", () => {
       id: 7,
       parent_id: 6,
       label_en: "Verify a certificate",
-      url: "/verify",
+      url: "/alumni",
     }),
     row({ id: 8, label_en: "Attendance", url: "/attendance" }),
     row({

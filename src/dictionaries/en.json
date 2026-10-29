@@ -50,7 +50,8 @@
     "attendance": "Attendance",
     "exams": "Exams",
     "marks": "Marks entry",
-    "boardResults": "Board results"
+    "boardResults": "Board results",
+    "certificates": "Certificates"
   },
   "auth": {
     "loginTitle": "Log in",
@@ -174,7 +175,8 @@
     "fourthSubject": "Choose a fourth subject taught in this class and group (Classes 9 and 10).",
     "examClasses": "Choose at least one class.",
     "count": "Enter a whole number.",
-    "paperGroup": "Use up to 20 letters, digits, - or _."
+    "paperGroup": "Use up to 20 letters, digits, - or _.",
+    "studentCode": "Enter the 10-digit student ID."
   },
   "forbidden": {
     "title": "You do not have access to this page",
@@ -1552,5 +1554,128 @@
       "passed": "Passed cannot be more than examinees.",
       "gpa5": "GPA 5.00 cannot be more than passed."
     }
+  },
+  "certificates": {
+    "title": "Certificates",
+    "intro": "Testimonial, transfer and character certificates. Each has a reference that anyone can check on the website.",
+    "issue": "Issue certificate",
+    "issueFor": "Issue a certificate for {name}",
+    "list": "Issued certificates",
+    "types": {
+      "testimonial": "Testimonial",
+      "transfer": "Transfer certificate",
+      "character": "Character certificate"
+    },
+    "type": "Certificate",
+    "reference": "Reference",
+    "student": "Student",
+    "issuedOn": "Issued on",
+    "status": "Status",
+    "valid": "Valid",
+    "revoked": "Revoked",
+    "revokedOn": "Revoked on {date}",
+    "reason": "Reason",
+    "findStudent": "Student ID",
+    "find": "Find",
+    "notFound": "No student has this ID.",
+    "studentInfo": "{name} · {class} · roll {roll}",
+    "notEnrolled": "not enrolled",
+    "bodyEn": "Text (English)",
+    "bodyBn": "Text (Bangla)",
+    "bodyHint": "Filled in from the student's record. Check it and change anything before issuing; it cannot be changed afterwards.",
+    "issueButton": "Issue",
+    "issuing": "Issuing…",
+    "issued": "Certificate {reference} issued.",
+    "issueConfirm": "Issue this {type} to {name}? It cannot be changed afterwards (only revoked).",
+    "transferConfirm": "Issuing a transfer certificate marks {name} as transferred. Continue?",
+    "transferNote": "The student will be marked as transferred.",
+    "view": "View",
+    "viewNamed": "View certificate {reference}",
+    "print": "Print",
+    "downloadPdf": "Download PDF",
+    "pdfNote": "The PDF is in English; print this page for the Bangla text.",
+    "revoke": "Revoke",
+    "revokeTitle": "Revoke certificate {reference}",
+    "revokeHint": "The verify page will show it as revoked. This cannot be undone.",
+    "revokeReason": "Reason",
+    "revokeConfirm": "Revoke",
+    "revokedDone": "Certificate revoked.",
+    "none": "No certificates issued yet.",
+    "back": "Certificates",
+    "issuer": "Head teacher",
+    "date": "Date",
+    "verifyHint": "Scan the QR code or visit {url} to check this certificate.",
+    "school": "School",
+    "search": "Search by name or reference",
+    "templates": {
+      "bodies": {
+        "testimonial": "This is to certify that {name}{parents} is a student of this school. {HeStudies} in {class}, section {section}, roll {roll}, in the {session} session. Student ID: {code}.{birth} To the best of my knowledge, {heBears} a good moral character. I wish {him} every success in life.",
+        "transfer": "This is to certify that {name}{parents} was a student of this school in {class}, section {section}, roll {roll}, in the {session} session. Student ID: {code}.{birth} {HeIs} leaving this school at the request of {his} guardian. We have no objection to {his} admission to another school. I wish {him} every success in life.",
+        "character": "This is to certify that {name}{parents} is a student of {class}, section {section}, roll {roll}, in the {session} session. Student ID: {code}. As far as I know, {heHas} not taken part in any activity against discipline. {His} character is good."
+      },
+      "parents": ", {child} of {names},",
+      "child": {
+        "male": "son",
+        "female": "daughter",
+        "other": "child"
+      },
+      "birth": " Date of birth: {date}.",
+      "and": "and",
+      "unknown": "—",
+      "pronouns": {
+        "male": {
+          "he": "he",
+          "He": "He",
+          "his": "his",
+          "His": "His",
+          "him": "him",
+          "HeStudies": "He studies",
+          "heBears": "he bears",
+          "HeIs": "He is",
+          "heHas": "he has"
+        },
+        "female": {
+          "he": "she",
+          "He": "She",
+          "his": "her",
+          "His": "Her",
+          "him": "her",
+          "HeStudies": "She studies",
+          "heBears": "she bears",
+          "HeIs": "She is",
+          "heHas": "she has"
+        },
+        "other": {
+          "he": "they",
+          "He": "They",
+          "his": "their",
+          "His": "Their",
+          "him": "them",
+          "HeStudies": "They study",
+          "heBears": "they bear",
+          "HeIs": "They are",
+          "heHas": "they have"
+        }
+      }
+    }
+  },
+  "verify": {
+    "title": "Verify a certificate",
+    "intro": "Enter the reference printed on the certificate (for example TC-7KQ2-M9XA-4P).",
+    "reference": "Reference",
+    "check": "Check",
+    "button": "Verify",
+    "dialogTitle": "Verify a certificate",
+    "invalid": "This is not a valid reference. It looks like TC-7KQ2-M9XA-4P.",
+    "notFound": "No certificate has this reference.",
+    "tooMany": "Too many checks. Please wait a few minutes and try again.",
+    "valid": "Valid certificate",
+    "revoked": "This certificate has been revoked",
+    "name": "Student",
+    "type": "Certificate",
+    "issuedOn": "Issued on",
+    "revokedOn": "Revoked on",
+    "another": "Check another",
+    "close": "Close"
   }
 }

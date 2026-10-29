@@ -19,8 +19,8 @@
 | 4.1 Student attendance | ✅ Done | See below |
 | 4.2 Exams + marks | ✅ Done | See below |
 | 4.3 Grading + results | ✅ Done | See below |
-| 4.4 Certificates | Not started | Next |
-| 5.1 Fee setup + invoices | Not started | Blocked on 4.4 |
+| 4.4 Certificates | ✅ Done | See below; Phase 4 code review next |
+| 5.1 Fee setup + invoices | Not started | After the Phase 4 code review |
 | 5.2 Collection + reports | Not started | Blocked on 5.1 |
 | 5.3 Payment gateway adapter | Not started | Blocked on 5.2 |
 | 6.1 Regression + traceability | Not started | Blocked on 5.3 |
@@ -817,4 +817,45 @@ Known issues:
 - Seeded Half Yearly attendance % is empty: the demo attendance starts after that exam.
 - `scripts/seed-results.ts` (`npm run seed:results`) regenerates the demo results if the
   seeded marks change.
+
+## Step 4.4 — certificates ✅ (WEB-12)
+
+Checks (run locally, 2026-10-29): `lint` ✅ · `typecheck` ✅ · `test` ✅ 445 · `db:test` ✅
+27 files / 395 tests · `db lint` ✅ · types up to date ✅ · `build` ✅ · `test:e2e` ✅
+227 passed, 5 skipped by design · no browser console errors · every new page fits 360px (no sideways scroll).
+
+| Acceptance criterion | Result | Evidence |
+|---|---|---|
+| Admin issues a testimonial / transfer / character certificate for a student from EN/BN templates | ✅ Pass | `/dashboard/certificates/new` (also "Issue certificate" on the student profile): find by student ID, choose the type, the text is drafted in both languages from the record and can be edited before issuing |
+| Unique reference no | ✅ Pass | random `TS/TC/CC-XXXX-XXXX-XX` from 31 unambiguous characters (`makeReference`, crypto random), unique in the database, retried on a clash; unit tests |
+| QR code linking to `/[lang]/verify/[ref]` | ✅ Pass | on the printed certificate and the PDF (`NEXT_PUBLIC_SITE_URL` sets the address) |
+| PDF generation | ✅ Pass | `/dashboard/certificates/[id]/pdf` (English); the page prints the Bangla text on A4 |
+| Public Verify page + header pop-up: name, type, issue date, valid/revoked; no other personal data | ✅ Pass | `/verify`, `/verify/[ref]` and the "Verify" button in the top bar; `verify_certificate()` returns only those fields (pgTAP checks the key list); rate-limited 60 / 10 min per visitor; not indexed |
+| E2E: issue → verify valid → revoke → verify shows revoked | ✅ Pass | `tests/e2e/certificates.spec.ts` (desktop and 360px) |
+| RLS for the new table | ✅ Pass | pgTAP `340_certificates` (19): only admins read; nobody inserts or edits directly; issue and revoke through admin-only functions; visitors cannot call the lookup |
+
+Negative tests: wrong student ID format; teachers cannot read, issue, revoke or open the
+pages or PDF (403); an issued certificate cannot be edited; a reference is used once; the
+prefix must match the type; revoking twice does nothing; revoke needs a reason; invalid,
+unknown, lower-case and space-separated references on the verify page (Bangla).
+
+Decisions (open questions 34–36, drafts adopted):
+- References are random (`TC-7KQ2-M9XA-4P` style), not sequential, so nobody can step
+  through them; lookups are rate-limited like results.
+- Fixed layouts; the office edits the text of each certificate before issuing. After
+  issuing a certificate never changes; a mistake is revoked and a new one issued.
+- Issuing a transfer certificate marks the student as transferred, after a second
+  confirmation. Revoking it does not change the student back (the office does that on
+  the student's profile if needed).
+- Certificates keep the student's name as printed, so they still verify if the student
+  record changes or is removed.
+
+Known issues:
+- The PDF is in English only (built-in PDF fonts have no Bangla letters); the Bangla
+  certificate is printed from the web page.
+- The QR code uses `NEXT_PUBLIC_SITE_URL`; until it is set (deploy step) it points to
+  localhost.
+- Students and guardians do not see their certificates in the portal (not in this step).
+- The demo guardians are named "Guardian of …", so drafted texts read oddly for those
+  students; real records give normal names.
 

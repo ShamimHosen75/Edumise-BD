@@ -25,7 +25,8 @@ export type NavIcon =
   | "exams"
   | "attendance"
   | "marks"
-  | "results";
+  | "results"
+  | "certificates";
 
 export type NavItem = {
   key: string;
@@ -110,6 +111,13 @@ export const NAV_ITEMS: readonly NavItem[] = [
     href: "/board-results",
     label: "nav.boardResults",
     icon: "results",
+    roles: ADMINS,
+  },
+  {
+    key: "certificates",
+    href: "/certificates",
+    label: "nav.certificates",
+    icon: "certificates",
     roles: ADMINS,
   },
   {

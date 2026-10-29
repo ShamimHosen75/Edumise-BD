@@ -566,11 +566,15 @@ Record before/after scores in docs/qa-report.md.
 34. **Certificate reference no (4.4):** a sequential number (CERT-2026-00001) lets anyone
    step through numbers and collect student names. Draft: random 10-character code
    (e.g. `TC-7KQ2-M9XA-4P`), verify lookup rate-limited like results.
+   **Used in 4.4 (draft adopted).**
 35. **Certificate templates (4.4):** fixed layouts with fields filled from the student
    record, or admin-editable template text? Draft: fixed layouts; admin can edit the
    body text per certificate before issuing.
+   **Used in 4.4 (draft adopted):** text drafted in English and Bangla from the record;
+   no edits after issuing (revoke and issue again).
 36. **Transfer certificate (4.4):** should issuing one mark the student as transferred /
    inactive? Draft: yes, with a confirmation step.
+   **Used in 4.4 (draft adopted):** status becomes "transferred"; revoking does not undo it.
 37. **Waiver rounding (5.1):** percent waivers can give fractions of a poisha. Draft: round
    the waiver *down* to the whole poisha (school never under-charges by rounding).
 38. **Stacking waivers (5.1):** a student with half-free and a sibling discount on the same

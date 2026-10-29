@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Mail, Phone } from "lucide-react";
 
 import { LanguageSwitch } from "@/components/site/language-switch";
+import { VerifyDialog } from "@/components/site/verify-dialog";
 import { FacebookIcon, YoutubeIcon } from "@/components/site/social-icons";
 import { Button } from "@/components/ui/button";
 import type { Locale } from "@/i18n/config";
@@ -62,7 +63,7 @@ export function TopBar({ lang, dict, settings }: Props) {
             </a>
           ))}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center justify-end gap-2">
           <LanguageSwitch
             current={lang}
             label={dict.common.changeLanguage}
@@ -74,6 +75,19 @@ export function TopBar({ lang, dict, settings }: Props) {
                 {dict.site.topBar.applyOnline}
               </Link>
             </Button>
+          ) : null}
+          {isAvailableRoute("/verify") ? (
+            <VerifyDialog
+              lang={lang}
+              text={{
+                button: dict.verify.button,
+                title: dict.verify.dialogTitle,
+                intro: dict.verify.intro,
+                reference: dict.verify.reference,
+                check: dict.verify.check,
+                close: dict.verify.close,
+              }}
+            />
           ) : null}
           <Button asChild size="sm" variant="secondary" className="h-7">
             <Link href={`/${lang}/login`}>{dict.site.topBar.login}</Link>

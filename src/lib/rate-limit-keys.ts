@@ -8,6 +8,8 @@ export const LIMITS = {
   resetPerEmail: { max: 3, windowSeconds: 60 * 60 },
   // A results day means many searches from one school lab, but no stepping through rolls.
   resultPerIp: { max: 60, windowSeconds: 10 * 60 },
+  // Certificate checks: offices verifying a few papers, not stepping through references.
+  verifyPerIp: { max: 60, windowSeconds: 10 * 60 },
 } as const;
 
 /**
