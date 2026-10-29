@@ -46,6 +46,8 @@ export type MarksEntry = {
   cq_full: number;
   mcq_full: number;
   practical_full: number;
+  /** Groups the subject is taught to in this class (null: every student). */
+  groups: (number | null)[];
 };
 
 /** Subject + section pairs the user may enter for this exam (teachers: their own). */
@@ -61,6 +63,10 @@ export async function marksEntries(
       "id, class_id, subject_id, cq_full, mcq_full, practical_full, subject:subjects(name_en, name_bn, sort_order), class:classes(level, name_en, name_bn, sections(id, name_en, name_bn))",
     )
     .eq("exam_id", examId);
+  const { data: taught } = await db
+    .from("class_subjects")
+    .select("class_id, subject_id, group_id")
+    .in("class_id", [...new Set((subjects ?? []).map((s) => s.class_id))]);
   let allowed: Set<string> | null = null;
   if (!isAdmin(user)) {
     const { data: staff } = await db
@@ -103,6 +109,12 @@ export async function marksEntries(
             cq_full: es.cq_full,
             mcq_full: es.mcq_full,
             practical_full: es.practical_full,
+            groups: (taught ?? [])
+              .filter(
+                (t) =>
+                  t.class_id === es.class_id && t.subject_id === es.subject_id,
+              )
+              .map((t) => t.group_id),
             order: [cls.level, s.name_en, sub.sort_order] as const,
           };
         });

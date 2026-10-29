@@ -29,8 +29,18 @@ export async function loadSheet(
   if (!section || !frame.session)
     return { frame, sections, section, month, sheet: null };
   const dates = monthDates(month);
+  // The class list of the session the month belongs to (last year's months show last
+  // year's students), falling back to the current session.
+  const { data: monthSession } = await db
+    .from("academic_sessions")
+    .select("id")
+    .lte("starts_on", dates.at(-1)!)
+    .gte("ends_on", dates[0]!)
+    .order("starts_on", { ascending: false })
+    .limit(1)
+    .maybeSingle();
   const [roster, marks] = await Promise.all([
-    sectionRoster(db, frame.session.id, section.id, lang),
+    sectionRoster(db, monthSession?.id ?? frame.session.id, section.id, lang),
     sectionMarks(db, section.id, dates[0]!, dates.at(-1)!),
   ]);
   const sheet = buildSheet(

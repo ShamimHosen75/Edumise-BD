@@ -10,6 +10,7 @@ import { getDictionary } from "@/i18n/get-dictionary";
 import { isAdmin, sectionRoster } from "@/lib/attendance-data";
 import { requireRole } from "@/lib/auth/session";
 import { examsMessages } from "@/lib/exams-messages";
+import { takesSubject } from "@/lib/marks";
 import { marksEntries, marksExams, savedMarks } from "@/lib/marks-data";
 import { createClient } from "@/lib/supabase/server";
 
@@ -48,7 +49,12 @@ export default async function MarksPage({ params, searchParams }: Props) {
       .select("id")
       .eq("is_current", true)
       .single();
-    const roster = await sectionRoster(db, session!.id, entry.sectionId, lang);
+    // Only students who take the subject (their group's subjects) and are still here.
+    const roster = (
+      await sectionRoster(db, session!.id, entry.sectionId, lang, {
+        current: true,
+      })
+    ).filter((r) => takesSubject(entry.groups, r.groupId));
     const { marks, lockedAt } = await savedMarks(
       db,
       entry.examSubjectId,

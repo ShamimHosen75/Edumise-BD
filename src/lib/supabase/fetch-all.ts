@@ -19,7 +19,8 @@ export async function fetchAll<T>(
     const { data, error } = await page(from, from + PAGE_SIZE - 1);
     if (error) throw new Error(error.message);
     rows.push(...(data ?? []));
-    if ((data ?? []).length < PAGE_SIZE) break;
+    if ((data ?? []).length < PAGE_SIZE) return rows;
   }
-  return rows;
+  // Never return a silently shortened list (e.g. attendance % from part of the rows).
+  throw new Error(`More than ${max} rows: narrow the query`);
 }

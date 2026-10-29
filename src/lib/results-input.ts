@@ -1,6 +1,6 @@
 import "server-only";
 
-import { schoolDays, summarize, type Holiday } from "@/lib/attendance";
+import { attendancePercent } from "@/lib/attendance";
 import { parseScale } from "@/lib/grading";
 import type { MarkRow } from "@/lib/marks";
 import { dhakaToday } from "@/lib/people";
@@ -37,9 +37,8 @@ export async function loadExamInput(
     { data: subjects },
     { data: taught },
     { data: sections },
-    { data: holidays },
   ] = await Promise.all([
-    db.from("school_settings").select("grading, working_days").maybeSingle(),
+    db.from("school_settings").select("grading").maybeSingle(),
     db
       .from("exam_subjects")
       .select(
@@ -55,7 +54,6 @@ export async function loadExamInput(
       .select("id, class_id, name_en")
       .in("class_id", classIds)
       .order("name_en"),
-    db.from("holidays").select("starts_on, ends_on"),
   ]);
   const papers: NamedPaper[] = (subjects ?? []).map((es) => {
     const s = es.subject as unknown as {
@@ -90,41 +88,64 @@ export async function loadExamInput(
   });
   const sectionList = sections ?? [];
   const sectionIds = sectionList.map((s) => s.id);
-  const order = (id: number) => {
-    const s = sectionList.find((x) => x.id === id)!;
-    return sectionList.filter((x) => x.class_id === s.class_id).indexOf(s) + 1;
-  };
-  const enrolled = sectionIds.length
-    ? await fetchAll((a, b) =>
-        db
-          .from("enrollments")
-          .select("student_id, section_id, roll, group_id, fourth_subject_id")
-          .eq("session_id", session.id)
-          .in("section_id", sectionIds)
-          .order("id")
-          .range(a, b),
-      )
-    : [];
+  const classOf = new Map(sectionList.map((s) => [s.id, s.class_id]));
+  // A..Z within each class, to break equal rolls across sections.
+  const order = new Map<number, number>();
+  for (const s of sectionList)
+    order.set(
+      s.id,
+      sectionList.filter((x) => x.class_id === s.class_id).indexOf(s) + 1,
+    );
+  const ids = papers.map((p) => p.examSubjectId);
+  // Attendance from the start of the session to the end of the exam (or today).
+  const today = dhakaToday();
+  const end = [exam.ends_on ?? today, today, session.ends_on].sort()[0]!;
+  const [enrolled, markRows, counts] = await Promise.all([
+    sectionIds.length
+      ? fetchAll((a, b) =>
+          db
+            .from("enrollments")
+            .select(
+              "student_id, section_id, roll, group_id, fourth_subject_id, student:students!inner(status)",
+            )
+            .eq("session_id", session.id)
+            .in("section_id", sectionIds)
+            // Students who left (transfer certificate) or are inactive get no result.
+            .not("student.status", "in", "(transferred,inactive)")
+            .order("id")
+            .range(a, b),
+        )
+      : [],
+    ids.length
+      ? fetchAll((a, b) =>
+          db
+            .from("marks")
+            .select(
+              "exam_subject_id, student_id, cq, mcq, practical, is_absent",
+            )
+            .in("exam_subject_id", ids)
+            .order("id")
+            .range(a, b),
+        )
+      : [],
+    sectionIds.length
+      ? db.rpc("attendance_counts", {
+          p_section_ids: sectionIds,
+          p_from: session.starts_on,
+          p_to: end,
+        })
+      : { data: [], error: null },
+  ]);
+  if (counts.error) throw new Error(counts.error.message);
   const students: Sitting[] = enrolled.map((e) => ({
     studentId: e.student_id,
-    classId: sectionList.find((s) => s.id === e.section_id)!.class_id,
+    classId: classOf.get(e.section_id)!,
     sectionId: e.section_id,
-    sectionOrder: order(e.section_id),
+    sectionOrder: order.get(e.section_id)!,
     roll: e.roll,
     groupId: e.group_id,
     fourthSubjectId: e.fourth_subject_id,
   }));
-  const ids = papers.map((p) => p.examSubjectId);
-  const markRows = ids.length
-    ? await fetchAll((a, b) =>
-        db
-          .from("marks")
-          .select("exam_subject_id, student_id, cq, mcq, practical, is_absent")
-          .in("exam_subject_id", ids)
-          .order("id")
-          .range(a, b),
-      )
-    : [];
   const marks = new Map<number, Map<number, Marks>>();
   for (const m of markRows) {
     const per = marks.get(m.student_id) ?? new Map<number, Marks>();
@@ -136,41 +157,12 @@ export async function loadExamInput(
     });
     marks.set(m.student_id, per);
   }
-  // Attendance from the start of the session to the end of the exam (or today).
-  const today = dhakaToday();
-  const end = [exam.ends_on ?? today, today, session.ends_on].sort()[0]!;
-  const days = schoolDays(
-    session.starts_on,
-    end,
-    settings?.working_days ?? [6, 0, 1, 2, 3, 4],
-    (holidays ?? []).map((h): Holiday => ({
-      start: h.starts_on,
-      end: h.ends_on,
-    })),
-  );
-  const att = enrolled.length
-    ? await fetchAll((a, b) =>
-        db
-          .from("attendance")
-          .select("student_id, date, status")
-          .in("section_id", sectionIds)
-          .gte("date", session.starts_on)
-          .lte("date", end)
-          .order("id")
-          .range(a, b),
-      )
-    : [];
-  const byStudent = new Map<
-    number,
-    { date: string; status: (typeof att)[number]["status"] }[]
-  >();
-  for (const a of att)
-    byStudent.set(a.student_id, [...(byStudent.get(a.student_id) ?? []), a]);
+  const byStudent = new Map((counts.data ?? []).map((c) => [c.student_id, c]));
   const attendance = new Map(
-    students.map((s) => [
-      s.studentId,
-      summarize(byStudent.get(s.studentId) ?? [], days).percent,
-    ]),
+    students.map((s) => {
+      const c = byStudent.get(s.studentId);
+      return [s.studentId, c ? attendancePercent(c) : null] as const;
+    }),
   );
   return {
     status: exam.status,

@@ -9,13 +9,12 @@ import {
   rankResults,
   round2,
   studentResult,
-  studentSubjects,
-  type ExamPaper,
   type PaperInput,
   type SubjectGrade,
   type SubjectInput,
   type SubjectRole,
 } from "@/lib/grading";
+import { studentSubjects, type ExamPaper } from "@/lib/grading-subjects";
 
 const S = parseScale(DEFAULT_SCALE);
 

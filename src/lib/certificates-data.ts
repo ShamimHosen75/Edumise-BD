@@ -10,6 +10,7 @@ import {
   type TemplateText,
 } from "@/lib/certificates";
 import { formatDate, localizeDigits, pickLocalized } from "@/lib/format";
+import { fetchAll } from "@/lib/supabase/fetch-all";
 import type { createClient } from "@/lib/supabase/server";
 
 type Client = Awaited<ReturnType<typeof createClient>>;
@@ -39,15 +40,29 @@ const toRow = (r: Record<string, unknown>): CertificateRow => ({
     (r.student as { student_code: string } | null)?.student_code ?? null,
 });
 
-/** Issued certificates, newest first (admins; RLS). */
-export async function listCertificates(db: Client): Promise<CertificateRow[]> {
-  const { data, error } = await db
-    .from("certificates")
-    .select(SELECT)
-    .order("id", { ascending: false })
-    .limit(1000);
-  if (error) throw new Error(error.message);
-  return (data ?? []).map((r) => toRow(r as Record<string, unknown>));
+export type CertificateListRow = Omit<
+  CertificateRow,
+  "body_en" | "body_bn" | "revoke_reason"
+>;
+
+/** Issued certificates, newest first (admins; RLS). The text is not loaded. */
+export async function listCertificates(
+  db: Client,
+): Promise<CertificateListRow[]> {
+  const rows = await fetchAll((a, b) =>
+    db
+      .from("certificates")
+      .select(
+        "id, reference, type, student_id, student_name_en, student_name_bn, issued_on, revoked_at, student:students(student_code)",
+      )
+      .order("id", { ascending: false })
+      .range(a, b),
+  );
+  return rows.map((r) => ({
+    ...(r as unknown as Omit<CertificateListRow, "studentCode">),
+    studentCode:
+      (r.student as { student_code: string } | null)?.student_code ?? null,
+  }));
 }
 
 export async function certificateById(

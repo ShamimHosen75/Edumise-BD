@@ -13,7 +13,7 @@ import { examCompletion, examSubjects, sessionExams } from "@/lib/exams-data";
 import { examsMessages } from "@/lib/exams-messages";
 import { formatDate, pickLocalized } from "@/lib/format";
 import { resultSummary } from "@/lib/results-build";
-import { examResults, resultsState } from "@/lib/results-data";
+import { examResultOverview, resultsState } from "@/lib/results-data";
 import { createClient } from "@/lib/supabase/server";
 
 type Props = {
@@ -45,22 +45,15 @@ export default async function ExamPage({ params, searchParams }: Props) {
 
   let body: React.ReactNode;
   if (tab === "results") {
-    const [rows, state] = await Promise.all([
-      examResults(db, id),
+    const [overview, state] = await Promise.all([
+      examResultOverview(db, id),
       resultsState(db, id),
     ]);
-    const sections = [
-      ...new Map(
-        rows.map((r) => [
-          r.sectionId,
-          {
-            id: r.sectionId,
-            name: `${pickLocalized(r, "class", lang)} ${pickLocalized(r, "section", lang)}`,
-            students: rows.filter((x) => x.sectionId === r.sectionId).length,
-          },
-        ]),
-      ).values(),
-    ];
+    const sections = overview.sections.map((s) => ({
+      id: s.sectionId,
+      name: `${pickLocalized(s, "class", lang)} ${pickLocalized(s, "name", lang)}`,
+      students: s.students,
+    }));
     body = (
       <ExamResults
         lang={lang}
@@ -68,7 +61,7 @@ export default async function ExamPage({ params, searchParams }: Props) {
         status={exam.status}
         processedAt={state.processedAt}
         current={state.current}
-        summary={resultSummary(rows)}
+        summary={resultSummary(overview.rows)}
         sections={sections}
         messages={messages}
       />

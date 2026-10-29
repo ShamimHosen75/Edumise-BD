@@ -2,7 +2,7 @@ import "server-only";
 
 import type { Locale } from "@/i18n/config";
 import { pickLocalized } from "@/lib/format";
-import { isEntered, type MarkRow } from "@/lib/marks";
+import { isComplete, takesSubject } from "@/lib/marks";
 import { fetchAll } from "@/lib/supabase/fetch-all";
 import type { createClient } from "@/lib/supabase/server";
 
@@ -130,51 +130,76 @@ export async function examCompletion(
     .eq("id", examId)
     .single();
   const ids = subjects.map((s) => s.id);
-  const [{ data: sections }, enrolled, marks, { data: locks }] =
-    await Promise.all([
+  const classIds = [...new Set(subjects.map((s) => s.class_id))];
+  const [
+    { data: sections },
+    { data: taught },
+    enrolled,
+    marks,
+    { data: locks },
+  ] = await Promise.all([
+    db
+      .from("sections")
+      .select("id, class_id, name_en, name_bn")
+      .in("class_id", classIds),
+    db
+      .from("class_subjects")
+      .select("class_id, subject_id, group_id")
+      .in("class_id", classIds),
+    // Students still at school (as on the marks page and in "Submit & lock").
+    fetchAll((a, b) =>
       db
-        .from("sections")
-        .select("id, class_id, name_en, name_bn")
-        .in("class_id", [...new Set(subjects.map((s) => s.class_id))]),
-      fetchAll((a, b) =>
-        db
-          .from("enrollments")
-          .select("section_id")
-          .eq("session_id", exam!.session_id)
-          .order("id")
-          .range(a, b),
-      ),
-      fetchAll((a, b) =>
-        db
-          .from("marks")
-          .select(
-            "exam_subject_id, student_id, cq, mcq, practical, is_absent, student:students!inner(enrollments!inner(section_id, session_id))",
-          )
-          .in("exam_subject_id", ids)
-          .eq("student.enrollments.session_id", exam!.session_id)
-          .order("id")
-          .range(a, b),
-      ),
+        .from("enrollments")
+        .select(
+          "student_id, section_id, group_id, student:students!inner(status)",
+        )
+        .eq("session_id", exam!.session_id)
+        .not("student.status", "in", "(transferred,inactive)")
+        .order("id")
+        .range(a, b),
+    ),
+    fetchAll((a, b) =>
       db
-        .from("mark_locks")
-        .select("exam_subject_id, section_id, locked_at")
-        .in("exam_subject_id", ids),
-    ]);
-  const count = new Map<number, number>();
-  for (const e of enrolled)
-    count.set(e.section_id, (count.get(e.section_id) ?? 0) + 1);
+        .from("marks")
+        .select("exam_subject_id, student_id, cq, mcq, practical, is_absent")
+        .in("exam_subject_id", ids)
+        .order("id")
+        .range(a, b),
+    ),
+    db
+      .from("mark_locks")
+      .select("exam_subject_id, section_id, locked_at")
+      .in("exam_subject_id", ids),
+  ]);
+  const lockAt = new Map(
+    (locks ?? []).map((l) => [
+      `${l.exam_subject_id}:${l.section_id}`,
+      l.locked_at,
+    ]),
+  );
+  const markOf = new Map(
+    marks.map((m) => [`${m.exam_subject_id}:${m.student_id}`, m]),
+  );
+  const count = new Map<string, number>();
   const entered = new Map<string, number>();
-  for (const m of marks) {
-    if (!isEntered(m as unknown as MarkRow)) continue;
-    const section = (
-      m.student as unknown as { enrollments: { section_id: number }[] }
-    ).enrollments[0]?.section_id;
-    const key = `${m.exam_subject_id}:${section}`;
-    entered.set(key, (entered.get(key) ?? 0) + 1);
+  for (const s of subjects) {
+    const groups = (taught ?? [])
+      .filter((t) => t.class_id === s.class_id && t.subject_id === s.subject_id)
+      .map((t) => t.group_id);
+    for (const e of enrolled) {
+      if (!takesSubject(groups, e.group_id)) continue;
+      const key = `${s.id}:${e.section_id}`;
+      count.set(key, (count.get(key) ?? 0) + 1);
+      const m = markOf.get(`${s.id}:${e.student_id}`);
+      if (m && isComplete(m, s)) entered.set(key, (entered.get(key) ?? 0) + 1);
+    }
   }
   return subjects.flatMap((s) =>
     (sections ?? [])
-      .filter((sec) => sec.class_id === s.class_id && count.get(sec.id))
+      // Sections where nobody takes the subject (another group's subject) are left out.
+      .filter(
+        (sec) => sec.class_id === s.class_id && count.get(`${s.id}:${sec.id}`),
+      )
       .map((sec) => {
         const key = `${s.id}:${sec.id}`;
         return {
@@ -185,12 +210,9 @@ export async function examCompletion(
           subject: s.subject,
           level: s.level,
           sortOrder: s.sortOrder,
-          students: count.get(sec.id) ?? 0,
+          students: count.get(key) ?? 0,
           entered: entered.get(key) ?? 0,
-          lockedAt:
-            (locks ?? []).find(
-              (l) => l.exam_subject_id === s.id && l.section_id === sec.id,
-            )?.locked_at ?? null,
+          lockedAt: lockAt.get(key) ?? null,
         };
       }),
   );

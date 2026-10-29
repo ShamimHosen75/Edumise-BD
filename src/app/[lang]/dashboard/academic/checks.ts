@@ -42,6 +42,14 @@ export async function checkAcademicSave(
   }
   if (entity === "exam-subjects") {
     const examId = Number(row.exam_id);
+    // Published results are a snapshot of these settings: no changes after publishing.
+    const { data: exam } = await db
+      .from("exams")
+      .select("status")
+      .eq("id", examId)
+      .maybeSingle();
+    if (exam?.status === "published")
+      return { ok: false, error: "errors.examPublished" };
     if (id !== null) {
       const { data: current } = await db
         .from("exam_subjects")
@@ -56,6 +64,15 @@ export async function checkAcademicSave(
         current.subject_id !== Number(row.subject_id)
       )
         return { ok: false, error: "errors.notAllowed" };
+      // Saved marks must still fit the full marks (the database refuses it too).
+      const { count: above } = await db
+        .from("marks")
+        .select("id", { count: "exact", head: true })
+        .eq("exam_subject_id", id)
+        .or(
+          `cq.gt.${Number(row.cq_full)},mcq.gt.${Number(row.mcq_full)},practical.gt.${Number(row.practical_full)}`,
+        );
+      if (above) return { ok: false, error: "errors.belowSavedMarks" };
     }
     const [{ count: sits }, { count: taught }] = await Promise.all([
       db

@@ -12,7 +12,7 @@ import {
   type SortingState,
 } from "@tanstack/react-table";
 import { ArrowDown, ArrowUp, ArrowUpDown, Download } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -186,7 +186,8 @@ export function DataTable<T>({
   };
 
   const filterColumns = columns.filter((c) => c.filter);
-  const idBase = title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  // Unique per table, even for Bangla titles or two tables with the same title.
+  const idBase = `table${useId().replace(/:/g, "")}`;
 
   return (
     <div className="flex flex-col gap-4">

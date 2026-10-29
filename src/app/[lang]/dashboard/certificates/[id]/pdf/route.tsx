@@ -39,6 +39,11 @@ export async function GET(_request: Request, { params }: Context) {
           : null,
         qr: link.qr,
         verifyText: dict.certificates.verifyHint.replace("{url}", link.url),
+        labels: {
+          reference: dict.certificates.reference,
+          date: dict.certificates.date,
+          issuer: dict.certificates.issuer,
+        },
       }}
     />,
   );

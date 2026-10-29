@@ -101,6 +101,15 @@ export async function deleteExam(
 ): Promise<ActionResult> {
   assertId(id);
   const db = await requireAdmin(lang);
+  // An exam with marks is not deleted by accident (its marks and results would go too).
+  const { count } = await db
+    .from("marks")
+    .select("id, exam_subject:exam_subjects!inner(exam_id)", {
+      count: "exact",
+      head: true,
+    })
+    .eq("exam_subject.exam_id", id);
+  if (count) return { ok: false, error: "errors.inUse" };
   const { data, error } = await db
     .from("exams")
     .delete()

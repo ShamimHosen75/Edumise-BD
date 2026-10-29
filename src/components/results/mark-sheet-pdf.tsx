@@ -7,7 +7,11 @@ import {
   View,
 } from "@react-pdf/renderer";
 
+import type { Dictionary } from "@/i18n/get-dictionary";
 import type { MarkSheet } from "@/lib/results-data";
+
+/** Labels from the English dictionary (results.*, plus the student ID label). */
+export type PdfLabels = Dictionary["results"] & { studentId: string };
 
 // English only: the built-in PDF fonts have no Bangla letters (see the ID card). Bangla
 // mark sheets are printed from the web page.
@@ -64,26 +68,39 @@ const s = StyleSheet.create({
 const num = (v: number | null) => (v === null ? "-" : String(v));
 const gp = (v: number) => v.toFixed(2);
 
-function Sheet({ sheet, school }: { sheet: PdfSheet; school: Header }) {
+function Sheet({
+  sheet,
+  school,
+  t,
+}: {
+  sheet: PdfSheet;
+  school: Header;
+  t: PdfLabels;
+}) {
   const facts: [string, string][] = [
-    ["Name", sheet.name_en],
-    ["Student ID", sheet.studentCode],
-    ["Class", sheet.class_en],
-    ["Section", sheet.section_en],
-    ...(sheet.group_en ? [["Group", sheet.group_en] as [string, string]] : []),
-    ["Roll", String(sheet.roll)],
-    ["Session", sheet.session],
+    [t.name, sheet.name_en],
+    [t.studentId, sheet.studentCode],
+    [t.class, sheet.class_en],
+    [t.section, sheet.section_en],
+    ...(sheet.group_en ? [[t.group, sheet.group_en] as [string, string]] : []),
+    [t.roll, String(sheet.roll)],
+    [t.session, sheet.session],
   ];
   const summary: [string, string][] = [
-    ["Total", `${sheet.total} of ${sheet.full_total}`],
-    ["GPA", gp(sheet.gpa)],
-    ["GPA without 4th subject", gp(sheet.gpa_without_fourth)],
-    ["Grade", sheet.grade],
-    ["Result", sheet.passed ? "Passed" : "Failed"],
-    ["Position in section", String(sheet.section_position)],
-    ["Position in class", String(sheet.class_position)],
     [
-      "Attendance",
+      t.total,
+      t.totalOf
+        .replace("{total}", String(sheet.total))
+        .replace("{full}", String(sheet.full_total)),
+    ],
+    [t.gpa, gp(sheet.gpa)],
+    [t.gpaWithoutFourth, gp(sheet.gpa_without_fourth)],
+    [t.grade, sheet.grade],
+    [t.result, sheet.passed ? t.pass : t.fail],
+    [t.sectionPosition, String(sheet.section_position)],
+    [t.classPosition, String(sheet.class_position)],
+    [
+      t.attendance,
       sheet.attendance_percent === null ? "-" : `${sheet.attendance_percent}%`,
     ],
   ];
@@ -91,7 +108,9 @@ function Sheet({ sheet, school }: { sheet: PdfSheet; school: Header }) {
     <Page size="A4" style={s.page}>
       <Text style={s.school}>{school.name}</Text>
       {school.address ? <Text style={s.address}>{school.address}</Text> : null}
-      <Text style={s.title}>Mark sheet: {sheet.exam_en}</Text>
+      <Text style={s.title}>
+        {t.markSheet}: {sheet.exam_en}
+      </Text>
       <View style={s.info}>
         <View>
           {facts.map(([k, v]) => (
@@ -111,14 +130,20 @@ function Sheet({ sheet, school }: { sheet: PdfSheet; school: Header }) {
       </View>
       <View style={s.table}>
         <View style={[s.row, s.head]}>
-          <Text style={s.subject}>Subject</Text>
-          {["Full", "CQ", "MCQ", "Practical", "Marks", "Grade", "Point"].map(
-            (h) => (
-              <Text key={h} style={s.cell}>
-                {h}
-              </Text>
-            ),
-          )}
+          <Text style={s.subject}>{t.subject}</Text>
+          {[
+            t.fullMarks,
+            t.cq,
+            t.mcq,
+            t.practical,
+            t.obtained,
+            t.grade,
+            t.point,
+          ].map((h) => (
+            <Text key={h} style={s.cell}>
+              {h}
+            </Text>
+          ))}
         </View>
         {sheet.subjects.flatMap((sub) =>
           sub.papers.map((p, i) => (
@@ -129,11 +154,11 @@ function Sheet({ sheet, school }: { sheet: PdfSheet; school: Header }) {
             >
               <Text style={s.subject}>
                 {p.name_en}
-                {i === 0 && sub.role === "fourth" ? " (4th subject)" : ""}
-                {i === 0 && sub.role === "extra" ? " (not in GPA)" : ""}
+                {i === 0 && sub.role === "fourth" ? ` (${t.fourth})` : ""}
+                {i === 0 && sub.role === "extra" ? ` (${t.extra})` : ""}
               </Text>
               <Text style={s.cell}>{p.full}</Text>
-              <Text style={s.cell}>{p.absent ? "Absent" : num(p.cq)}</Text>
+              <Text style={s.cell}>{p.absent ? t.absent : num(p.cq)}</Text>
               <Text style={s.cell}>{p.absent ? "" : num(p.mcq)}</Text>
               <Text style={s.cell}>{p.absent ? "" : num(p.practical)}</Text>
               <Text style={s.cell}>{i === 0 ? String(sub.obtained) : ""}</Text>
@@ -152,7 +177,7 @@ function Sheet({ sheet, school }: { sheet: PdfSheet; school: Header }) {
         ))}
       </View>
       <View style={s.signs}>
-        {["Guardian", "Class teacher", "Head teacher"].map((who) => (
+        {[t.guardianSign, t.classTeacher, t.headTeacher].map((who) => (
           <Text key={who} style={s.sign}>
             {who}
           </Text>
@@ -168,14 +193,16 @@ type Header = { name: string; address: string };
 export function MarkSheetsPdf({
   sheets,
   school,
+  t,
 }: {
   sheets: PdfSheet[];
   school: Header;
+  t: PdfLabels;
 }) {
   return (
-    <Document title="Mark sheets" author={school.name}>
+    <Document title={t.markSheet} author={school.name}>
       {sheets.map((sheet) => (
-        <Sheet key={sheet.studentCode} sheet={sheet} school={school} />
+        <Sheet key={sheet.studentCode} sheet={sheet} school={school} t={t} />
       ))}
     </Document>
   );

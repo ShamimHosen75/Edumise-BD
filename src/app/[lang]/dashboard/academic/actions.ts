@@ -84,6 +84,14 @@ export async function deleteAcademic(
       .maybeSingle();
     if (data?.is_current) return { ok: false, error: "errors.inUse" };
   }
+  if (entity === "exam-subjects") {
+    // Deleting a subject would delete its marks and change published results.
+    const { count } = await supabase
+      .from("marks")
+      .select("id", { count: "exact", head: true })
+      .eq("exam_subject_id", id);
+    if (count) return { ok: false, error: "errors.inUse" };
+  }
   if (entity === "periods") {
     // Deleting a period would silently take its classes out of every routine.
     const { count } = await supabase

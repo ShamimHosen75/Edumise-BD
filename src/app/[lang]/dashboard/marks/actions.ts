@@ -66,12 +66,22 @@ export async function saveMarks(
     if (error) return { ok: false, error: "auth.unexpected" };
   }
   if (cleared.length) {
-    const { error } = await db
+    // RLS turns a blocked delete (subject submitted, exam closed) into "0 rows", not an
+    // error: compare with the marks that were there.
+    const { count: existing } = await db
+      .from("marks")
+      .select("id", { count: "exact", head: true })
+      .eq("exam_subject_id", exam_subject_id)
+      .in("student_id", cleared);
+    const { data: removed, error } = await db
       .from("marks")
       .delete()
       .eq("exam_subject_id", exam_subject_id)
-      .in("student_id", cleared);
+      .in("student_id", cleared)
+      .select("student_id");
     if (error) return { ok: false, error: "auth.unexpected" };
+    if ((removed ?? []).length < (existing ?? 0))
+      return { ok: false, error: "errors.marksLocked" };
   }
   return { ok: true, saved: filled.length + cleared.length, problems };
 }

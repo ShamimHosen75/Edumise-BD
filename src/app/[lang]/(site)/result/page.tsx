@@ -78,10 +78,14 @@ export default async function ResultPage({ params, searchParams }: Props) {
         errors[field] ??= t(dict, issue.message as TranslationKey);
       }
     } else if (
-      await hitRateLimit(
+      (await hitRateLimit(
         rateKey("result-ip", clientIp(await headers())),
         LIMITS.resultPerIp,
-      )
+      )) ||
+      (await hitRateLimit(
+        rateKey("result-ip-day", clientIp(await headers())),
+        LIMITS.resultPerIpDay,
+      ))
     ) {
       outcome = <Notice text={r.tooMany} />;
     } else {

@@ -61,7 +61,7 @@ export default async function TakeAttendancePage({
     body = <Notice text={a.closed} />;
   } else {
     const [roster, marks] = await Promise.all([
-      sectionRoster(db, frame.session.id, section.id, lang),
+      sectionRoster(db, frame.session.id, section.id, lang, { current: true }),
       sectionMarks(db, section.id, date, date),
     ]);
     const saved = Object.fromEntries(marks.map((m) => [m.studentId, m.status]));

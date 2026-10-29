@@ -20,6 +20,8 @@ export type CertificatePdfData = {
   revoked: string | null;
   qr: string;
   verifyText: string;
+  /** Labels from the English dictionary. */
+  labels: { reference: string; date: string; issuer: string };
 };
 
 const s = StyleSheet.create({
@@ -82,8 +84,12 @@ export function CertificatePdf({ data }: { data: CertificatePdfData }) {
         {data.address ? <Text style={s.address}>{data.address}</Text> : null}
         <Text style={s.title}>{data.title}</Text>
         <View style={s.meta}>
-          <Text>Reference: {data.reference}</Text>
-          <Text>Date: {data.date}</Text>
+          <Text>
+            {data.labels.reference}: {data.reference}
+          </Text>
+          <Text>
+            {data.labels.date}: {data.date}
+          </Text>
         </View>
         <Text style={s.body}>{data.body}</Text>
         <View style={s.foot}>
@@ -92,7 +98,7 @@ export function CertificatePdf({ data }: { data: CertificatePdfData }) {
             <Image style={s.qr} src={data.qr} />
             <Text style={s.small}>{data.verifyText}</Text>
           </View>
-          <Text style={s.sign}>Head teacher</Text>
+          <Text style={s.sign}>{data.labels.issuer}</Text>
         </View>
       </Page>
     </Document>

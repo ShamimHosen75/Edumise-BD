@@ -8,7 +8,7 @@ import { TabLinks } from "@/components/site/content/tab-links";
 import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { pickLocalized } from "@/lib/format";
-import { examResults } from "@/lib/results-data";
+import { examResultOverview, examResults } from "@/lib/results-data";
 import { getBranding } from "@/lib/school";
 import { createClient } from "@/lib/supabase/server";
 
@@ -34,20 +34,21 @@ export default async function TabulationPage({ params, searchParams }: Props) {
   const dict = await getDictionary(lang);
   const r = dict.results;
   const db = await createClient();
-  const [all, { name: school }] = await Promise.all([
-    examResults(db, id),
+  const [{ sections }, { name: school }] = await Promise.all([
+    examResultOverview(db, id),
     getBranding(lang, dict),
   ]);
-  if (!all.length) notFound();
-  const sections = [...new Map(all.map((x) => [x.sectionId, x])).values()];
+  if (!sections.length) notFound();
   const wanted = (await searchParams).section;
   const section =
     sections.find((s) => String(s.sectionId) === wanted) ?? sections[0]!;
-  const rows = all.filter((x) => x.sectionId === section.sectionId);
-  const label = (x: (typeof all)[number]) =>
-    `${pickLocalized(x, "class", lang)} ${pickLocalized(x, "section", lang)}`;
+  // Only this section's full rows (with every subject) are loaded.
+  const rows = await examResults(db, id, section.sectionId);
+  if (!rows.length) notFound();
+  const label = (x: (typeof sections)[number]) =>
+    `${pickLocalized(x, "class", lang)} ${pickLocalized(x, "name", lang)}`;
   const base = `/${lang}/dashboard/exams/${id}`;
-  const title = `${pickLocalized(section, "exam", lang)} · ${label(section)}`;
+  const title = `${pickLocalized(rows[0]!, "exam", lang)} · ${label(section)}`;
 
   return (
     <div className="print-landscape flex flex-col gap-4">

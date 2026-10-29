@@ -172,7 +172,7 @@ describe("buildResults", () => {
       marks,
       attendance: new Map(),
     });
-    expect(none).toEqual({ rows: [], missing: [] });
+    expect(none).toEqual({ rows: [], missing: [], needsFourth: [] });
   });
   it("produces rows the database function accepts", () => {
     expect(resultRowsSchema.safeParse(rows).success).toBe(true);

@@ -32,8 +32,7 @@ const select = "bg-background h-10 w-full rounded-md border px-3 text-sm";
 
 /**
  * Session → exam → class → section (→ group from Class 9) + roll. A GET form, so the
- * result has its own address and the page works without JavaScript (then every option
- * is listed).
+ * result has its own address; the dependent lists need JavaScript.
  */
 export function ResultSearch({
   action,

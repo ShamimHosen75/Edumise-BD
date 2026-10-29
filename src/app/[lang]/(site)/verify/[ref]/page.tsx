@@ -44,7 +44,12 @@ export default async function VerifyResultPage({ params }: Props) {
   if (!isLocale(lang)) notFound();
   const dict = await getDictionary(lang);
   const v = dict.verify;
-  const typed = decodeURIComponent(raw).slice(0, 40);
+  let typed: string;
+  try {
+    typed = decodeURIComponent(raw).slice(0, 40);
+  } catch {
+    typed = raw.slice(0, 40); // a malformed %-escape: shown as invalid, not an error
+  }
   const ref = normalizeReference(typed);
   if (ref && ref !== typed) redirect(`/${lang}/verify/${ref}`);
 

@@ -7,7 +7,7 @@ import { inflateRawSync } from "node:zlib";
 // crafted file (a "zip bomb") from using much memory.
 
 const MAX_FILE = 2 * 1024 * 1024;
-const MAX_PART = 20 * 1024 * 1024;
+const MAX_PART = 4 * 1024 * 1024;
 export const MAX_SHEET_ROWS = 3000;
 
 type Entry = { name: string; method: number; size: number; offset: number };
@@ -77,11 +77,44 @@ const decode = (s: string) =>
     )
     .replace(/&amp;/g, "&");
 
+/**
+ * Each <tag ...>inner</tag> (or <tag .../>) in order, found with indexOf so the time is
+ * linear: a crafted file with unclosed tags cannot make the scan quadratic.
+ */
+export function* elements(
+  xml: string,
+  tag: string,
+): Generator<{ attrs: string; inner: string }> {
+  const open = `<${tag}`;
+  const close = `</${tag}>`;
+  let at = 0;
+  for (;;) {
+    const start = xml.indexOf(open, at);
+    if (start < 0) return;
+    const next = xml[start + open.length];
+    // "<t" must not match "<tc" or "<text".
+    if (next !== ">" && next !== "/" && !/\s/.test(next ?? "")) {
+      at = start + open.length;
+      continue;
+    }
+    const gt = xml.indexOf(">", start);
+    if (gt < 0) return;
+    const head = xml.slice(start + open.length, gt);
+    if (head.endsWith("/")) {
+      yield { attrs: head.slice(0, -1), inner: "" };
+      at = gt + 1;
+      continue;
+    }
+    const end = xml.indexOf(close, gt);
+    if (end < 0) return;
+    yield { attrs: head, inner: xml.slice(gt + 1, end) };
+    at = end + close.length;
+  }
+}
+
 /** Text of all <t> elements inside an XML fragment (rich text runs joined). */
 const texts = (xml: string) =>
-  [...xml.matchAll(/<t(?:\s[^>]*)?>([\s\S]*?)<\/t>/g)]
-    .map((m) => decode(m[1]!))
-    .join("");
+  [...elements(xml, "t")].map((e) => decode(e.inner)).join("");
 
 /** "C12" -> column index 2. */
 function columnIndex(ref: string): number {
@@ -117,23 +150,19 @@ export function readXlsx(bytes: Uint8Array): string[][] {
   const sheet = read(buf, list, path);
   if (!sheet) throw new Error("no worksheet");
   const shared = [
-    ...(read(buf, list, "xl/sharedStrings.xml") ?? "").matchAll(
-      /<si>([\s\S]*?)<\/si>/g,
-    ),
-  ].map((m) => texts(m[1]!));
+    ...elements(read(buf, list, "xl/sharedStrings.xml") ?? "", "si"),
+  ].map((e) => texts(e.inner));
 
   const rows: string[][] = [];
-  for (const rowMatch of sheet.matchAll(/<row\b([^>]*)>([\s\S]*?)<\/row>/g)) {
+  for (const row of elements(sheet, "row")) {
     if (rows.length >= MAX_SHEET_ROWS + 1) break;
-    const rowNo = Number(
-      /\br="(\d+)"/.exec(rowMatch[1]!)?.[1] ?? rows.length + 1,
-    );
+    const rowNo = Number(/\br="(\d+)"/.exec(row.attrs)?.[1] ?? rows.length + 1);
+    // A row number from the file must not make us pad millions of empty rows.
+    if (!Number.isSafeInteger(rowNo) || rowNo > MAX_SHEET_ROWS + 1) break;
     const cells: string[] = [];
-    for (const c of rowMatch[2]!.matchAll(
-      /<c\b([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g,
-    )) {
-      const attrs = c[1]!;
-      const inner = c[2] ?? "";
+    for (const c of elements(row.inner, "c")) {
+      const attrs = c.attrs;
+      const inner = c.inner;
       const ref = /\br="([A-Z]+)\d+"/.exec(attrs)?.[1];
       const type = /\bt="([^"]+)"/.exec(attrs)?.[1] ?? "n";
       const v = /<v>([\s\S]*?)<\/v>/.exec(inner)?.[1];

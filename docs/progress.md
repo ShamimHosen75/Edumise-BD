@@ -19,8 +19,9 @@
 | 4.1 Student attendance | ✅ Done | See below |
 | 4.2 Exams + marks | ✅ Done | See below |
 | 4.3 Grading + results | ✅ Done | See below |
-| 4.4 Certificates | ✅ Done | See below; Phase 4 code review next |
-| 5.1 Fee setup + invoices | Not started | After the Phase 4 code review |
+| 4.4 Certificates | ✅ Done | See below |
+| Phase 4 code review | ✅ Done | `docs/code-review-phase-4.md` |
+| 5.1 Fee setup + invoices | Not started | Next |
 | 5.2 Collection + reports | Not started | Blocked on 5.1 |
 | 5.3 Payment gateway adapter | Not started | Blocked on 5.2 |
 | 6.1 Regression + traceability | Not started | Blocked on 5.3 |
@@ -858,4 +859,22 @@ Known issues:
 - Students and guardians do not see their certificates in the portal (not in this step).
 - The demo guardians are named "Guardian of …", so drafted texts read oddly for those
   students; real records give normal names.
+
+## Phase 4 code review ✅
+
+Report: `docs/code-review-phase-4.md` (7 security, 15 correctness, 6 performance, 4
+maintainability and 5 UX items; every security and correctness item fixed or noted).
+
+Checks after the fixes (run locally, 2026-10-30): `lint` ✅ · `typecheck` ✅ · `test` ✅ 457
+· `db:test` ✅ 28 files / 408 tests · `db lint` ✅ · types up to date ✅ · `build` ✅ ·
+`test:e2e` ✅ 227 passed, 5 skipped by design.
+
+Behaviour changes to know:
+- Students who left (transfer certificate) or are inactive no longer appear when taking
+  attendance or entering marks, and get no exam result. Past attendance sheets still show them.
+- Group subjects (Classes 9–10) list only the students of the groups that take them.
+- "Submit & lock" needs every part of every row (or "absent").
+- Exam subjects cannot change while results are published; a subject or exam with marks
+  cannot be deleted.
+- Before publication only the office and the class teacher can read a section's results.
 

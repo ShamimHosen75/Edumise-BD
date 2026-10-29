@@ -5,11 +5,14 @@ import {
   gradeSubject,
   rankResults,
   studentResult,
-  studentSubjects,
   type Band,
-  type ExamPaper,
 } from "@/lib/grading";
-import type { MarkRow } from "@/lib/marks";
+import {
+  needsFourthChoice,
+  studentSubjects,
+  type ExamPaper,
+} from "@/lib/grading-subjects";
+import { isComplete, type MarkRow } from "@/lib/marks";
 import type { ResultRow, SubjectSnapshot } from "@/lib/validation/results";
 
 export type NamedPaper = ExamPaper & {
@@ -45,19 +48,23 @@ export type Missing = { studentId: number; examSubjectId: number };
 export function buildResults(input: BuildInput): {
   rows: ResultRow[];
   missing: Missing[];
+  /** Students with several fourth-type subjects and none chosen on the enrolment. */
+  needsFourth: number[];
 } {
   const missing: Missing[] = [];
+  const needsFourth: number[] = [];
   const graded = input.students.flatMap((st) => {
     const papers = input.papers.filter((p) => p.classId === st.classId);
     const marks = input.marks.get(st.studentId) ?? new Map<number, Marks>();
     const subjects = studentSubjects(papers, st, marks);
     if (!subjects.length) return [];
+    if (needsFourthChoice(papers, st)) needsFourth.push(st.studentId);
     const grades = subjects.map((s) => gradeSubject(s, input.scale));
     for (const s of subjects)
       for (const p of s.papers)
         if (
           !marks.has(p.examSubjectId) ||
-          !entered(marks.get(p.examSubjectId)!)
+          !isComplete(marks.get(p.examSubjectId)!, p)
         )
           missing.push({
             studentId: st.studentId,
@@ -119,6 +126,7 @@ export function buildResults(input: BuildInput): {
 
   return {
     missing,
+    needsFourth,
     rows: graded.map(({ st, result, snapshot }) => ({
       student_id: st.studentId,
       total: result.total,
@@ -135,9 +143,6 @@ export function buildResults(input: BuildInput): {
     })),
   };
 }
-
-const entered = (m: Marks) =>
-  m.is_absent || m.cq !== null || m.mcq !== null || m.practical !== null;
 
 /** Summary for the results tab: students, passed, pass rate, GPA 5.00 count. */
 export function resultSummary(

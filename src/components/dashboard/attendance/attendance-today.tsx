@@ -40,8 +40,8 @@ export function AttendanceToday({
               <li key={c.classId} className="bg-muted/40 rounded-lg p-3">
                 <p className="text-sm font-medium">{c.name}</p>
                 <p className="text-2xl font-semibold">
-                  {c.marked
-                    ? `${localizeDigits(Math.round((c.attended / c.marked) * 100), lang)}%`
+                  {c.counted
+                    ? `${localizeDigits(Math.round((c.attended / c.counted) * 100), lang)}%`
                     : a.noPercent}
                 </p>
                 <p className="text-muted-foreground text-xs">

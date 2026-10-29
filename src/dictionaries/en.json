@@ -176,7 +176,9 @@
     "examClasses": "Choose at least one class.",
     "count": "Enter a whole number.",
     "paperGroup": "Use up to 20 letters, digits, - or _.",
-    "studentCode": "Enter the 10-digit student ID."
+    "studentCode": "Enter the 10-digit student ID.",
+    "examPublished": "Results of this exam are published: its subjects cannot change. Move the exam back to Review first.",
+    "belowSavedMarks": "Saved marks are above these full marks. Correct those marks first."
   },
   "forbidden": {
     "title": "You do not have access to this page",
@@ -1506,7 +1508,8 @@
     "noResults": "No published results yet.",
     "back": "Back",
     "failedCount": "Subjects failed",
-    "totalOf": "{total} of {full}"
+    "totalOf": "{total} of {full}",
+    "needsFourth": "{count} students in Classes 9–10 have several fourth subjects and none chosen. Choose it on their enrolment first."
   },
   "result": {
     "title": "Find a result",

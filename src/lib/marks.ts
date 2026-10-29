@@ -56,6 +56,30 @@ export function checkMarkRow(
 export const isEntered = (row: MarkRow) =>
   row.is_absent || PARTS.some((p) => row[p] !== null);
 
+/**
+ * Complete: absent, or every part in use has a mark. "Submit & lock" and results need
+ * complete rows; a part left empty would otherwise count as 0.
+ */
+export const isComplete = (row: Omit<MarkRow, "student_id">, es: FullMarks) =>
+  row.is_absent || partsInUse(es).every((p) => row[p] !== null);
+
+/** A student takes a class subject taught to everyone (null) or to the student's group. */
+export const takesSubject = (
+  groupIds: readonly (number | null)[],
+  groupId: number | null,
+) =>
+  groupIds.includes(null) || (groupId !== null && groupIds.includes(groupId));
+
+/**
+ * A mark read from a file: Excel stores 70.15 as 70.150000000000006, so numbers are
+ * rounded to 2 decimals before checking.
+ */
+export function readFileMark(text: string): number | null {
+  const v = toAsciiDigits(text).trim();
+  if (/^\d{1,3}\.\d{3,}$/.test(v)) return Math.round(Number(v) * 100) / 100;
+  return readMark(v);
+}
+
 /** Total of the parts (absent or nothing entered: null). */
 export function markTotal(row: MarkRow): number | null {
   if (!isEntered(row) || row.is_absent) return null;
@@ -102,9 +126,9 @@ export function readMarkRows(
     if (student) seen.add(student.studentId);
     const row: MarkRow = {
       student_id: student?.studentId ?? 0,
-      cq: readMark(get("cq")),
-      mcq: readMark(get("mcq")),
-      practical: readMark(get("practical")),
+      cq: readFileMark(get("cq")),
+      mcq: readFileMark(get("mcq")),
+      practical: readFileMark(get("practical")),
       is_absent: truthy(get("absent")),
     };
     const checked = checkMarkRow(row, es);

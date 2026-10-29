@@ -74,24 +74,37 @@ export async function attendanceFrame(db: Client) {
   };
 }
 
-export type RosterRow = { studentId: number; roll: number; name: string };
+export type RosterRow = {
+  studentId: number;
+  roll: number;
+  name: string;
+  groupId: number | null;
+};
 
-/** Students of a section in a session, by roll. */
+/**
+ * Students of a section in a session, by roll. `current` leaves out students who have
+ * left (transfer certificate) or are inactive: for taking attendance and marks, not for
+ * past records.
+ */
 export async function sectionRoster(
   db: Client,
   sessionId: number,
   sectionId: number,
   lang: Locale,
+  opts: { current?: boolean } = {},
 ): Promise<RosterRow[]> {
-  const rows = await fetchAll((from, to) =>
-    db
+  const rows = await fetchAll((from, to) => {
+    let q = db
       .from("enrollments")
-      .select("roll, student:students(id, full_name_en, full_name_bn)")
+      .select(
+        "roll, group_id, student:students!inner(id, full_name_en, full_name_bn, status)",
+      )
       .eq("session_id", sessionId)
-      .eq("section_id", sectionId)
-      .order("roll")
-      .range(from, to),
-  );
+      .eq("section_id", sectionId);
+    if (opts.current)
+      q = q.not("student.status", "in", "(transferred,inactive)");
+    return q.order("roll").range(from, to);
+  });
   return rows.map((r) => {
     const s = r.student as unknown as {
       id: number;
@@ -102,6 +115,7 @@ export async function sectionRoster(
       studentId: s.id,
       roll: r.roll,
       name: pickLocalized(s, "full_name", lang),
+      groupId: r.group_id,
     };
   });
 }
@@ -160,6 +174,8 @@ export type ClassToday = {
   name: string;
   enrolled: number;
   marked: number;
+  /** Marked students not on leave: the base of the percentage. */
+  counted: number;
   attended: number;
 };
 
@@ -200,6 +216,7 @@ export async function attendanceToday(db: Client, lang: Locale) {
       name: classes.find((c) => c.id === s.classId)?.name ?? s.name,
       enrolled: 0,
       marked: 0,
+      counted: 0,
       attended: 0,
     };
     byClass.set(s.classId, row);
@@ -212,7 +229,8 @@ export async function attendanceToday(db: Client, lang: Locale) {
   for (const m of marks) {
     const row = classOf(m.section_id);
     if (!row) continue;
-    if (m.status !== "leave") row.marked++;
+    row.marked++;
+    if (m.status !== "leave") row.counted++;
     if (m.status === "present" || m.status === "late") row.attended++;
   }
   const withStudents = new Set(enrolled.map((e) => e.section_id));

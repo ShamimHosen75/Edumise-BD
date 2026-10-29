@@ -58,10 +58,8 @@ export function MarksRow({
               full: n(full(p)),
             })}
             aria-invalid={problems[p] ? true : undefined}
-            title={
-              problems[p]
-                ? m(`problems.${problems[p]}`, { full: n(full(p)) })
-                : undefined
+            aria-describedby={
+              problems[p] ? `mark-${student.studentId}-${p}-error` : undefined
             }
             onChange={(e) =>
               onChange({
@@ -74,6 +72,16 @@ export function MarksRow({
               problems[p] && "border-destructive ring-destructive/30 ring-2",
             )}
           />
+          {/* Shown (and read out) under the box, not only as a red ring. */}
+          {problems[p] ? (
+            <span
+              id={`mark-${student.studentId}-${p}-error`}
+              role="alert"
+              className="text-destructive block max-w-24 pt-1 text-xs"
+            >
+              {m(`problems.${problems[p]}`, { full: n(full(p)) })}
+            </span>
+          ) : null}
         </td>
       ))}
       <td className={cell}>

@@ -19,7 +19,8 @@ export async function markSheetsPdf(
   rows: ResultRecord[],
   filename: string,
 ): Promise<Response> {
-  const school = await sheetHeader("en", await getDictionary("en"));
+  const dict = await getDictionary("en");
+  const school = await sheetHeader("en", dict);
   const sheets: PdfSheet[] = await Promise.all(
     rows.map(async (r) => {
       const file = r.photoPath
@@ -38,7 +39,11 @@ export async function markSheetsPdf(
     }),
   );
   const pdf = await renderToBuffer(
-    <MarkSheetsPdf sheets={sheets} school={school} />,
+    <MarkSheetsPdf
+      sheets={sheets}
+      school={school}
+      t={{ ...dict.results, studentId: dict.students.code }}
+    />,
   );
   return new Response(new Uint8Array(pdf), {
     headers: {

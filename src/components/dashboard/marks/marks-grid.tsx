@@ -25,7 +25,7 @@ import type { RosterRow } from "@/lib/attendance-data";
 import { formatDate, localizeDigits } from "@/lib/format";
 import {
   checkMarkRow,
-  isEntered,
+  isComplete,
   partsInUse,
   readMark,
   type MarkRow,
@@ -36,6 +36,11 @@ import type { MarksEntry } from "@/lib/marks-data";
 import { MarksRow, type Draft } from "./marks-row";
 
 const toText = (v: number | null) => (v === null ? "" : String(v));
+const same = (a: MarkRow, b: MarkRow) =>
+  a.is_absent === b.is_absent &&
+  a.cq === b.cq &&
+  a.mcq === b.mcq &&
+  a.practical === b.practical;
 
 /** One row per student: a box per part in use, "absent", and the total. Saves as you type. */
 export function MarksGrid({
@@ -119,9 +124,12 @@ export function MarksGrid({
         toast.error(tr(result.error));
         return false;
       }
+      // Only rows unchanged since they were sent are saved; a newer edit typed while
+      // the request was on its way stays dirty and is sent next.
       setDirty((cur) => {
         const next = new Set(cur);
-        for (const r of rows) next.delete(r.student_id);
+        for (const r of rows)
+          if (same(rowOf(r.student_id), r)) next.delete(r.student_id);
         return next;
       });
       setStatus("saved");
@@ -143,7 +151,7 @@ export function MarksGrid({
   };
 
   const rows = roster.map((r) => rowOf(r.studentId, drafts[r.studentId]));
-  const entered = rows.filter(isEntered).length;
+  const entered = rows.filter((r) => isComplete(r, entry)).length;
   const anyProblem = rows.some(
     (r) => Object.keys(checkMarkRow(r, entry)).length,
   );

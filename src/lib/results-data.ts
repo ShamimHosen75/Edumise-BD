@@ -181,37 +181,74 @@ export function readMarkSheet(json: unknown): MarkSheet | null {
   };
 }
 
-/** When results were last processed and whether marks changed since then. */
+/**
+ * When results were last processed and whether anything they depend on (marks, exam
+ * subjects, enrolments, the grading scale) changed since then. Same rule as the database's
+ * publish check (app.results_current).
+ */
 export async function resultsState(db: Client, examId: number) {
-  const [{ data: exam }, { data: mark }, { data: subject }] = await Promise.all(
-    [
-      db
-        .from("exams")
-        .select("results_processed_at")
-        .eq("id", examId)
-        .maybeSingle(),
-      db
-        .from("marks")
-        .select("updated_at, exam_subject:exam_subjects!inner(exam_id)")
-        .eq("exam_subject.exam_id", examId)
-        .order("updated_at", { ascending: false })
-        .limit(1),
-      db
-        .from("exam_subjects")
-        .select("updated_at")
-        .eq("exam_id", examId)
-        .order("updated_at", { ascending: false })
-        .limit(1),
-    ],
-  );
+  const { data: exam } = await db
+    .from("exams")
+    .select("results_processed_at, inputs_changed_at")
+    .eq("id", examId)
+    .maybeSingle();
   const processedAt = exam?.results_processed_at ?? null;
-  const latest = [mark?.[0]?.updated_at, subject?.[0]?.updated_at]
-    .filter((v): v is string => Boolean(v))
-    .map((v) => new Date(v).getTime());
+  const changedAt = exam?.inputs_changed_at ?? null;
   return {
     processedAt,
     current:
       processedAt !== null &&
-      latest.every((t) => t <= new Date(processedAt).getTime()),
+      (changedAt === null ||
+        new Date(changedAt).getTime() <= new Date(processedAt).getTime()),
+  };
+}
+
+export type ResultSection = {
+  sectionId: number;
+  level: number;
+  name_en: string;
+  name_bn: string;
+  class_en: string;
+  class_bn: string;
+  students: number;
+};
+
+/** The light view of an exam's results: pass/GPA per student and the sections. */
+export async function examResultOverview(db: Client, examId: number) {
+  const rows = await fetchAll((a, b) =>
+    db
+      .from("results")
+      .select(
+        "section_id, passed, gpa, section:sections(name_en, name_bn, class:classes(level, name_en, name_bn))",
+      )
+      .eq("exam_id", examId)
+      .order("id")
+      .range(a, b),
+  );
+  const sections = new Map<number, ResultSection>();
+  for (const r of rows) {
+    const s = r.section as unknown as {
+      name_en: string;
+      name_bn: string;
+      class: { level: number; name_en: string; name_bn: string };
+    };
+    const have = sections.get(r.section_id);
+    if (have) have.students++;
+    else
+      sections.set(r.section_id, {
+        sectionId: r.section_id,
+        level: s.class.level,
+        name_en: s.name_en,
+        name_bn: s.name_bn,
+        class_en: s.class.name_en,
+        class_bn: s.class.name_bn,
+        students: 1,
+      });
+  }
+  return {
+    rows: rows.map((r) => ({ passed: r.passed, gpa: Number(r.gpa) })),
+    sections: [...sections.values()].sort(
+      (a, b) => a.level - b.level || a.name_en.localeCompare(b.name_en),
+    ),
   };
 }

@@ -457,14 +457,14 @@ isOneToOne: false
                   ]
                 },"exams": {
                   Row: {
-                    "created_at": string,"ends_on": string | null,"id": number,"name_bn": string,"name_en": string,"published_at": string | null,"results_processed_at": string | null,"schedule_published": boolean,"session_id": number,"starts_on": string | null,"status": Database["public"]['Enums']["exam_status"],"updated_at": string
+                    "created_at": string,"ends_on": string | null,"id": number,"inputs_changed_at": string | null,"name_bn": string,"name_en": string,"published_at": string | null,"results_processed_at": string | null,"schedule_published": boolean,"session_id": number,"starts_on": string | null,"status": Database["public"]['Enums']["exam_status"],"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"ends_on"?: string | null,"id"?: never,"name_bn"?: string,"name_en": string,"published_at"?: string | null,"results_processed_at"?: string | null,"schedule_published"?: boolean,"session_id": number,"starts_on"?: string | null,"status"?: Database["public"]['Enums']["exam_status"],"updated_at"?: string
+                    "created_at"?: string,"ends_on"?: string | null,"id"?: never,"inputs_changed_at"?: string | null,"name_bn"?: string,"name_en": string,"published_at"?: string | null,"results_processed_at"?: string | null,"schedule_published"?: boolean,"session_id": number,"starts_on"?: string | null,"status"?: Database["public"]['Enums']["exam_status"],"updated_at"?: string
                   }
                   Update: {
-                    "created_at"?: string,"ends_on"?: string | null,"id"?: never,"name_bn"?: string,"name_en"?: string,"published_at"?: string | null,"results_processed_at"?: string | null,"schedule_published"?: boolean,"session_id"?: number,"starts_on"?: string | null,"status"?: Database["public"]['Enums']["exam_status"],"updated_at"?: string
+                    "created_at"?: string,"ends_on"?: string | null,"id"?: never,"inputs_changed_at"?: string | null,"name_bn"?: string,"name_en"?: string,"published_at"?: string | null,"results_processed_at"?: string | null,"schedule_published"?: boolean,"session_id"?: number,"starts_on"?: string | null,"status"?: Database["public"]['Enums']["exam_status"],"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -1339,6 +1339,11 @@ isOneToOne: false
               "guardian_id": number,"roll": number,"student_code": string,"student_id": number
             }[]
                            },
+"attendance_counts":
+{ Args: { "p_from": string,"p_section_ids": (number)[],"p_to": string }; Returns: {
+              "absent": number,"late": number,"on_leave": number,"present": number,"student_id": number
+            }[]
+                           },
 "class_allows_group":
 { Args: { "p_class_id": number }; Returns: boolean
                            },
@@ -1379,7 +1384,7 @@ isOneToOne: false
 { Args: { "p_id": number,"p_reason": string }; Returns: boolean
                            },
 "save_exam_results":
-{ Args: { "p_exam_id": number,"p_rows": Json }; Returns: number
+{ Args: { "p_as_of"?: string,"p_exam_id": number,"p_rows": Json }; Returns: number
                            },
 "save_section_routine":
 { Args: { "p_cells": Json,"p_section_id": number,"p_session_id": number }; Returns: number

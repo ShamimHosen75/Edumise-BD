@@ -85,7 +85,6 @@ export function summarize(
   const absent = count("absent");
   const late = count("late");
   const leave = count("leave");
-  const counted = present + absent + late;
   return {
     present,
     absent,
@@ -93,10 +92,20 @@ export function summarize(
     leave,
     unmarked: days.length - byDate.size,
     schoolDays: days.length,
-    percent: counted
-      ? Math.round(((present + late) / counted) * 1000) / 10
-      : null,
+    percent: attendancePercent({ present, absent, late }),
   };
+}
+
+/** (Present + Late) / (Present + Absent + Late), one decimal; null when nothing counted. */
+export function attendancePercent(c: {
+  present: number;
+  absent: number;
+  late: number;
+}): number | null {
+  const counted = c.present + c.absent + c.late;
+  return counted
+    ? Math.round(((c.present + c.late) / counted) * 1000) / 10
+    : null;
 }
 
 /**
