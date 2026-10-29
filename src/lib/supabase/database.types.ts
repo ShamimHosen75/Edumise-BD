@@ -691,14 +691,14 @@ isOneToOne: true
                   ]
                 },"invoice_items": {
                   Row: {
-                    "created_at": string,"fee_head_id": number,"gross": number,"id": number,"invoice_id": number,"net": number | null,"period_key": string,"student_id": number,"waiver": number
+                    "created_at": string,"fee_head_id": number,"gross": number,"id": number,"invoice_id": number,"is_fine": boolean,"net": number | null,"period_key": string,"student_id": number,"waiver": number
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"fee_head_id": number,"gross": number,"id"?: never,"invoice_id": number,"net"?: never,"period_key": string,"student_id": number,"waiver"?: number
+                    "created_at"?: string,"fee_head_id": number,"gross": number,"id"?: never,"invoice_id": number,"is_fine"?: boolean,"net"?: never,"period_key": string,"student_id": number,"waiver"?: number
                   }
                   Update: {
-                    "created_at"?: string,"fee_head_id"?: number,"gross"?: number,"id"?: never,"invoice_id"?: number,"net"?: never,"period_key"?: string,"student_id"?: number,"waiver"?: number
+                    "created_at"?: string,"fee_head_id"?: number,"gross"?: number,"id"?: never,"invoice_id"?: number,"is_fine"?: boolean,"net"?: never,"period_key"?: string,"student_id"?: number,"waiver"?: number
                   }
                   Relationships: [
                     {
@@ -929,6 +929,70 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"payment_allocations": {
+                  Row: {
+                    "amount": number,"id": number,"invoice_item_id": number,"payment_id": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount": number,"id"?: never,"invoice_item_id": number,"payment_id": number
+                  }
+                  Update: {
+                    "amount"?: number,"id"?: never,"invoice_item_id"?: number,"payment_id"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "payment_allocations_invoice_item_id_fkey"
+      columns: ["invoice_item_id"]
+isOneToOne: false
+      referencedRelation: "invoice_item_balances"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payment_allocations_invoice_item_id_fkey"
+      columns: ["invoice_item_id"]
+isOneToOne: false
+      referencedRelation: "invoice_items"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payment_allocations_payment_id_fkey"
+      columns: ["payment_id"]
+isOneToOne: false
+      referencedRelation: "payments"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"payments": {
+                  Row: {
+                    "amount": number,"cancel_reason": string | null,"cancelled_at": string | null,"cancelled_by": string | null,"collected_by": string | null,"collected_by_name": string,"created_at": string,"id": number,"method": Database["public"]['Enums']["payment_method"],"note": string,"paid_on": string,"receipt_no": string,"student_id": number,"txn_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount": number,"cancel_reason"?: string | null,"cancelled_at"?: string | null,"cancelled_by"?: string | null,"collected_by"?: string | null,"collected_by_name"?: string,"created_at"?: string,"id"?: never,"method": Database["public"]['Enums']["payment_method"],"note"?: string,"paid_on": string,"receipt_no": string,"student_id": number,"txn_id"?: string | null
+                  }
+                  Update: {
+                    "amount"?: number,"cancel_reason"?: string | null,"cancelled_at"?: string | null,"cancelled_by"?: string | null,"collected_by"?: string | null,"collected_by_name"?: string,"created_at"?: string,"id"?: never,"method"?: Database["public"]['Enums']["payment_method"],"note"?: string,"paid_on"?: string,"receipt_no"?: string,"student_id"?: number,"txn_id"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "payments_cancelled_by_fkey"
+      columns: ["cancelled_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payments_collected_by_fkey"
+      columns: ["collected_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payments_student_id_fkey"
+      columns: ["student_id"]
+isOneToOne: false
+      referencedRelation: "students"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"periods": {
                   Row: {
                     "created_at": string,"ends_at": string,"id": number,"is_break": boolean,"number": number,"starts_at": string
@@ -953,6 +1017,20 @@ isOneToOne: false
                   }
                   Update: {
                     "avatar_path"?: string | null,"created_at"?: string,"email"?: string | null,"full_name_bn"?: string,"full_name_en"?: string,"id"?: string,"is_active"?: boolean,"must_change_password"?: boolean,"phone"?: string | null,"role"?: Database["public"]['Enums']["app_role"] | null,"updated_at"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"receipt_counters": {
+                  Row: {
+                    "last_no": number,"year": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "last_no": number,"year": number
+                  }
+                  Update: {
+                    "last_no"?: number,"year"?: number
                   }
                   Relationships: [
                     
@@ -1346,7 +1424,27 @@ isOneToOne: false
                 }
           }
           Views: {
-            "public_staff": {
+            "invoice_item_balances": {
+                  Row: {
+                    "id": number,"invoice_id": number,"net": number | null,"outstanding": number | null,"paid": number | null,"student_id": number
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    {
+      foreignKeyName: "invoice_items_invoice_id_fkey"
+      columns: ["invoice_id"]
+isOneToOne: false
+      referencedRelation: "invoices"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "invoice_items_student_id_fkey"
+      columns: ["student_id"]
+isOneToOne: false
+      referencedRelation: "students"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"public_staff": {
                   Row: {
                     "bio_bn": string,"bio_en": string,"designation_bn": string,"designation_en": string,"designation_rank": number,"full_name_bn": string,"full_name_en": string,"id": number,"is_current": boolean | null,"joining_year": number | null,"photo_path": string | null,"qualification_bn": string,"qualification_en": string,"sort_order": number,"subject_bn": string,"subject_en": string
                   }
@@ -1371,6 +1469,9 @@ isOneToOne: false
 { Args: { "p_from": string,"p_section_ids": (number)[],"p_to": string }; Returns: {
               "absent": number,"late": number,"on_leave": number,"present": number,"student_id": number
             }[]
+                           },
+"cancel_payment":
+{ Args: { "p_id": number,"p_reason": string }; Returns: undefined
                            },
 "class_allows_group":
 { Args: { "p_class_id": number }; Returns: boolean
@@ -1414,6 +1515,9 @@ isOneToOne: false
 "record_audit":
 { Args: { "p_action": string,"p_details": Json,"p_entity": string,"p_entity_id": string }; Returns: undefined
                            },
+"record_payment":
+{ Args: { "p_amount": number,"p_item_ids": (number)[],"p_method": Database["public"]['Enums']["payment_method"],"p_note": string,"p_student_id": number,"p_txn_id": string }; Returns: Json
+                           },
 "revoke_certificate":
 { Args: { "p_id": number,"p_reason": string }; Returns: boolean
                            },
@@ -1440,7 +1544,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "admission_status": "submitted"|"under_review"|"test_scheduled"|"approved"|"rejected"|"waitlisted","app_role": "super_admin"|"admin"|"teacher"|"accountant"|"student"|"guardian","attendance_status": "present"|"absent"|"late"|"leave","blood_group": "A+"|"A-"|"B+"|"B-"|"AB+"|"AB-"|"O+"|"O-","exam_status": "draft"|"marks_entry"|"review"|"published","fee_frequency": "monthly"|"one_time","gender": "male"|"female"|"other","invoice_status": "unpaid"|"partial"|"paid"|"cancelled","link_placement": "quick"|"footer","notice_audience": "public"|"staff"|"class","notice_category": "general"|"exam"|"result"|"admission"|"holiday","religion": "islam"|"hinduism"|"buddhism"|"christianity"|"other","student_status": "active"|"inactive"|"transferred"|"graduated","subject_type": "compulsory"|"optional"|"fourth","waiver_kind": "percent"|"fixed"
+            "admission_status": "submitted"|"under_review"|"test_scheduled"|"approved"|"rejected"|"waitlisted","app_role": "super_admin"|"admin"|"teacher"|"accountant"|"student"|"guardian","attendance_status": "present"|"absent"|"late"|"leave","blood_group": "A+"|"A-"|"B+"|"B-"|"AB+"|"AB-"|"O+"|"O-","exam_status": "draft"|"marks_entry"|"review"|"published","fee_frequency": "monthly"|"one_time","gender": "male"|"female"|"other","invoice_status": "unpaid"|"partial"|"paid"|"cancelled","link_placement": "quick"|"footer","notice_audience": "public"|"staff"|"class","notice_category": "general"|"exam"|"result"|"admission"|"holiday","payment_method": "cash"|"bkash"|"nagad"|"rocket"|"bank","religion": "islam"|"hinduism"|"buddhism"|"christianity"|"other","student_status": "active"|"inactive"|"transferred"|"graduated","subject_type": "compulsory"|"optional"|"fourth","waiver_kind": "percent"|"fixed"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -1560,7 +1664,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "admission_status": ["submitted", "under_review", "test_scheduled", "approved", "rejected", "waitlisted"],"app_role": ["super_admin", "admin", "teacher", "accountant", "student", "guardian"],"attendance_status": ["present", "absent", "late", "leave"],"blood_group": ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],"exam_status": ["draft", "marks_entry", "review", "published"],"fee_frequency": ["monthly", "one_time"],"gender": ["male", "female", "other"],"invoice_status": ["unpaid", "partial", "paid", "cancelled"],"link_placement": ["quick", "footer"],"notice_audience": ["public", "staff", "class"],"notice_category": ["general", "exam", "result", "admission", "holiday"],"religion": ["islam", "hinduism", "buddhism", "christianity", "other"],"student_status": ["active", "inactive", "transferred", "graduated"],"subject_type": ["compulsory", "optional", "fourth"],"waiver_kind": ["percent", "fixed"]
+            "admission_status": ["submitted", "under_review", "test_scheduled", "approved", "rejected", "waitlisted"],"app_role": ["super_admin", "admin", "teacher", "accountant", "student", "guardian"],"attendance_status": ["present", "absent", "late", "leave"],"blood_group": ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],"exam_status": ["draft", "marks_entry", "review", "published"],"fee_frequency": ["monthly", "one_time"],"gender": ["male", "female", "other"],"invoice_status": ["unpaid", "partial", "paid", "cancelled"],"link_placement": ["quick", "footer"],"notice_audience": ["public", "staff", "class"],"notice_category": ["general", "exam", "result", "admission", "holiday"],"payment_method": ["cash", "bkash", "nagad", "rocket", "bank"],"religion": ["islam", "hinduism", "buddhism", "christianity", "other"],"student_status": ["active", "inactive", "transferred", "graduated"],"subject_type": ["compulsory", "optional", "fourth"],"waiver_kind": ["percent", "fixed"]
           }
         }
 } as const

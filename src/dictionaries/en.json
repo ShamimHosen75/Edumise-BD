@@ -218,7 +218,8 @@
       "myChildren": "My children",
       "childrenAttendance": "Attendance",
       "childrenResults": "Results",
-      "childrenFees": "Fees"
+      "childrenFees": "Fees",
+      "lastMonth": "Last month: {amount}"
     }
   },
   "settings": {
@@ -1696,6 +1697,8 @@
     "tabs": "Fee pages",
     "nav": {
       "invoices": "Invoices",
+      "collect": "Collect",
+      "reports": "Reports",
       "generate": "Make invoices",
       "structure": "Fee structure",
       "waivers": "Waivers",
@@ -1830,6 +1833,143 @@
       "dueDays": "Days to pay (default due date)",
       "save": "Save",
       "saved": "Saved."
+    },
+    "methods": {
+      "cash": "Cash",
+      "bkash": "bKash",
+      "nagad": "Nagad",
+      "rocket": "Rocket",
+      "bank": "Bank"
+    },
+    "collect": {
+      "title": "Collect fees",
+      "search": "Find a student",
+      "searchHint": "Student ID, roll number (this session) or name.",
+      "find": "Find",
+      "noStudents": "No student found.",
+      "nothingDue": "Nothing is due. All bills are paid.",
+      "recent": "Recent receipts",
+      "another": "Collect from another student",
+      "items": "What is due",
+      "pay": "Pay",
+      "payNamed": "Pay {item}",
+      "fineLive": "Late fine today; added when paid, paid with its invoice.",
+      "fineFrozen": "Late fine, paid with its invoice.",
+      "amount": "Amount received (Tk)",
+      "owed": "Ticked items: {amount}",
+      "method": "Paid by",
+      "txn": "Transaction or slip no. (optional)",
+      "txnRequired": "Transaction ID",
+      "note": "Note (optional)",
+      "goesTo": "This payment pays:",
+      "leftDue": "Still due on the ticked items after this: {amount}",
+      "save": "Save and print receipt",
+      "saving": "Saving…",
+      "saved": "Payment saved.",
+      "confirm": "Record a payment of {amount}?",
+      "errors": {
+        "noItems": "Tick at least one item to pay.",
+        "over": "This is more than the ticked items owe.",
+        "txn": "Use 4–40 letters, digits or dashes.",
+        "txnNeeded": "Enter the transaction ID for mobile banking.",
+        "txnUsed": "This transaction ID is already recorded.",
+        "changed": "The bills changed meanwhile. Check them and try again."
+      }
+    },
+    "receipt": {
+      "title": "Money receipt",
+      "back": "Back",
+      "pdf": "Download PDF (English)",
+      "receiptNo": "Receipt no.",
+      "date": "Date",
+      "method": "Paid by",
+      "txn": "Txn",
+      "collectedBy": "Received by",
+      "note": "Note",
+      "lines": "Paid for",
+      "amount": "Amount",
+      "total": "Total received",
+      "dueNow": "Still due on these bills",
+      "inWords": "In words",
+      "signature": "Signature of the receiver",
+      "qr": "Receipt check code",
+      "cancelled": "CANCELLED",
+      "cancel": "Cancel payment",
+      "cancelTitle": "Cancel receipt {no}?",
+      "cancelHint": "The receipt keeps its number and is marked cancelled; the invoices owe this money again. A late fine already added stays.",
+      "cancelConfirm": "Cancel payment",
+      "cancelledDone": "Payment cancelled.",
+      "reason": "Reason",
+      "errors": {
+        "reason": "Give a reason (at least 3 characters).",
+        "alreadyCancelled": "This payment is already cancelled."
+      }
+    },
+    "portal": {
+      "title": "Fees",
+      "due": "Due now: {amount}",
+      "allPaid": "Nothing due. Thank you!",
+      "plusFine": "+ late fine {amount} today",
+      "noInvoices": "No bills yet.",
+      "receipts": "Receipts",
+      "noReceipts": "No payments yet."
+    },
+    "reports": {
+      "title": "Reports",
+      "filters": "Report filters",
+      "show": "Show",
+      "excel": "Download Excel",
+      "pdf": "Download PDF (English)",
+      "empty": "Nothing to show.",
+      "total": "Total",
+      "count": "Count",
+      "amount": "Amount",
+      "receiptNo": "Receipt",
+      "student": "Student",
+      "studentId": "Student ID",
+      "method": "Paid by",
+      "collector": "Received by",
+      "status": "Status",
+      "head": "Fee",
+      "class": "Class",
+      "section": "Section",
+      "anySection": "Any section",
+      "roll": "Roll",
+      "phone": "Guardian phone",
+      "invoices": "Bills",
+      "due": "Due",
+      "date": "Date",
+      "from": "From",
+      "to": "To",
+      "month": "Month (optional)",
+      "range": "{from} to {to}",
+      "daily": {
+        "title": "Daily collection",
+        "receipts": "Receipts",
+        "byMethod": "By payment method",
+        "byCollector": "By receiver"
+      },
+      "dues": {
+        "title": "Dues",
+        "list": "Students with dues (late fine as of today)"
+      },
+      "income": {
+        "title": "Income by fee",
+        "byHead": "By fee head"
+      },
+      "ledger": {
+        "title": "Student ledger",
+        "entries": "Bills and payments",
+        "invoice": "Bill",
+        "receipt": "Payment",
+        "kind": "Entry",
+        "ref": "Number",
+        "debit": "Billed",
+        "credit": "Paid",
+        "balance": "Balance",
+        "pick": "Enter a student ID to see the ledger.",
+        "notFound": "No student with this ID."
+      }
     }
   }
 }

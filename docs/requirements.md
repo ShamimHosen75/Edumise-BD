@@ -588,11 +588,14 @@ Record before/after scores in docs/qa-report.md.
 40. **Allocation (5.2):** "select items" and "allocate to oldest first" together. Draft: the
    accountant ticks items; a partial amount is spread over the ticked items oldest due
    date first, fine items before the fee itself.
+   **Used in 5.2 (draft adopted):** a late fine is always paid with its invoice's items.
 41. **Cancelled payments (5.2):** cancelling restores the invoice to unpaid/partial and
    keeps the receipt number (marked CANCELLED on reprint). Receipt numbers are sequential
    per year (`RCP-2026-000123`) since receipts are not public. OK?
+   **Used in 5.2 (draft adopted):** cancelling is admin only; a frozen late fine stays.
 42. **Mobile banking txn ID (5.2):** unique per method (bKash and Nagad IDs could clash)?
    Draft: unique on (method, txn_id).
+   **Used in 5.2 (draft adopted):** among payments that are not cancelled.
 43. **Requirement catalogue (6.1):** 6.1 traces "every requirement ID" and covers "every M
    and S requirement" (MoSCoW priority). The steps cite IDs (WEB-01…16, NOT-01, ADM-01…08,
    AUTH-04, RTN-01/02, ATT-01…03, EXM-01…05, FEE-01…06) but the list of IDs with their

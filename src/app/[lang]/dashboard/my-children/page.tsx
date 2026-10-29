@@ -45,6 +45,7 @@ export default async function MyChildrenPage({ params }: Props) {
               student={c}
               attendanceHref={`/${lang}/dashboard/my-children/${c.id}/attendance`}
               resultsHref={`/${lang}/dashboard/my-children/${c.id}/results`}
+              feesHref={`/${lang}/dashboard/my-children/${c.id}/fees`}
             />
           ))}
         </div>

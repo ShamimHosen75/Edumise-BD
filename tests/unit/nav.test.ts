@@ -114,7 +114,9 @@ describe("role home pages", () => {
   it("every role has a home path and widgets", () => {
     for (const role of ROLES) {
       expect(roleHomePath("en", role)).toMatch(/^\/en\/dashboard\/[a-z-]+$/);
-      expect(ROLE_WIDGETS[role].length).toBeGreaterThan(0);
+      // The accountant's home shows real collection figures instead (Step 5.2).
+      if (role !== "accountant")
+        expect(ROLE_WIDGETS[role].length).toBeGreaterThan(0);
       for (const key of ROLE_WIDGETS[role]) expect(t(en, key)).not.toBe(key);
     }
   });

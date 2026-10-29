@@ -18,11 +18,8 @@ export const ROLE_WIDGETS: Record<Role, readonly TranslationKey[]> = {
     "dashboard.widgets.attendanceToTake",
     "dashboard.widgets.marksPending",
   ],
-  accountant: [
-    "dashboard.widgets.todaysCollection",
-    "dashboard.widgets.monthCollection",
-    "dashboard.widgets.topDues",
-  ],
+  // Real figures from Step 5.2 (components/dashboard/fees/collection-widgets.tsx).
+  accountant: [],
   student: [
     "dashboard.widgets.myAttendance",
     "dashboard.widgets.myResults",

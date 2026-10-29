@@ -16,10 +16,11 @@ select tables_are('public', array[
   'ex_principals', 'contact_messages',
   'admission_applications', 'admission_documents', 'tracking_counters', 'audit_log',
   'student_documents', 'exam_schedule', 'holidays', 'student_code_counters', 'mark_locks',
-  'results', 'board_results', 'certificates', 'fee_settings', 'invoice_counters'
+  'results', 'board_results', 'certificates', 'fee_settings', 'invoice_counters',
+  'receipt_counters', 'payments', 'payment_allocations'
 ], 'public schema has exactly the planned tables');
 
-select views_are('public', array['public_staff'], 'public schema has exactly the planned views');
+select views_are('public', array['public_staff', 'invoice_item_balances'], 'public schema has exactly the planned views');
 
 select is(
   (select array_agg(tablename::text order by tablename) from pg_tables

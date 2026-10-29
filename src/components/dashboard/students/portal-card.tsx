@@ -13,6 +13,7 @@ export function PortalCard({
   student,
   attendanceHref,
   resultsHref,
+  feesHref,
 }: {
   lang: Locale;
   dict: Dictionary;
@@ -21,6 +22,8 @@ export function PortalCard({
   attendanceHref?: string;
   /** Link to the published results. */
   resultsHref?: string;
+  /** Link to the bills and receipts. */
+  feesHref?: string;
 }) {
   const p = dict.portal;
   const e = student.enrollment;
@@ -72,6 +75,14 @@ export function PortalCard({
           className="text-primary w-fit text-sm font-medium hover:underline"
         >
           {dict.results.title}
+        </Link>
+      ) : null}
+      {feesHref ? (
+        <Link
+          href={feesHref}
+          className="text-primary w-fit text-sm font-medium hover:underline"
+        >
+          {dict.fees.portal.title}
         </Link>
       ) : null}
     </article>

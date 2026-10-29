@@ -922,3 +922,55 @@ Known issues:
 - Invoices cannot be cancelled or edited yet (Step 5.2 adds cancelling with payments).
 - The invoice list has no paging yet (it loads a session's invoices; fine for one school).
 
+
+## Step 5.2 — fee collection and reports ✅ (FEE-03, FEE-04, FEE-06)
+
+Checks (run locally, 2026-10-29): `lint` ✅ · `typecheck` ✅ · `test` ✅ 497 · `db:test` ✅
+30 files / 454 tests · `db lint` ✅ · types up to date ✅ · `build` ✅ · `test:e2e` ✅
+241 passed, 5 skipped by design · no browser console errors · the new pages fit 360px.
+
+| Acceptance criterion | Result | Evidence |
+|---|---|---|
+| Collect screen: find a student by ID, roll or name → unpaid items → tick items → amount, method (cash, bKash, Nagad, Rocket, bank), transaction ID → save | ✅ Pass | `/dashboard/fees/collect`; e2e "collect part and the rest…" |
+| Transaction ID required for mobile banking and unique | ✅ Pass | form + Zod + table check; unique on (method, txn ID) while not cancelled; e2e and pgTAP refuse a reused bKash ID |
+| Receipt: receipt no, items, paid, still due, amount in words EN and BN, QR; PDF | ✅ Pass | `/dashboard/receipts/[id]` (printable; words in both languages) and `/pdf` (English); e2e checks words, due and the PDF download |
+| Partial payments; oldest due first | ✅ Pass | `allocate()` / `payOrder()` unit tests; `record_payment()` uses the same order; pgTAP and e2e partial → paid |
+| Cancel a payment with a reason (admin only), audit log, no hard delete | ✅ Pass | `cancel_payment()`; no write policies on payments; pgTAP: the accountant is refused, the invoice owes again, a second cancel is refused; e2e admin cancels |
+| Reports: daily (by method, by collector), dues by class/section/month with guardian phone, income by fee head for dates, student ledger; Excel and PDF | ✅ Pass | `/dashboard/fees/reports` (four tabs) and `/reports/export?format=xlsx|pdf`; e2e downloads the daily Excel |
+| Accountant widgets: today, this month vs last month, top dues | ✅ Pass | accountant home; e2e "the accountant's home shows the collection" |
+| Family portal: invoices, payments, receipts, total due banner | ✅ Pass | `/dashboard/my-profile/fees`, `/dashboard/my-children/[id]/fees`; links on the portal cards; e2e |
+| RLS: guardians see only their children's invoices and payments; teachers see no fee data | ✅ Pass | pgTAP `370_fee_collection` (guardian, student, teacher); e2e teacher gets 403 on collect, reports and receipts |
+| E2E: invoice → collect partial → partial → collect rest → paid → guardian sees the receipt | ✅ Pass | `tests/e2e/collection.spec.ts` (the invoice is made in test setup; the generator itself is covered by `fees.spec.ts`) |
+
+Negative tests:
+- teachers cannot collect, see payments, balances or receipts;
+- nobody writes payments directly, or edits what an invoice has been paid;
+- nobody adds a late-fine item by hand or bills the late-fine head;
+- paying more than owed, an item of another student, bKash without its ID and a reused ID
+  are refused;
+- the accountant cannot cancel; a payment is cancelled only once;
+- a bad amount and a missing transaction ID show field errors.
+
+Decisions (open questions 40–42, drafts adopted):
+- The accountant ticks items; the amount goes to the oldest due date first, and within an
+  invoice the late fine first. A fine is always paid with its invoice's items.
+- The late fine is frozen onto the invoice as a "Late fine" item at the first payment on
+  that invoice (rule and date of that day). It stays if the payment is later cancelled.
+- Receipt numbers are `RCP-YYYY-NNNNNN` per year. A cancelled receipt keeps its number and
+  shows CANCELLED; its invoices owe the money again.
+- Transaction IDs are unique per method among payments that are not cancelled.
+- Receipts and reports print from the web page in English or Bangla; the PDFs are English
+  (the PDF fonts have no Bangla letters). The page shows the amount in words in both.
+- The QR on a receipt holds the receipt no, student ID, amount and date for checking a
+  printed copy against the books (receipts are not public, so it is not a link).
+
+Known issues:
+- The receiver's name on receipts is the English name.
+- Payments are dated the day they are recorded (no back-dating).
+- Invoices cannot be cancelled from the screen yet.
+- Reports have no paging (fine for one school).
+
+Manual check (≤ 8 clicks): log in as accountant → Fees → Collect → search "Tanvir" →
+open → type 300 → Save and print receipt (the fine is frozen, receipt shows words in EN
+and BN) → Reports → Daily collection shows the receipt → log in as admin and open the
+receipt → Cancel payment with a reason.

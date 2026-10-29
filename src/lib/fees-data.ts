@@ -26,10 +26,15 @@ export type FeeHeadRow = {
   sort_order: number;
 };
 
+/** Code of the system fee head that holds frozen late fines. */
+export const LATE_FINE = "LATE_FINE";
+
 export async function feeHeads(db: Client): Promise<FeeHeadRow[]> {
   const { data, error } = await db
     .from("fee_heads")
     .select("id, code, name_en, name_bn, frequency, sort_order")
+    // The late fine is added by payments (Step 5.2), never set up or billed by hand.
+    .neq("code", LATE_FINE)
     .order("sort_order");
   if (error) throw new Error(error.message);
   return data ?? [];

@@ -4,6 +4,8 @@ import type { Dictionary } from "@/i18n/get-dictionary";
 
 const PAGES = [
   "invoices",
+  "collect",
+  "reports",
   "generate",
   "structure",
   "waivers",

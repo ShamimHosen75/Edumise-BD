@@ -60,7 +60,7 @@ export async function invoiceList(
         `id, invoice_no, issued_on, due_on, status, total, paid,
          student:students!inner(student_code, full_name_en, full_name_bn,
            enrollments(session_id, roll, section:sections(class_id, name_en, name_bn, class:classes(name_en, name_bn)))),
-         items:invoice_items!inner(period_key)`,
+         items:invoice_items!inner(period_key, is_fine)`,
       )
       .eq("session_id", f.sessionId);
     if (f.status) q = q.eq("status", f.status);
@@ -84,7 +84,9 @@ export async function invoiceList(
           roll: en?.roll ?? null,
           periods: [
             ...new Set(
-              (r.items as { period_key: string }[]).map((i) => i.period_key),
+              (r.items as { period_key: string; is_fine: boolean }[])
+                .filter((i) => !i.is_fine)
+                .map((i) => i.period_key),
             ),
           ],
           issuedOn: r.issued_on,
@@ -92,8 +94,10 @@ export async function invoiceList(
           status: r.status,
           total: r.total,
           paid: r.paid,
+          // Once frozen by a payment, the fine is an item of the invoice.
           fine:
-            r.status === "cancelled"
+            r.status === "cancelled" ||
+            (r.items as { is_fine: boolean }[]).some((i) => i.is_fine)
               ? 0
               : lateFine(rule, r.due_on, today, r.total - r.paid),
         } satisfies InvoiceListRow,
@@ -125,7 +129,7 @@ export async function invoiceDetail(
       `id, invoice_no, session_id, issued_on, due_on, status, total, paid,
        student:students(student_code, full_name_en, full_name_bn,
          enrollments(session_id, roll, section:sections(class_id, name_en, name_bn, class:classes(name_en, name_bn)))),
-       items:invoice_items(period_key, gross, waiver, net, head:fee_heads(name_en, name_bn, sort_order))`,
+       items:invoice_items(period_key, is_fine, gross, waiver, net, head:fee_heads(name_en, name_bn, sort_order))`,
     )
     .eq("id", id)
     .maybeSingle();
@@ -135,6 +139,7 @@ export async function invoiceDetail(
   const items = (
     r.items as unknown as {
       period_key: string;
+      is_fine: boolean;
       gross: number;
       waiver: number;
       net: number;
@@ -150,19 +155,21 @@ export async function invoiceDetail(
       ? `${pickLocalized(en.section.class, "name", lang)} ${pickLocalized(en.section, "name", lang)}`
       : "",
     roll: en?.roll ?? null,
-    periods: [...new Set(items.map((i) => i.period_key))],
+    periods: [
+      ...new Set(items.filter((i) => !i.is_fine).map((i) => i.period_key)),
+    ],
     issuedOn: r.issued_on,
     dueOn: r.due_on,
     status: r.status,
     total: r.total,
     paid: r.paid,
     fine:
-      r.status === "cancelled"
+      r.status === "cancelled" || items.some((i) => i.is_fine)
         ? 0
         : lateFine(rule, r.due_on, dhakaToday(), r.total - r.paid),
     items: items.map((i) => ({
       head: pickLocalized(i.head, "name", lang),
-      periodKey: i.period_key,
+      periodKey: i.is_fine ? "" : i.period_key,
       gross: i.gross,
       waiver: i.waiver,
       net: i.net,

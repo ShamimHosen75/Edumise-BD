@@ -101,7 +101,9 @@ export default async function InvoicePage({ params }: Props) {
                   <th scope="row" className={`${cell} text-left font-normal`}>
                     {i.head}
                   </th>
-                  <td className={cell}>{periodName(i.periodKey)}</td>
+                  <td className={cell}>
+                    {i.periodKey ? periodName(i.periodKey) : "—"}
+                  </td>
                   <td className={`${cell} text-right`}>{money(i.gross)}</td>
                   <td className={`${cell} text-right`}>
                     {i.waiver ? money(i.waiver) : "—"}
