@@ -59,7 +59,7 @@ describe("route registry", () => {
       "/downloads/abc",
       "/news/a/b",
       "/admission/other",
-      "/result",
+      "/verify",
       "/p/",
       "/p/About",
       "/p/a/b",
@@ -77,7 +77,7 @@ describe("route registry", () => {
   it("shows external https links and internal pages that exist", () => {
     expect(isShowableLink("https://moedu.gov.bd/")).toBe(true);
     expect(isShowableLink("/login")).toBe(true);
-    expect(isShowableLink("/result")).toBe(false);
+    expect(isShowableLink("/verify")).toBe(false);
     expect(isShowableLink(null)).toBe(false);
   });
   it("adds the language to internal links only", () => {
@@ -122,7 +122,12 @@ describe("buildMenu", () => {
       page: { slug: "donors", is_published: true, has_content: false },
     }),
     row({ id: 6, label_en: "Result" }),
-    row({ id: 7, parent_id: 6, label_en: "Find a result", url: "/result" }),
+    row({
+      id: 7,
+      parent_id: 6,
+      label_en: "Verify a certificate",
+      url: "/verify",
+    }),
     row({ id: 8, label_en: "Attendance", url: "/attendance" }),
     row({
       id: 9,

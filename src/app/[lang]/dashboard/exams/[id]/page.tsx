@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { ExamCompletion } from "@/components/dashboard/exams/exam-completion";
+import { ExamResults } from "@/components/dashboard/exams/exam-results";
 import { ExamStatus } from "@/components/dashboard/exams/exam-status";
 import { ExamSubjects } from "@/components/dashboard/exams/exam-subjects";
 import { TabLinks } from "@/components/site/content/tab-links";
@@ -11,6 +12,8 @@ import { getDictionary } from "@/i18n/get-dictionary";
 import { examCompletion, examSubjects, sessionExams } from "@/lib/exams-data";
 import { examsMessages } from "@/lib/exams-messages";
 import { formatDate, pickLocalized } from "@/lib/format";
+import { resultSummary } from "@/lib/results-build";
+import { examResults, resultsState } from "@/lib/results-data";
 import { createClient } from "@/lib/supabase/server";
 
 type Props = {
@@ -29,8 +32,9 @@ export default async function ExamPage({ params, searchParams }: Props) {
   const { lang, id: raw } = await params;
   const id = /^[1-9][0-9]{0,15}$/.test(raw) ? Number(raw) : null;
   if (!isLocale(lang) || id === null) notFound();
+  const wanted = (await searchParams).tab;
   const tab =
-    (await searchParams).tab === "completion" ? "completion" : "subjects";
+    wanted === "completion" || wanted === "results" ? wanted : "subjects";
   const dict = await getDictionary(lang);
   const e = dict.exams;
   const db = await createClient();
@@ -40,7 +44,36 @@ export default async function ExamPage({ params, searchParams }: Props) {
   const base = `/${lang}/dashboard/exams/${id}`;
 
   let body: React.ReactNode;
-  if (tab === "completion") {
+  if (tab === "results") {
+    const [rows, state] = await Promise.all([
+      examResults(db, id),
+      resultsState(db, id),
+    ]);
+    const sections = [
+      ...new Map(
+        rows.map((r) => [
+          r.sectionId,
+          {
+            id: r.sectionId,
+            name: `${pickLocalized(r, "class", lang)} ${pickLocalized(r, "section", lang)}`,
+            students: rows.filter((x) => x.sectionId === r.sectionId).length,
+          },
+        ]),
+      ).values(),
+    ];
+    body = (
+      <ExamResults
+        lang={lang}
+        examId={id}
+        status={exam.status}
+        processedAt={state.processedAt}
+        current={state.current}
+        summary={resultSummary(rows)}
+        sections={sections}
+        messages={messages}
+      />
+    );
+  } else if (tab === "completion") {
     body = (
       <ExamCompletion
         lang={lang}
@@ -125,6 +158,11 @@ export default async function ExamPage({ params, searchParams }: Props) {
             href: `${base}?tab=completion`,
             label: e.completion,
             active: tab === "completion",
+          },
+          {
+            href: `${base}?tab=results`,
+            label: dict.results.tab,
+            active: tab === "results",
           },
         ]}
       />

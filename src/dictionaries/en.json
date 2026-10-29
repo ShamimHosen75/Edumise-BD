@@ -49,7 +49,8 @@
     "examSchedule": "Exam schedule",
     "attendance": "Attendance",
     "exams": "Exams",
-    "marks": "Marks entry"
+    "marks": "Marks entry",
+    "boardResults": "Board results"
   },
   "auth": {
     "loginTitle": "Log in",
@@ -171,7 +172,9 @@
     "passMarks": "Pass marks cannot be more than full marks.",
     "spreadsheet": "The file could not be read. Use the template (Excel .xlsx or CSV).",
     "fourthSubject": "Choose a fourth subject taught in this class and group (Classes 9 and 10).",
-    "examClasses": "Choose at least one class."
+    "examClasses": "Choose at least one class.",
+    "count": "Enter a whole number.",
+    "paperGroup": "Use up to 20 letters, digits, - or _."
   },
   "forbidden": {
     "title": "You do not have access to this page",
@@ -751,7 +754,9 @@
     "workingDays": "Working days",
     "workingDaysHint": "Days the school is open. The routine and calendar use them.",
     "saveDays": "Save working days",
-    "holidayTitle": "Title"
+    "holidayTitle": "Title",
+    "paperGroup": "Paper group (optional)",
+    "paperGroupHint": "Give both papers of one subject the same short code (e.g. BAN for Bangla 1st and 2nd paper); they are graded together."
   },
   "staff": {
     "title": "Staff",
@@ -1337,7 +1342,7 @@
     "statusHint": {
       "draft": "Set up subjects and full marks. Teachers cannot enter marks yet.",
       "marks_entry": "Teachers enter marks and submit each subject.",
-      "review": "Marks are closed for checking; only admins can change them.",
+      "review": "Marks are closed for checking; only admins can change them. Process the results on the Results tab.",
       "published": "Results are visible to students and guardians."
     },
     "moveTo": "Move to: {status}",
@@ -1431,6 +1436,121 @@
       "unused": "A part this subject does not use has marks.",
       "absentWithMarks": "An absent student has marks.",
       "fix": "Fix these rows in the file and upload it again."
+    }
+  },
+  "results": {
+    "title": "Results",
+    "tab": "Results",
+    "process": "Process results",
+    "processing": "Processing…",
+    "processConfirm": "Work out grades, GPA and positions for every student? Earlier results of this exam are replaced.",
+    "processed": "{count} results processed.",
+    "processedAt": "Last processed: {date}",
+    "notProcessed": "Results have not been processed yet.",
+    "stale": "Marks changed after the last processing. Process again before publishing.",
+    "processHint": "Move the exam to Review to process results.",
+    "missing": "{count} marks are not entered yet. Enter them (or mark the student absent) first.",
+    "notCurrent": "Process the results after the last change to marks, then publish.",
+    "students": "Students",
+    "passed": "Passed",
+    "failed": "Failed",
+    "passRate": "Pass rate",
+    "gpa5": "GPA 5.00",
+    "tabulation": "Tabulation sheet",
+    "tabulationOf": "Tabulation sheet: {section}",
+    "markSheets": "All mark sheets (PDF)",
+    "markSheet": "Mark sheet",
+    "downloadPdf": "Download PDF",
+    "print": "Print",
+    "pdfNote": "The PDF is in English; print this page for Bangla.",
+    "section": "Section",
+    "roll": "Roll",
+    "name": "Name",
+    "total": "Total",
+    "gpa": "GPA",
+    "grade": "Grade",
+    "position": "Position",
+    "sectionPosition": "Position in section",
+    "classPosition": "Position in class",
+    "result": "Result",
+    "pass": "Passed",
+    "fail": "Failed",
+    "subject": "Subject",
+    "fullMarks": "Full marks",
+    "cq": "CQ",
+    "mcq": "MCQ",
+    "practical": "Practical",
+    "obtained": "Marks",
+    "point": "Point",
+    "absent": "Absent",
+    "fourth": "4th subject",
+    "extra": "Not in GPA",
+    "gpaWithoutFourth": "GPA without 4th subject",
+    "attendance": "Attendance",
+    "classTeacher": "Class teacher",
+    "headTeacher": "Head teacher",
+    "guardianSign": "Guardian",
+    "none": "No results yet.",
+    "sections": "Sections",
+    "publishedOn": "Published {date}",
+    "student": "Student",
+    "group": "Group",
+    "session": "Session",
+    "exam": "Exam",
+    "class": "Class",
+    "failedParts": "Below pass marks: {parts}",
+    "view": "View",
+    "viewNamed": "Mark sheet: {name}",
+    "noResults": "No published results yet.",
+    "back": "Back",
+    "failedCount": "Subjects failed",
+    "totalOf": "{total} of {full}"
+  },
+  "result": {
+    "title": "Find a result",
+    "intro": "Choose the exam, class and section, then enter the roll number.",
+    "exam": "Exam",
+    "class": "Class",
+    "section": "Section",
+    "group": "Group",
+    "anyGroup": "Any group",
+    "roll": "Roll number",
+    "search": "Show result",
+    "notFound": "No result found. Check the details and try again.",
+    "tooMany": "Too many searches. Please wait a few minutes and try again.",
+    "none": "No results are published yet.",
+    "choose": "Choose…",
+    "another": "Search again",
+    "errors": {
+      "exam": "Choose an exam.",
+      "section": "Choose a class and section.",
+      "roll": "Enter a roll number (1–999).",
+      "group": "Choose a valid group."
+    }
+  },
+  "boardResults": {
+    "title": "Board exam results",
+    "intro": "Our students' results in the board exams, year by year.",
+    "admin": "Board results",
+    "adminIntro": "Year-by-year board exam results shown on the website.",
+    "exam": "Exam",
+    "exams": {
+      "ssc": "SSC",
+      "jsc": "JSC"
+    },
+    "year": "Year",
+    "examinees": "Examinees",
+    "passed": "Passed",
+    "gpa5": "GPA 5.00",
+    "passRate": "Pass rate",
+    "chart": "Pass rate by year",
+    "chartOf": "{exam} pass rate by year",
+    "add": "Add year",
+    "none": "No board results yet.",
+    "item": "board result",
+    "errors": {
+      "passed": "Passed cannot be more than examinees.",
+      "gpa5": "GPA 5.00 cannot be more than passed."
     }
   }
 }

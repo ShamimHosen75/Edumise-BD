@@ -44,6 +44,7 @@ export default async function MyChildrenPage({ params }: Props) {
               dict={dict}
               student={c}
               attendanceHref={`/${lang}/dashboard/my-children/${c.id}/attendance`}
+              resultsHref={`/${lang}/dashboard/my-children/${c.id}/results`}
             />
           ))}
         </div>

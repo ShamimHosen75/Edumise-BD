@@ -43,8 +43,8 @@ select is(pg_temp.affected($$ update public.attendance set status = 'late', mark
 select lives_ok($$ insert into public.marks (exam_subject_id, student_id, cq, mcq)
   select annual_math, student_6a, 50, 20 from ids $$,
   'teacher enters marks for own subject in an unlocked exam');
-select is((select count(*)::int from public.marks m where m.exam_subject_id = (select half_math from ids)), 6,
-  'teacher reads marks of own subject');
+select is((select count(*)::int from public.marks m where m.exam_subject_id = (select half_math from ids)), 10,
+  'teacher reads marks of own subject (6A and 6B)');
 select is((select count(*)::int from public.notices where audience = 'staff'), 1, 'teacher sees staff notices');
 
 -- Forbidden

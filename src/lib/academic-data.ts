@@ -54,7 +54,7 @@ export const academicData = {
     rows(
       await db
         .from("subjects")
-        .select("id, code, name_en, name_bn, type, sort_order")
+        .select("id, code, name_en, name_bn, type, sort_order, paper_group")
         .order("sort_order"),
     ),
   sections: async (db: Client) =>

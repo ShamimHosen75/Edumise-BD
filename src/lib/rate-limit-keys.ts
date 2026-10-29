@@ -6,6 +6,8 @@ export const LIMITS = {
   loginFailuresPerAccount: { max: 10, windowSeconds: 15 * 60 },
   resetPerIp: { max: 10, windowSeconds: 60 * 60 },
   resetPerEmail: { max: 3, windowSeconds: 60 * 60 },
+  // A results day means many searches from one school lab, but no stepping through rolls.
+  resultPerIp: { max: 60, windowSeconds: 10 * 60 },
 } as const;
 
 /**

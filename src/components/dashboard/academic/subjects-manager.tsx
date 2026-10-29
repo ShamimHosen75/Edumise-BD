@@ -19,6 +19,7 @@ export type SubjectRow = {
   name_bn: string;
   type: (typeof SUBJECT_TYPES)[number];
   sort_order: number;
+  paper_group: string | null;
 };
 
 export function SubjectsManager({
@@ -70,6 +71,7 @@ export function SubjectsManager({
         name_en: r?.name_en ?? "",
         name_bn: r?.name_bn ?? "",
         type: r?.type ?? "compulsory",
+        paper_group: r?.paper_group ?? "",
         sort_order:
           r?.sort_order ??
           (rows.length ? Math.max(...rows.map((x) => x.sort_order)) + 1 : 1),
@@ -104,6 +106,13 @@ export function SubjectsManager({
             name="name_bn"
             label={tr("academic.nameBn")}
             lang="bn"
+          />
+          <TextField
+            form={form}
+            t={tr}
+            name="paper_group"
+            label={tr("academic.paperGroup")}
+            hint={tr("academic.paperGroupHint")}
           />
           <SelectField
             form={form}

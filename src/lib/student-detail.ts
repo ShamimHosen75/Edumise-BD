@@ -35,7 +35,7 @@ export type HistoryRow = {
 };
 
 /** A private file as a link valid for 10 minutes, made for this request only. */
-async function signed(db: Client, path: string | null) {
+export async function signed(db: Client, path: string | null) {
   if (!path) return null;
   const { data } = await db.storage
     .from("private-docs")

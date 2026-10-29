@@ -20,6 +20,8 @@ export const TAGS = {
   exPrincipals: "ex-principals",
   routine: "routine",
   calendar: "calendar",
+  results: "results",
+  boardResults: "board-results",
 } as const;
 
 /**

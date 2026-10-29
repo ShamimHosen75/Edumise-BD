@@ -20,6 +20,7 @@ describe("navForRole", () => {
     "routine",
     "exams",
     "marks",
+    "board-results",
     "exam-schedule",
     "notices",
     "news",

@@ -12,6 +12,7 @@ import {
   roomSchema,
 } from "@/lib/validation/routine";
 import { examSubjectSchema } from "@/lib/validation/marks";
+import { boardResultSchema } from "@/lib/validation/results";
 import { designationSchema } from "@/lib/validation/staff";
 
 /** The academic setup lists an admin edits, each with its table, schema and unique field. */
@@ -44,6 +45,12 @@ export const ACADEMIC = {
     table: "exam_schedule",
     schema: examScheduleSchema,
     unique: "subject_id",
+  },
+  // Step 4.3: board exam results for the website.
+  "board-results": {
+    table: "board_results",
+    schema: boardResultSchema,
+    unique: "year",
   },
 } as const;
 

@@ -188,3 +188,15 @@ html[lang="bn"] {
     page: landscape;
   }
 }
+
+/* Mark sheets print one per A4 portrait page. */
+@page portrait {
+  size: A4 portrait;
+  margin: 12mm;
+}
+@media print {
+  .print-sheet {
+    page: portrait;
+    break-after: page;
+  }
+}

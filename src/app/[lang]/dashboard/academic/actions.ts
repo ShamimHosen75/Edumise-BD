@@ -28,6 +28,7 @@ const refresh = () => {
   revalidateTag(TAGS.staff);
   revalidateTag(TAGS.routine);
   revalidateTag(TAGS.calendar);
+  revalidateTag(TAGS.boardResults);
 };
 
 /** Creates (id = null) or updates a session, class, section, group or subject. */

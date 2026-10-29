@@ -8,6 +8,7 @@ export function examsMessages(dict: Dictionary) {
   return pickMessages(dict, [
     ...leafKeys(dict.exams, "exams"),
     ...leafKeys(dict.marks, "marks"),
+    ...leafKeys(dict.results, "results"),
     ...leafKeys(dict.table, "table"),
     ...leafKeys(dict.dialog, "dialog"),
     "academic.add",

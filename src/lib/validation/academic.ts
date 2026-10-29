@@ -62,6 +62,18 @@ export const subjectSchema = z.object({
   name_bn: text(80),
   type: z.enum(SUBJECT_TYPES),
   sort_order: wholeNumber(0, 999, "errors.digits"),
+  // Papers of one subject (Bangla 1st and 2nd paper) share a group and are graded together.
+  paper_group: z
+    .string()
+    .trim()
+    .transform((v) => (v === "" ? null : v.toUpperCase()))
+    .pipe(
+      z
+        .string()
+        .regex(/^[A-Z0-9_-]{1,20}$/, "errors.paperGroup")
+        .nullable(),
+    )
+    .default(null),
 });
 
 /** The subjects taught in one class (and group, for Classes 9 and 10). */

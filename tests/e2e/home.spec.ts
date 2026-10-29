@@ -163,14 +163,22 @@ test.describe("header and footer links", () => {
     });
   }
 
-  test("menu items show only for pages that exist", async ({ page }) => {
+  test("menu items show only for pages that exist", async ({ page }, info) => {
     await page.goto("/en");
-    // Online admission exists since Step 3.3; results come in Step 4.3.
+    // Online admission exists since Step 3.3; results since Step 4.3.
     await expect(
       page.getByRole("link", { name: "Apply Online" }).first(),
     ).toHaveAttribute("href", "/en/admission/apply");
-    await expect(page.getByRole("button", { name: "Result" })).toHaveCount(0);
     await expect(page.getByRole("link", { name: "History" })).toHaveCount(0);
+    if (info.project.name === "desktop-chrome") {
+      await page.getByRole("button", { name: "Result" }).click();
+      await expect(
+        page.getByRole("link", { name: "Find a result" }),
+      ).toHaveAttribute("href", "/en/result");
+      await expect(
+        page.getByRole("link", { name: "Board exam results" }),
+      ).toHaveAttribute("href", "/en/board-results");
+    }
   });
 
   test("an unpublished page is not reachable", async ({ page }) => {

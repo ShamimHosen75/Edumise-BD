@@ -18,3 +18,12 @@ export async function getBranding(lang: Locale, dict: Dictionary) {
   const settings = await getSchoolSettings();
   return { settings, name: schoolName(settings, lang, dict) };
 }
+
+/** School name and address for printed sheets. */
+export async function sheetHeader(lang: Locale, dict: Dictionary) {
+  const { settings, name } = await getBranding(lang, dict);
+  return {
+    name,
+    address: settings ? pickLocalized(settings, "address", lang) : "",
+  };
+}

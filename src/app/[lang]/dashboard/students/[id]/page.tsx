@@ -6,10 +6,12 @@ import { StudentDocuments } from "@/components/dashboard/students/student-docume
 import { StudentGuardians } from "@/components/dashboard/students/student-guardians";
 import { StudentHistory } from "@/components/dashboard/students/student-history";
 import { StudentOverview } from "@/components/dashboard/students/student-overview";
+import { ResultList } from "@/components/results/result-list";
 import { TabLinks } from "@/components/site/content/tab-links";
 import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { localizeDigits, pickLocalized } from "@/lib/format";
+import { studentResults } from "@/lib/results-data";
 import { studentDetail } from "@/lib/student-detail";
 import { studentMessages } from "@/lib/student-messages";
 import {
@@ -134,6 +136,13 @@ export default async function StudentPage({ params, searchParams }: Props) {
         />
       ) : tab === "history" ? (
         <StudentHistory lang={lang} dict={dict} rows={detail.history} />
+      ) : tab === "results" ? (
+        <ResultList
+          lang={lang}
+          dict={dict}
+          rows={await studentResults(db, id)}
+          href={(r) => `/${lang}/dashboard/exams/${r.examId}/results/${id}`}
+        />
       ) : tab === "documents" ? (
         <StudentDocuments
           lang={lang}

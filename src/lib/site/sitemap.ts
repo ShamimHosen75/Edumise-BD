@@ -39,4 +39,6 @@ export const STATIC_PATHS = [
   "/routine",
   "/exam-routine",
   "/calendar",
+  "/result",
+  "/board-results",
 ];

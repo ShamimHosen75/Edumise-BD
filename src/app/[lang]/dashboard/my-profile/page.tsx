@@ -32,6 +32,7 @@ export default async function MyProfilePage({ params }: Props) {
           dict={dict}
           student={profile}
           attendanceHref={`/${lang}/dashboard/my-profile/attendance`}
+          resultsHref={`/${lang}/dashboard/my-profile/results`}
         />
       ) : (
         <p className="text-muted-foreground text-sm">

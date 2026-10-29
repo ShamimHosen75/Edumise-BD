@@ -19,6 +19,8 @@ const AVAILABLE: readonly RegExp[] = [
   /^\/admission\/(apply|status)$/,
   // Step 3.5
   /^\/(routine|exam-routine|calendar)$/,
+  // Step 4.3
+  /^\/(result|board-results)$/,
 ];
 
 export function isAvailableRoute(path: string): boolean {

@@ -18,8 +18,8 @@
 | 3.5 Routine | ✅ Done | See below |
 | 4.1 Student attendance | ✅ Done | See below |
 | 4.2 Exams + marks | ✅ Done | See below |
-| 4.3 Grading + results | Not started | Next |
-| 4.4 Certificates | Not started | Blocked on 4.3 |
+| 4.3 Grading + results | ✅ Done | See below |
+| 4.4 Certificates | Not started | Next |
 | 5.1 Fee setup + invoices | Not started | Blocked on 4.4 |
 | 5.2 Collection + reports | Not started | Blocked on 5.1 |
 | 5.3 Payment gateway adapter | Not started | Blocked on 5.2 |
@@ -764,4 +764,57 @@ Known issues:
 - Grades, GPA and results are Step 4.3; the marks grid shows the total only.
 - The marks inputs show the digits as typed (English digits are kept in the boxes in Bangla).
 - Exams can be created for the current session only.
+
+## Step 4.3 — grading and results ✅ (EXM-03, EXM-04, EXM-05, WEB-11)
+
+Checks (run locally, 2026-10-29): `lint` ✅ · `typecheck` ✅ · `test` ✅ 432 · `db:test` ✅
+26 files / 376 tests · `db lint` ✅ · types up to date ✅ · `build` ✅ · `test:e2e` ✅
+221 passed (two older tests updated for the new menu items: the admin sidebar list and the "Result" menu, which waited for this step), 5 skipped by design · no browser console errors on the new pages.
+
+| Acceptance criterion | Result | Evidence |
+|---|---|---|
+| Pure grading functions in `src/lib/grading.ts`, scale read from `school_settings.grading` | ✅ Pass | `parseScale` (refuses broken scales); 100% of lines covered by `tests/unit/grading.test.ts` (38 tests) |
+| Percent per subject; each part (CQ, MCQ, practical) passed separately where pass marks are set | ✅ Pass | unit "CQ passed but MCQ failed is F", "checks practical pass marks"; seed: Lamia (6B) fails Science on MCQ with 46% |
+| F in a compulsory subject → Fail, GPA 0.00; absent = F | ✅ Pass | unit "one compulsory subject at 32 fails", "absent in a compulsory subject fails" |
+| Fourth subject adds only points above 2.00; GPA capped at 5.00, rounded to 2 decimals; GPA without fourth stored | ✅ Pass | unit "fourth subject A+ adds 3.00", "caps GPA at 5.00", "rounds GPA to 2 decimals"; `results.gpa_without_fourth` |
+| Merit position in section and class: GPA, then total marks, then roll (tie rule documented) | ✅ Pass | `rankResults` + unit "ranks by GPA, then total, then roll; failed students last"; equal rolls across sections go by section order |
+| "Process results" (admin) computes results for an exam in one DB transaction | ✅ Pass | Results tab → `processResults` → `save_exam_results()` (replaces all rows of the exam); pgTAP `330_results`; e2e |
+| Tabulation sheet (section × subjects); mark sheet with school header, photo, subjects, GPA, grade, position, attendance %, signature lines; bulk PDF per section | ✅ Pass | `/dashboard/exams/[id]/tabulation`, `/results/[studentId]` (print, A4 portrait) and `/pdf`; "All mark sheets (PDF)" per section; e2e checks the PDF |
+| Publish exam → results visible in the student/guardian portal and the public search | ✅ Pass | RLS: family sees results of published exams only (pgTAP); portal "Results" link; e2e guardian sees the new result |
+| Public `/[lang]/result`: session, exam, class, section, group + roll → printable mark sheet, rate-limited | ✅ Pass | `lookup_result()` callable only by the server, after Zod validation and a per-IP limit (60 / 10 min); e2e en and bn |
+| Board exam results (WEB-11): admin enters year, examinees, passed, GPA 5; public table + pass-rate line chart | ✅ Pass | `/dashboard/board-results`, public `/board-results`; e2e adds a year and sees it on the site |
+| Tests: all A+, 32 → Fail, CQ pass / MCQ fail → F, fourth A+ adds 3.00, GPA cap, absent, tie ranking | ✅ Pass | all in `tests/unit/grading.test.ts` |
+
+Negative tests: processing refused for teachers (42501), outside review (22023), for
+students not sitting the exam, and while marks are missing (e2e); publishing refused until
+results are processed after the last marks change (pgTAP + e2e); nobody writes `results`
+directly; visitors and logged-in users cannot call the lookup; the public mark sheet has no
+student ID, birth date or photo; bad roll (Bangla page) and unknown roll messages; board
+results with more passed than examinees refused (form + database); teachers get 403 on
+board results, tabulation and the PDF.
+
+Decisions (open questions 30–33, drafts adopted):
+- Percentages are compared exactly, no rounding (79.5% is an A).
+- A subject counts in GPA only when its exam subject says so; optional subjects are added
+  with "counts in GPA" off (shown on the mark sheet as "not in GPA").
+- Two papers of one subject share a **paper group** (Academic setup → Subjects); their marks
+  and part pass marks are added up and graded as one subject. Absent in either paper is F.
+- Merit uses GPA with the fourth subject; failed students come after all who passed.
+- Publishing needs results processed after the last change to marks or exam subjects
+  (database trigger); moving a published exam back to review hides the results again.
+- Mark sheets are a snapshot taken when results are processed.
+- Attendance % on the mark sheet counts from the session start to the end of the exam.
+- PDFs are in English (built-in PDF fonts have no Bangla letters, as for the ID card); the
+  web mark sheet prints in Bangla.
+
+Known issues:
+- Promotion by merit (open question 19) still uses the previous roll order; it can now
+  read the final exam's positions in a later step.
+- Teachers can read results of their sections (RLS) but have no results page yet.
+- Student photos are private, so the portal and public mark sheets show none (office
+  sheets and PDFs do).
+- Positions are unique (the tie rule always decides); there are no shared positions.
+- Seeded Half Yearly attendance % is empty: the demo attendance starts after that exam.
+- `scripts/seed-results.ts` (`npm run seed:results`) regenerates the demo results if the
+  seeded marks change.
 

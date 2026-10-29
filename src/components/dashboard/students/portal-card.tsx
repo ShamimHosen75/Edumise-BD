@@ -12,12 +12,15 @@ export function PortalCard({
   dict,
   student,
   attendanceHref,
+  resultsHref,
 }: {
   lang: Locale;
   dict: Dictionary;
   student: PortalStudent;
   /** Link to the child's (or own) attendance calendar. */
   attendanceHref?: string;
+  /** Link to the published results. */
+  resultsHref?: string;
 }) {
   const p = dict.portal;
   const e = student.enrollment;
@@ -61,6 +64,14 @@ export function PortalCard({
           className="text-primary w-fit text-sm font-medium hover:underline"
         >
           {dict.attendance.viewSheet}
+        </Link>
+      ) : null}
+      {resultsHref ? (
+        <Link
+          href={resultsHref}
+          className="text-primary w-fit text-sm font-medium hover:underline"
+        >
+          {dict.results.title}
         </Link>
       ) : null}
     </article>

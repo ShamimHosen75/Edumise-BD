@@ -49,7 +49,7 @@ describe("home sections hide themselves when empty", () => {
               id: 1,
               label_en: "Results",
               label_bn: "",
-              url: "/result",
+              url: "/verify",
               icon: "link",
             },
           ],

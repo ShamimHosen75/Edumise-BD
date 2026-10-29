@@ -549,14 +549,20 @@ Record before/after scores in docs/qa-report.md.
    **Used in 4.2 (draft adopted).**
 30. **Percent rounding (4.3):** the scale uses whole numbers. Is 79.5% an A or an A+?
    Draft: compare the exact percentage, no rounding (79.5 → A; 80 → A+).
+   **Used in 4.3 (draft adopted).**
 31. **Optional (non-fourth) subjects (4.3):** 3.1 has type compulsory / optional / fourth.
    Do "optional" subjects count in GPA? Draft: only if `counts_in_gpa` is true, and then
    they are treated as compulsory.
+   **Used in 4.3 (draft adopted):** "Add the class's subjects" sets optional subjects to
+   not counting; the office can switch it on.
 32. **Two-paper subjects (4.3):** Bangla and English have 1st and 2nd papers in BD and are
    graded as one combined subject. Draft: a `paper_group` on subjects; marks of both papers
    are summed before grading. Needed?
+   **Used in 4.3 (draft adopted):** `subjects.paper_group`, set under Academic setup →
+   Subjects; part pass marks are summed too. The demo school has no two-paper subjects.
 33. **Merit GPA (4.3):** rank by GPA *with* the fourth subject? Draft: yes; failed students
    are ranked after all passed students.
+   **Used in 4.3 (draft adopted):** then total marks, roll, section order.
 34. **Certificate reference no (4.4):** a sequential number (CERT-2026-00001) lets anyone
    step through numbers and collect student names. Draft: random 10-character code
    (e.g. `TC-7KQ2-M9XA-4P`), verify lookup rate-limited like results.

@@ -13,8 +13,11 @@ import { TAGS } from "@/lib/site/cache";
 import { assertId, assertOptionalId } from "@/lib/validation/ids";
 import { EXAM_STATUSES, examSchema } from "@/lib/validation/marks";
 
-// The public exam routine lists exams by name.
-const refresh = () => revalidateTag(TAGS.routine);
+// The public exam routine and result search list exams by name.
+const refresh = () => {
+  revalidateTag(TAGS.routine);
+  revalidateTag(TAGS.results);
+};
 
 /** Creates (in the current session) or updates an exam and the classes that sit it. */
 export async function saveExam(
@@ -135,7 +138,11 @@ export async function setExamStatus(
           : exam.published_at,
     })
     .eq("id", id);
-  if (error) return dbError(error);
+  // 23514: the database refuses to publish without up-to-date results.
+  if (error)
+    return error.code === "23514"
+      ? { ok: false, error: "results.notCurrent" }
+      : dbError(error);
   await db.rpc("record_audit", {
     p_action: "exam.status",
     p_entity: "exam",

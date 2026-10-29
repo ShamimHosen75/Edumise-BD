@@ -95,6 +95,7 @@ from (values
   ('Academic', 'Class routine', 'ক্লাস রুটিন', '/routine', 21),
   ('Admission', 'Apply online', 'অনলাইনে আবেদন', '/admission/apply', 21),
   ('Result', 'Find a result', 'ফলাফল খুঁজুন', '/result', 21),
+  ('Result', 'Board exam results', 'বোর্ড পরীক্ষার ফলাফল', '/board-results', 22),
   ('Others', 'Gallery', 'গ্যালারি', '/gallery', 21),
   ('Others', 'Downloads', 'ডাউনলোড', '/downloads', 22)
 ) as i(menu, label_en, label_bn, url, sort_order)
