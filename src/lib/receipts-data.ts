@@ -1,7 +1,7 @@
 import "server-only";
 
 import type { Locale } from "@/i18n/config";
-import type { PaymentMethod } from "@/lib/collection";
+import type { AnyPaymentMethod } from "@/lib/collection";
 import { ENROLLED, found, type RawEnrolled } from "@/lib/collection-data";
 import { periodNamer } from "@/lib/fee-periods";
 import { lateFine, type FineRule } from "@/lib/fees";
@@ -21,7 +21,7 @@ export type Receipt = {
   section: string;
   roll: number | null;
   amount: number;
-  method: PaymentMethod;
+  method: AnyPaymentMethod;
   txnId: string | null;
   paidOn: string;
   note: string;
@@ -116,7 +116,7 @@ export type PaymentRow = {
   receiptNo: string;
   paidOn: string;
   amount: number;
-  method: PaymentMethod;
+  method: AnyPaymentMethod;
   cancelled: boolean;
 };
 

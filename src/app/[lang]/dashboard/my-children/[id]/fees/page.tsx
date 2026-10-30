@@ -35,6 +35,7 @@ export default async function ChildFeesPage({ params }: Props) {
       studentId={child.id}
       name={child.name}
       code={child.code}
+      payOnline
     />
   );
 }

@@ -252,3 +252,15 @@ export async function loadPlan(
 /** Late fine of an invoice today (live, open question 39). */
 export const fineToday = (rule: FineRule, dueOn: string, outstanding: number) =>
   lateFine(rule, dueOn, dhakaToday(), outstanding);
+
+/** Whether families can pay online, and through which provider. */
+export async function onlinePayment(db: Client) {
+  const { data } = await db
+    .from("fee_settings")
+    .select("online_payment_enabled, payment_provider")
+    .maybeSingle();
+  return {
+    enabled: data?.online_payment_enabled ?? false,
+    provider: data?.payment_provider ?? "manual",
+  };
+}

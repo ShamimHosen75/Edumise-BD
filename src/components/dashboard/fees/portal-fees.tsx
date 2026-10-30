@@ -4,7 +4,10 @@ import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import { t } from "@/i18n/t";
 import { studentInvoices, studentPayments } from "@/lib/receipts-data";
-import { fineRule } from "@/lib/fees-data";
+import { PayNowButton } from "@/components/dashboard/fees/pay-buttons";
+import { fineRule, onlinePayment } from "@/lib/fees-data";
+import { feesMessages } from "@/lib/fees-messages";
+import { getProvider } from "@/lib/payments";
 import { formatCurrency, formatDate, localizeDigits } from "@/lib/format";
 import type { createClient } from "@/lib/supabase/server";
 
@@ -18,6 +21,7 @@ export async function PortalFees({
   studentId,
   name,
   code,
+  payOnline = false,
 }: {
   db: Client;
   lang: Locale;
@@ -25,10 +29,13 @@ export async function PortalFees({
   studentId: number;
   name: string;
   code: string;
+  /** Show "Pay now" when the school has switched online payment on (guardians). */
+  payOnline?: boolean;
 }) {
-  const [invoices, payments] = await Promise.all([
+  const [invoices, payments, online] = await Promise.all([
     studentInvoices(db, studentId, await fineRule(db), lang),
     studentPayments(db, studentId),
+    onlinePayment(db),
   ]);
   const p = dict.fees.portal;
   const v = dict.fees.invoices;
@@ -53,6 +60,17 @@ export async function PortalFees({
       >
         {due ? t(dict, "fees.portal.due", { amount: money(due) }) : p.allPaid}
       </p>
+      {payOnline && online.enabled && due ? (
+        online.provider === "manual" ? (
+          <p className="text-sm">{dict.fees.online.payAtOffice}</p>
+        ) : getProvider(online.provider)?.available() ? (
+          <PayNowButton
+            lang={lang}
+            studentId={studentId}
+            messages={feesMessages(dict)}
+          />
+        ) : null
+      ) : null}
       <section
         aria-labelledby="portal-invoices"
         className="flex flex-col gap-2"

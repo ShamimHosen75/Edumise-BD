@@ -491,14 +491,14 @@ isOneToOne: false
                   ]
                 },"fee_settings": {
                   Row: {
-                    "due_days": number,"grace_days": number,"id": number,"late_fine_cap": number,"late_fine_per_day": number,"updated_at": string
+                    "due_days": number,"grace_days": number,"id": number,"late_fine_cap": number,"late_fine_per_day": number,"online_payment_enabled": boolean,"payment_provider": string,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "due_days"?: number,"grace_days"?: number,"id"?: number,"late_fine_cap"?: number,"late_fine_per_day"?: number,"updated_at"?: string
+                    "due_days"?: number,"grace_days"?: number,"id"?: number,"late_fine_cap"?: number,"late_fine_per_day"?: number,"online_payment_enabled"?: boolean,"payment_provider"?: string,"updated_at"?: string
                   }
                   Update: {
-                    "due_days"?: number,"grace_days"?: number,"id"?: number,"late_fine_cap"?: number,"late_fine_per_day"?: number,"updated_at"?: string
+                    "due_days"?: number,"grace_days"?: number,"id"?: number,"late_fine_cap"?: number,"late_fine_per_day"?: number,"online_payment_enabled"?: boolean,"payment_provider"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     
@@ -958,6 +958,38 @@ isOneToOne: false
       columns: ["payment_id"]
 isOneToOne: false
       referencedRelation: "payments"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"payment_intents": {
+                  Row: {
+                    "amount": number,"created_at": string,"created_by": string | null,"failure_reason": string | null,"id": string,"item_ids": (number)[],"payment_id": number | null,"provider": string,"provider_txn_id": string | null,"status": string,"student_id": number,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount": number,"created_at"?: string,"created_by"?: string | null,"failure_reason"?: string | null,"id"?: string,"item_ids": (number)[],"payment_id"?: number | null,"provider": string,"provider_txn_id"?: string | null,"status"?: string,"student_id": number,"updated_at"?: string
+                  }
+                  Update: {
+                    "amount"?: number,"created_at"?: string,"created_by"?: string | null,"failure_reason"?: string | null,"id"?: string,"item_ids"?: (number)[],"payment_id"?: number | null,"provider"?: string,"provider_txn_id"?: string | null,"status"?: string,"student_id"?: number,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "payment_intents_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payment_intents_payment_id_fkey"
+      columns: ["payment_id"]
+isOneToOne: true
+      referencedRelation: "payments"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payment_intents_student_id_fkey"
+      columns: ["student_id"]
+isOneToOne: false
+      referencedRelation: "students"
       referencedColumns: ["id"]
     }
                   ]
@@ -1476,14 +1508,23 @@ isOneToOne: false
 "class_allows_group":
 { Args: { "p_class_id": number }; Returns: boolean
                            },
+"complete_payment_intent":
+{ Args: { "p_amount": number,"p_id": string,"p_provider": string,"p_txn": string }; Returns: string
+                           },
 "copy_fee_structure":
 { Args: { "p_from": number,"p_to": number }; Returns: number
                            },
 "create_invoices":
 { Args: { "p_due_on": string,"p_period_key": string,"p_rows": Json,"p_session_id": number }; Returns: Json
                            },
+"create_payment_intent":
+{ Args: { "p_student_id": number }; Returns: Json
+                           },
 "custom_access_token_hook":
 { Args: { "event": Json }; Returns: Json
+                           },
+"fail_payment_intent":
+{ Args: { "p_id": string,"p_provider": string,"p_reason": string }; Returns: undefined
                            },
 "hit_rate_limit":
 { Args: { "p_key": string,"p_max": number,"p_window_seconds": number }; Returns: boolean
@@ -1544,7 +1585,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "admission_status": "submitted"|"under_review"|"test_scheduled"|"approved"|"rejected"|"waitlisted","app_role": "super_admin"|"admin"|"teacher"|"accountant"|"student"|"guardian","attendance_status": "present"|"absent"|"late"|"leave","blood_group": "A+"|"A-"|"B+"|"B-"|"AB+"|"AB-"|"O+"|"O-","exam_status": "draft"|"marks_entry"|"review"|"published","fee_frequency": "monthly"|"one_time","gender": "male"|"female"|"other","invoice_status": "unpaid"|"partial"|"paid"|"cancelled","link_placement": "quick"|"footer","notice_audience": "public"|"staff"|"class","notice_category": "general"|"exam"|"result"|"admission"|"holiday","payment_method": "cash"|"bkash"|"nagad"|"rocket"|"bank","religion": "islam"|"hinduism"|"buddhism"|"christianity"|"other","student_status": "active"|"inactive"|"transferred"|"graduated","subject_type": "compulsory"|"optional"|"fourth","waiver_kind": "percent"|"fixed"
+            "admission_status": "submitted"|"under_review"|"test_scheduled"|"approved"|"rejected"|"waitlisted","app_role": "super_admin"|"admin"|"teacher"|"accountant"|"student"|"guardian","attendance_status": "present"|"absent"|"late"|"leave","blood_group": "A+"|"A-"|"B+"|"B-"|"AB+"|"AB-"|"O+"|"O-","exam_status": "draft"|"marks_entry"|"review"|"published","fee_frequency": "monthly"|"one_time","gender": "male"|"female"|"other","invoice_status": "unpaid"|"partial"|"paid"|"cancelled","link_placement": "quick"|"footer","notice_audience": "public"|"staff"|"class","notice_category": "general"|"exam"|"result"|"admission"|"holiday","payment_method": "cash"|"bkash"|"nagad"|"rocket"|"bank"|"online","religion": "islam"|"hinduism"|"buddhism"|"christianity"|"other","student_status": "active"|"inactive"|"transferred"|"graduated","subject_type": "compulsory"|"optional"|"fourth","waiver_kind": "percent"|"fixed"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -1664,7 +1705,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "admission_status": ["submitted", "under_review", "test_scheduled", "approved", "rejected", "waitlisted"],"app_role": ["super_admin", "admin", "teacher", "accountant", "student", "guardian"],"attendance_status": ["present", "absent", "late", "leave"],"blood_group": ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],"exam_status": ["draft", "marks_entry", "review", "published"],"fee_frequency": ["monthly", "one_time"],"gender": ["male", "female", "other"],"invoice_status": ["unpaid", "partial", "paid", "cancelled"],"link_placement": ["quick", "footer"],"notice_audience": ["public", "staff", "class"],"notice_category": ["general", "exam", "result", "admission", "holiday"],"payment_method": ["cash", "bkash", "nagad", "rocket", "bank"],"religion": ["islam", "hinduism", "buddhism", "christianity", "other"],"student_status": ["active", "inactive", "transferred", "graduated"],"subject_type": ["compulsory", "optional", "fourth"],"waiver_kind": ["percent", "fixed"]
+            "admission_status": ["submitted", "under_review", "test_scheduled", "approved", "rejected", "waitlisted"],"app_role": ["super_admin", "admin", "teacher", "accountant", "student", "guardian"],"attendance_status": ["present", "absent", "late", "leave"],"blood_group": ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],"exam_status": ["draft", "marks_entry", "review", "published"],"fee_frequency": ["monthly", "one_time"],"gender": ["male", "female", "other"],"invoice_status": ["unpaid", "partial", "paid", "cancelled"],"link_placement": ["quick", "footer"],"notice_audience": ["public", "staff", "class"],"notice_category": ["general", "exam", "result", "admission", "holiday"],"payment_method": ["cash", "bkash", "nagad", "rocket", "bank", "online"],"religion": ["islam", "hinduism", "buddhism", "christianity", "other"],"student_status": ["active", "inactive", "transferred", "graduated"],"subject_type": ["compulsory", "optional", "fourth"],"waiver_kind": ["percent", "fixed"]
           }
         }
 } as const

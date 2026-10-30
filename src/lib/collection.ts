@@ -13,7 +13,9 @@ export const PAYMENT_METHODS = [
   "rocket",
   "bank",
 ] as const;
+/** Methods the office records; "online" payments come only from a gateway (Step 5.3). */
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
+export type AnyPaymentMethod = PaymentMethod | "online";
 
 /** Mobile banking needs the transaction ID (unique per method, open question 42). */
 export const needsTxn = (m: PaymentMethod) =>

@@ -402,6 +402,9 @@ invoices. Online payment is prepared but switched off until a gateway account ex
 - Webhook route /api/payments/webhook/[provider] verifies signature, is idempotent
   (payment_intents table, unique provider txn id), then records the payment.
 - Tests: unit tests for idempotency and amount mismatch rejection using the mock provider.
+- **Built in 5.3:** an intent covers everything owed (with today's late fines); a wrong
+  amount or bills paid meanwhile record nothing and keep the gateway ID for a refund; the
+  sandbox runs only with `PAYMENT_SANDBOX_SECRET` set; Pay now is for guardians.
 
 ## Phase 6 — QA, security, performance and launch [CONFIRMED]
 Goal: prove the whole system works end to end, fix what fails, and deploy.

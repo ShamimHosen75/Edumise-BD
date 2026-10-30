@@ -3,7 +3,7 @@ import "server-only";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import { t } from "@/i18n/t";
-import { monthBounds, totalsBy, type PaymentMethod } from "@/lib/collection";
+import { monthBounds, totalsBy, type AnyPaymentMethod } from "@/lib/collection";
 import { formatDate, localizeDigits, pickLocalized } from "@/lib/format";
 import { dhakaToday } from "@/lib/people";
 import { totalsRow, type CellKind, type Report } from "@/lib/report-table";
@@ -16,7 +16,7 @@ type Named = { name_en: string; name_bn: string };
 type PaymentRaw = {
   receipt_no: string;
   amount: number;
-  method: PaymentMethod;
+  method: AnyPaymentMethod;
   txn_id: string | null;
   collected_by_name: string;
   cancelled_at: string | null;

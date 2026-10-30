@@ -1839,7 +1839,8 @@
       "bkash": "bKash",
       "nagad": "Nagad",
       "rocket": "Rocket",
-      "bank": "Bank"
+      "bank": "Bank",
+      "online": "Online"
     },
     "collect": {
       "title": "Collect fees",
@@ -1970,6 +1971,41 @@
         "pick": "Enter a student ID to see the ledger.",
         "notFound": "No student with this ID."
       }
+    },
+    "online": {
+      "payNow": "Pay now",
+      "starting": "Opening the payment page…",
+      "payAtOffice": "Please pay at the school office. Online payment by card or mobile banking is not available yet.",
+      "nothingDue": "Nothing is due.",
+      "switchedOff": "Online payment is switched off.",
+      "unavailable": "This payment gateway is not set up.",
+      "closed": "This payment is already finished.",
+      "failedToRecord": "The payment could not be completed. No money was recorded.",
+      "statusTitle": "Online payment",
+      "statuses": {
+        "created": "Waiting for the payment gateway…",
+        "paid": "Paid. Thank you!",
+        "failed": "The payment did not go through. No money was recorded."
+      },
+      "amount": "Amount",
+      "started": "Started",
+      "seeReceipt": "See the receipt",
+      "sandboxTitle": "Test payment gateway",
+      "sandboxNote": "This is a test gateway (sandbox). No real money is taken.",
+      "sandboxPay": "Pay (test)",
+      "sandboxFail": "Fail (test)",
+      "settingsTitle": "Online payment",
+      "settingsIntro": "Lets guardians pay what is due online. Only the office can switch it on. bKash, Nagad and SSLCommerz need a merchant account first.",
+      "enabled": "Families can pay online",
+      "provider": "Payment gateway",
+      "providers": {
+        "manual": "None: pay at the office",
+        "sandbox": "Sandbox (test only)",
+        "bkash": "bKash",
+        "nagad": "Nagad",
+        "sslcommerz": "SSLCommerz (cards and mobile banking)"
+      },
+      "notSetUp": "not set up"
     }
   }
 }

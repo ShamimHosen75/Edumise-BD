@@ -974,3 +974,51 @@ Manual check (≤ 8 clicks): log in as accountant → Fees → Collect → searc
 open → type 300 → Save and print receipt (the fine is frozen, receipt shows words in EN
 and BN) → Reports → Daily collection shows the receipt → log in as admin and open the
 receipt → Cancel payment with a reason.
+
+## Step 5.3 — online payment, ready for a gateway ✅ (FEE-05)
+
+Checks (run locally, 2026-10-30): `lint` ✅ · `typecheck` ✅ · `test` ✅ 509 · `db:test` ✅
+31 files / 478 tests · `db lint` ✅ · types up to date ✅ · `build` ✅ · `test:e2e` ✅
+245 passed, 5 skipped by design · no browser console errors · the new pages fit 360px.
+
+| Acceptance criterion | Result | Evidence |
+|---|---|---|
+| `PaymentProvider` interface (createPayment, verifyPayment, handleWebhook) in `src/lib/payments/` | ✅ Pass | `types.ts`; registry `getProvider()` in `index.ts` |
+| A "manual" provider and a "sandbox" mock provider | ✅ Pass | `manual.ts` (pay at the office); `sandbox.ts` (HMAC-SHA256 signed webhooks, its own test checkout page) |
+| Stubs with TODO for bKash, Nagad, SSLCommerz | ✅ Pass | `stubs.ts`: report "not set up", cannot be chosen in settings, their webhooks return 404 |
+| Guardian "Pay now" only when online payment is switched on | ✅ Pass | `fee_settings.online_payment_enabled` (admins only, database trigger); e2e checks the button is absent when off and when nothing is due |
+| Webhook `/api/payments/webhook/[provider]` verifies the signature | ✅ Pass | forged or missing signatures → 401; unit tests and e2e |
+| Idempotent: `payment_intents` with a unique provider transaction ID | ✅ Pass | unique (provider, provider_txn_id); `complete_payment_intent()` returns "duplicate" for the same transaction; unit test, pgTAP and e2e post the same webhook twice: one payment |
+| Then records the payment | ✅ Pass | same allocation and late-fine rules as the office (`app.apply_payment()`); receipt shows "Online" and the gateway's ID |
+| Unit tests: idempotency and amount mismatch with the mock provider | ✅ Pass | `tests/unit/payments.test.ts` (12 tests) |
+
+Negative tests:
+- a guardian cannot start a payment for another child (this found a real bug, fixed
+  before commit: a null check let it through);
+- the accountant cannot switch online payment on;
+- nobody writes intents directly or completes one while signed in (service role only);
+- another provider, a wrong amount, a second transaction for a paid intent, a forged
+  signature and an unknown gateway are refused;
+- the office cannot record an "online" payment by hand.
+
+Decisions:
+- An intent covers everything the child owes: open items plus today's late fines. One
+  open intent per child; starting again closes the earlier one.
+- A wrong amount closes the intent and records nothing. So does a payment whose bills
+  were paid at the office meanwhile. In both cases the gateway's ID is kept (audit log)
+  for the office to refund.
+- The sandbox gateway works only when `PAYMENT_SANDBOX_SECRET` is set on the server.
+  CI sets a throw-away value. A live site leaves it empty.
+- Pay now is on the guardian's fee page (as the step says). Students see their fees but
+  do not pay online.
+- Online payments use a new method "Online". bKash and Nagad gateways would record as
+  bKash and Nagad.
+
+Known issues:
+- No real gateway yet. Each needs a merchant account and its keys (see the TODOs).
+- Refunds are by hand: failed intents with a gateway ID are listed only in the audit log.
+- Intents that were started and never finished stay "waiting". They do no harm.
+
+Manual check (≤ 8 clicks): as admin, Fees → Late fine → tick "Families can pay online",
+choose Sandbox, Save → as guardian, My children → Fees → Pay now → Pay (test) → See the
+receipt.
