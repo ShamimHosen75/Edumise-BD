@@ -37,7 +37,7 @@ R = read, W = create/update/delete, — = no access. Updated to match Step 1.3 a
 | `attendance` | — | RW | RW | RW own sections | — | R own | R linked |
 | `exams`, `exam_subjects` | R published / schedule published | RW | RW | R all | R all | R published | R published |
 | `marks` | — (one mark sheet via lookup function, Step 4.3) | RW | RW | R own subjects; W own subjects while not locked | — | R own, published exams | R linked, published exams |
-| Fees (`fee_heads`, `fee_structures`, `fee_waivers`, `invoices`, `invoice_items`) | — | RW | RW | — | RW | R own (+ fee heads) | R linked (+ fee heads) |
+| Fees (`fee_heads`, `fee_structures`, `fee_waivers`; `invoices`, `invoice_items` read-only, written by the fee functions since the Phase 5 review) | — | RW | RW | — | RW | R own (+ fee heads) | R linked (+ fee heads) |
 
 ---
 

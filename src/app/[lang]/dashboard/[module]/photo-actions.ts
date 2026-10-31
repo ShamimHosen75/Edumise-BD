@@ -17,6 +17,11 @@ import type { SimpleResult } from "./actions";
 const gallery = (lang: string) => authorize(lang, "gallery");
 
 /** Adds one photo (already resized to WebP in the browser; checked again here). */
+const captionSchema = z.object({
+  caption_en: z.string().trim().max(200, "errors.tooLong"),
+  caption_bn: z.string().trim().max(200, "errors.tooLong"),
+});
+
 export async function addAlbumPhoto(
   lang: string,
   albumId: number,
@@ -48,15 +53,20 @@ export async function addAlbumPhoto(
     .from("public-media")
     .upload(path, read.bytes, { contentType: type });
   if (uploadError) return { ok: false, error: "errors.uploadFailed" };
-  const caption = (key: string) =>
-    String(formData.get(key) ?? "")
-      .trim()
-      .slice(0, 200);
+  // A6 (Step 6.2): captions checked with Zod.
+  const captions = captionSchema.safeParse({
+    caption_en: formData.get("caption_en") ?? "",
+    caption_bn: formData.get("caption_bn") ?? "",
+  });
+  if (!captions.success) {
+    await db.storage.from("public-media").remove([path]);
+    return { ok: false, error: "errors.tooLong" };
+  }
   const { error } = await db.from("gallery_images").insert({
     album_id: albumId,
     image_path: path,
-    caption_en: caption("caption_en"),
-    caption_bn: caption("caption_bn"),
+    caption_en: captions.data.caption_en,
+    caption_bn: captions.data.caption_bn,
     sort_order: Math.min(
       ((last?.sort_order as number | undefined) ?? -1) + 1,
       32767,
@@ -75,11 +85,6 @@ export async function addAlbumPhoto(
   refreshModule("gallery");
   return { ok: true };
 }
-
-const captionSchema = z.object({
-  caption_en: z.string().trim().max(200, "errors.tooLong"),
-  caption_bn: z.string().trim().max(200, "errors.tooLong"),
-});
 
 export async function savePhotoCaption(
   lang: string,

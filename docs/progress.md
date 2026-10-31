@@ -1077,3 +1077,23 @@ Left for later, listed in the report:
 | Whole suite run; failures logged in `docs/qa-report.md` | ✅ Pass | QA-01 to QA-04 |
 | Blockers and Majors fixed; report shown before the Minors | ✅ Pass | No Blockers or Majors. Minors fixed after the owner's go-ahead |
 
+
+## Step 6.2 — security audit ✅ (NFR-01, NFR-02)
+
+Report: `docs/security-report.md`. No Critical or High findings. Fixed, with regression tests:
+- **Medium:** no security headers (H1); switched-off family logins could still read data through the API (D1); anyone could lock accounts with wrong passwords (A1).
+- **Low:** split login counters (A2); spoofable client address behind self-hosted proxies (A3); login timing (A4); teachers seeing earlier years of a section (D2); self-renaming shown on receipts (D3).
+- **Info:** test gateway on a live self-hosted site (A5); two inputs not checked with Zod (A6); `..` in rich-text image paths (A7); excess table rights (D5); missing catalogue tests (D6).
+
+Checks: unit 525 ✅ · pgTAP 526 ✅ · `db lint` ✅ · bundle secret check ✅ · e2e 279 passed, 0 failed, 7 skipped.
+
+| Acceptance criterion | Result | Evidence |
+|---|---|---|
+| RLS and policies; SECURITY DEFINER `search_path`; `db lint` | ✅ Pass | pgTAP 090, 400; report checklist |
+| No secrets in client bundles | ✅ Pass | `scripts/check-bundle-secrets.mjs` (in CI) |
+| Server actions and route handlers: auth, role, Zod | ✅ Pass | inventory in the report; A6 fixed |
+| IDOR | ✅ Pass | refused for every role; pgTAP and e2e |
+| Uploads: server-side type and size; private bucket via signed URLs | ✅ Pass | report checklist |
+| XSS, CSRF, rate limits | ✅ Pass | A1–A3, A7 fixed; unit tests |
+| No personal data on public pages | ✅ Pass | e2e `privacy-crawl.spec.ts` |
+| Security headers | ✅ Pass | e2e `security-headers.spec.ts` |

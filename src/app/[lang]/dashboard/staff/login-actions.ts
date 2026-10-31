@@ -1,5 +1,6 @@
 "use server";
 
+import { setLoginBlocked } from "@/lib/auth/ban";
 import { isLocale } from "@/i18n/config";
 import type { TranslationKey } from "@/i18n/t";
 import { invalid, type ActionResult } from "@/lib/actions";
@@ -174,5 +175,7 @@ export async function setStaffLoginActive(
     .eq("id", profile.id)
     .select("id");
   if (error || !data.length) return { ok: false, error: "errors.notAllowed" };
+  if (!(await setLoginBlocked(profile.id, !active)))
+    return { ok: false, error: "auth.unexpected" };
   return { ok: true };
 }

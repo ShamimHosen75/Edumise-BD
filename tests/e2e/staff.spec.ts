@@ -21,6 +21,8 @@ async function cleanup(name: string) {
   }
 }
 
+const INVALID_CREDENTIALS = "Wrong email, mobile number or password.";
+
 test("admin adds a teacher with private details that never reach the website", async ({
   page,
 }) => {
@@ -120,11 +122,10 @@ test("admin creates a login with a one-time password; the teacher must change it
     await expect(page.getByText("Switched off")).toBeVisible();
     await logout(page);
     await login(page, email, password!);
-    await expect(
-      page.getByText(
-        "Your account has no access. Please contact the school office.",
-      ),
-    ).toBeVisible();
+    // Switched off = banned in Supabase Auth (Step 6.2, D1): the same answer as a wrong
+    // password, so nobody can tell which logins exist.
+    await expect(page.getByText(INVALID_CREDENTIALS)).toBeVisible();
+    await expect(page).toHaveURL(/\/en\/login/);
   } finally {
     await cleanup(name);
   }

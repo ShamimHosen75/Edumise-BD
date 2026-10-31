@@ -11,8 +11,8 @@ set local role authenticated;
 set local request.jwt.claims to '{"sub": "00000000-0000-4000-a000-000000000003", "role": "authenticated"}';
 select throws_ok($$ update public.profiles set must_change_password = false where id = auth.uid() $$,
   '42501', null, 'a user cannot clear their own must_change_password');
-select lives_ok($$ update public.profiles set full_name_en = 'Kamal H.' where id = auth.uid() $$,
-  'a user can still edit their own name');
+select throws_ok($$ update public.profiles set full_name_en = 'Kamal H.' where id = auth.uid() $$,
+  '42501', null, 'names are changed by an admin (Step 6.2, D3: receipts print them)');
 
 set local request.jwt.claims to '{"sub": "00000000-0000-4000-a000-000000000002", "role": "authenticated"}';
 select is(pg_temp.affected($$ update public.profiles set must_change_password = false

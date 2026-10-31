@@ -60,7 +60,10 @@ export function sanitizeRichText(
         (mediaBase &&
           src.startsWith(
             `${mediaBase}/storage/v1/object/public/public-media/`,
-          )) ||
+          ) &&
+          // A7 (Step 6.2): no "../" (plain or encoded) to step out of the bucket.
+          !/(^|\/)(\.|%2e){2}(\/|%2f|$)/i.test(src) &&
+          !/%2f|%5c|\\/i.test(src)) ||
         /^\/demo\/[a-z0-9-]+\.(jpg|png|webp)$/.test(src);
       return !own;
     },

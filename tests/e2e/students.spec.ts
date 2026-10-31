@@ -1,6 +1,7 @@
 import path from "node:path";
 
 import { expect, test, type Page } from "@playwright/test";
+import { createClient } from "@supabase/supabase-js";
 
 import { adminClient, login, loginAs, logout } from "./helpers";
 
@@ -249,6 +250,29 @@ test("admin adds a student, links guardians, makes logins, and the student logs 
     await logout(page);
     await login(page, code, password);
     await expect(page).toHaveURL(/\/en\/change-password$/);
+
+    // Step 6.2 (D1): switching the login off also blocks signing in to the API directly
+    // (with the public key), not only the website.
+    const api = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { auth: { persistSession: false } },
+    );
+    const studentLogin = { email: `student-${code}@student.invalid`, password };
+    expect((await api.auth.signInWithPassword(studentLogin)).error).toBeNull();
+    await page.context().clearCookies();
+    await loginAs(page, "admin@sunrise.test");
+    await page.goto(profile);
+    await page.getByRole("button", { name: "Switch off" }).click();
+    await expect(page.getByRole("button", { name: "Switch on" })).toBeVisible();
+    expect(
+      (await api.auth.signInWithPassword(studentLogin)).error,
+    ).not.toBeNull();
+    await page.getByRole("button", { name: "Switch on" }).click();
+    await expect(
+      page.getByRole("button", { name: "Switch off" }),
+    ).toBeVisible();
+    expect((await api.auth.signInWithPassword(studentLogin)).error).toBeNull();
   } finally {
     await cleanup(name, [phone]);
   }

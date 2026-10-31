@@ -82,8 +82,8 @@ Paste the real catalogue to replace the descriptions and priorities.
 
 | ID | Requirement | Tests | Status |
 |---|---|---|---|
-| NFR-01 | Security: RLS everywhere, roles on server and database, no service key in the browser. (Step 6.2) | db/090_rls_coverage, db/100–160 RLS suites, db/010_schema (fixed search_path); unit/security-rules, unit/supabase-admin; review reports for Phases 2–5. Full audit in 6.2. | ⏳ 6.2 |
-| NFR-02 | Privacy and abuse limits: no personal data on public pages, rate limits, safe uploads. (Step 6.2) | e2e/people and e2e/staff (no NID, birth date or address); e2e/auth (login limits); e2e/people (contact limit); e2e/cms (fake PDF refused); e2e/dashboard (logo checked by content). Full audit in 6.2. | ⏳ 6.2 |
+| NFR-01 | Security: RLS everywhere, roles on server and database, no service key in the browser. (Step 6.2) | db/090_rls_coverage, db/100–160 RLS suites, db/010_schema (fixed search_path); unit/security-rules, unit/supabase-admin, unit/security-audit; db/400_security_audit; e2e/security-headers; `scripts/check-bundle-secrets.mjs` in CI; `docs/security-report.md` | ✅ |
+| NFR-02 | Privacy and abuse limits: no personal data on public pages, rate limits, safe uploads. (Step 6.2) | e2e/people and e2e/staff (no NID, birth date or address); e2e/auth (login limits); e2e/people (contact limit); e2e/cms (fake PDF refused); e2e/dashboard (logo checked by content); e2e/privacy-crawl (whole public site, en and bn); e2e/students (switched-off login blocked in the API) | ✅ |
 | NFR-03 | Performance (Lighthouse ≥ 90). (Step 6.3) | Run in 6.3. | ⏳ 6.3 |
 | NFR-04 | Accessibility (axe, keyboard, contrast). (Step 6.3) | Partly: e2e/home (keyboard menu), e2e/content (lightbox keys). axe in 6.3. | ⏳ 6.3 |
 | NFR-06 | Mobile (360px) and print. (Step 6.3) | e2e/smoke, e2e/dashboard ("dashboard works on a phone… no sideways scrolling"), every spec on mobile-360. Print styles in 6.3. | ⏳ 6.3 |

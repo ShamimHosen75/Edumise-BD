@@ -13,11 +13,24 @@ import {
 
 export const SANDBOX_HEADER = "x-sandbox-signature";
 
-// Never on the live site, even if the secret is set there by mistake.
+/**
+ * Never on the live site, even if the secret is set there by mistake: not on Vercel
+ * production, and not on a public https address (self-hosted) unless
+ * PAYMENT_SANDBOX_ALLOW_LIVE=1 is set on purpose (A5, Step 6.2).
+ */
+export function sandboxAllowed(
+  env: Record<string, string | undefined> = process.env,
+): boolean {
+  if (env.VERCEL_ENV === "production") return false;
+  const site = env.NEXT_PUBLIC_SITE_URL ?? "";
+  const live =
+    /^https:\/\//.test(site) &&
+    !/^https:\/\/(localhost|127\.0\.0\.1)([:/]|$)/.test(site);
+  return !live || env.PAYMENT_SANDBOX_ALLOW_LIVE === "1";
+}
+
 const secret = () =>
-  process.env.VERCEL_ENV === "production"
-    ? ""
-    : (process.env.PAYMENT_SANDBOX_SECRET ?? "");
+  sandboxAllowed() ? (process.env.PAYMENT_SANDBOX_SECRET ?? "") : "";
 
 const payload = (e: GatewayEvent) =>
   `${e.intentId}|${e.providerTxnId}|${e.amount}|${e.status}`;

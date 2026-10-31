@@ -2,6 +2,8 @@
 
 import { randomUUID } from "node:crypto";
 
+import { z } from "zod";
+
 import { revalidateTag } from "next/cache";
 
 import { isLocale } from "@/i18n/config";
@@ -188,6 +190,11 @@ export async function setPageCover(
   return { ok: true };
 }
 
+const attachmentLabelSchema = z.object({
+  label: z.string().trim().min(1).max(120),
+  label_bn: z.string().trim().max(120),
+});
+
 export async function addAttachment(
   lang: string,
   pageId: number,
@@ -195,9 +202,13 @@ export async function addAttachment(
 ): Promise<SimpleResult> {
   assertId(pageId);
   const supabase = await adminOnly(lang);
-  const label = String(formData.get("label") ?? "").trim();
-  if (!label || label.length > 120)
-    return { ok: false, error: "errors.required" };
+  // A6 (Step 6.2): labels checked with Zod, before the file is read.
+  const labels = attachmentLabelSchema.safeParse({
+    label: formData.get("label") ?? "",
+    label_bn: formData.get("label_bn") ?? "",
+  });
+  if (!labels.success) return { ok: false, error: "errors.required" };
+  const label = labels.data.label;
   const read = await readUpload(formData, ATTACHMENT_MAX_BYTES);
   if ("error" in read) return { ok: false, error: read.error };
   const type = detectDocumentType(read.bytes);
@@ -211,9 +222,7 @@ export async function addAttachment(
   const { error } = await supabase.from("page_attachments").insert({
     page_id: pageId,
     label_en: label,
-    label_bn: String(formData.get("label_bn") ?? "")
-      .trim()
-      .slice(0, 120),
+    label_bn: labels.data.label_bn,
     file_path: path,
     mime_type: type,
     file_size: read.bytes.byteLength,

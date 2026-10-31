@@ -10,7 +10,12 @@ import { canSetPasswordWithoutCurrent } from "@/lib/auth/password-policy";
 import { isRole, roleHomePath, safeNextPath } from "@/lib/auth/roles";
 import { getSessionAmr, requireUser } from "@/lib/auth/session";
 import { hitRateLimit, isRateLimited } from "@/lib/rate-limit";
-import { clientIp, LIMITS, rateKey } from "@/lib/rate-limit-keys";
+import {
+  clientIp,
+  LIMITS,
+  loginFailureKeys,
+  rateKey,
+} from "@/lib/rate-limit-keys";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -61,35 +66,45 @@ export async function signIn(
   // limit cannot tell users apart. Per IP is generous (a school lab shares one address);
   // per account is strict and counts failures only.
   const ip = clientIp(await headers());
-  const accountKey = rateKey(
-    "login-fail",
-    isBdPhone(identifier) ? normalizePhone(identifier) : identifier,
-  );
   if (await hitRateLimit(rateKey("login-ip", ip), LIMITS.loginPerIp))
     return { ok: false, error: "auth.tooMany" };
-  if (await isRateLimited(accountKey, LIMITS.loginFailuresPerAccount))
-    return { ok: false, error: "auth.tooMany" };
 
-  const fail = async (): Promise<ActionResult> => {
-    await hitRateLimit(accountKey, LIMITS.loginFailuresPerAccount);
-    return { ok: false, error: "auth.invalidCredentials" };
-  };
-
-  // Same message for unknown accounts and wrong passwords, so accounts cannot be probed.
+  // The account this identifier means: phone and student ID resolve to the sign-in
+  // address, so every way of typing one account shares its failure counters (A2).
   const email = isBdPhone(identifier)
     ? await emailForPhone(identifier)
     : isStudentCode(identifier)
       ? studentEmail(identifier.trim())
       : identifier.toLowerCase();
-  if (!email) return fail();
+  const keys = loginFailureKeys(
+    email ?? (isBdPhone(identifier) ? normalizePhone(identifier) : identifier),
+    ip,
+  );
+  if (
+    (await isRateLimited(keys.fromThisIp, LIMITS.loginFailuresPerAccount)) ||
+    (await isRateLimited(keys.total, LIMITS.loginFailuresPerAccountTotal))
+  )
+    return { ok: false, error: "auth.tooMany" };
 
+  const fail = async (): Promise<ActionResult> => {
+    await hitRateLimit(keys.fromThisIp, LIMITS.loginFailuresPerAccount);
+    await hitRateLimit(keys.total, LIMITS.loginFailuresPerAccountTotal);
+    return { ok: false, error: "auth.invalidCredentials" };
+  };
+
+  // Same message and about the same time for unknown accounts and wrong passwords, so
+  // accounts cannot be probed (A4): an unknown phone still makes one password check.
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithPassword({
-    email,
+    email: email ?? "no-account@login.invalid",
     password,
   });
+  if (!email) return fail();
   if (error?.code === "over_request_rate_limit")
     return { ok: false, error: "auth.tooMany" };
+  // A switched-off login is banned in Supabase Auth (D1, Step 6.2). Supabase says
+  // "banned" even for a wrong password, so it gets the same answer as a wrong password
+  // (below): otherwise anyone could find out which logins exist and are switched off.
   if (error || !data.user) return fail();
 
   const { data: profile } = await supabase
