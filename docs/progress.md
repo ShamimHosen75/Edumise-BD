@@ -1050,3 +1050,19 @@ Left for later, listed in the report:
 - a Bangla font in PDFs;
 - adjusting bills after a late waiver approval;
 - waivers for other sessions.
+
+## Step 6.1 — full regression and traceability (in progress: waiting for the owner on Minors)
+
+- `docs/traceability.md`: every requirement ID cited in the steps (46), mapped to its tests.
+  The full catalogue was never supplied, so the IDs are treated as Must, per the owner's
+  decision on 2026-10-31.
+- New tests for the gaps: fee reports and their exports (FEE-04/06), and the News module
+  (`coverage-gaps.spec.ts`).
+- Five "day in the life" scenarios, in English and Bangla, desktop and 360×740:
+  - `day-admission-school.spec.ts`: admission season and a school day;
+  - `day-exam-cycle.spec.ts`: the exam cycle;
+  - `day-fees-website.spec.ts`: a fee month and the website editor.
+- Full run: unit 516 ✅ · pgTAP 504 ✅ · e2e 271 passed, 2 failed, 5 skipped.
+  - Both failures are QA-01 (Minor: Bangla digits in the marks grid).
+  - No Blockers or Majors.
+- `docs/qa-report.md`: QA-01 to QA-04. The Minors wait for the owner, as the step says.
