@@ -1051,7 +1051,7 @@ Left for later, listed in the report:
 - adjusting bills after a late waiver approval;
 - waivers for other sessions.
 
-## Step 6.1 — full regression and traceability (in progress: waiting for the owner on Minors)
+## Step 6.1 — full regression and traceability ✅
 
 - `docs/traceability.md`: every requirement ID cited in the steps (46), mapped to its tests.
   The full catalogue was never supplied, so the IDs are treated as Must, per the owner's
@@ -1066,3 +1066,14 @@ Left for later, listed in the report:
   - Both failures are QA-01 (Minor: Bangla digits in the marks grid).
   - No Blockers or Majors.
 - `docs/qa-report.md`: QA-01 to QA-04. The Minors wait for the owner, as the step says.
+- The owner approved fixing the Minors. QA-01, QA-02 and QA-03 are fixed.
+- Re-run: e2e 273 passed, 0 failed, 5 skipped · unit 516 · pgTAP 504.
+
+| Acceptance criterion | Result | Evidence |
+|---|---|---|
+| `docs/traceability.md`: every requirement ID → tests → status; IDs with no test listed | ✅ Pass | 46 IDs; no cited ID is without a test |
+| Missing tests so every M and S requirement is covered | ✅ Pass | `coverage-gaps.spec.ts` (fee reports and exports, News) |
+| 5 "day in the life" scenarios, desktop and 360×740, en and bn | ✅ Pass | 20 runs, all passing |
+| Whole suite run; failures logged in `docs/qa-report.md` | ✅ Pass | QA-01 to QA-04 |
+| Blockers and Majors fixed; report shown before the Minors | ✅ Pass | No Blockers or Majors. Minors fixed after the owner's go-ahead |
+

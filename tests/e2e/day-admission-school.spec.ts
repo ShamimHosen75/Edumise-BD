@@ -6,7 +6,7 @@ import bn from "@/dictionaries/bn.json" with { type: "json" };
 import en from "@/dictionaries/en.json" with { type: "json" };
 import { localizeDigits } from "@/lib/format";
 
-import { adminClient, loginAs } from "./helpers";
+import { adminClient, cleanupApplication, loginAs } from "./helpers";
 
 // Step 6.1 "day in the life" scenarios: admission season and a school day (attendance),
 // each in English and Bangla. Every label comes from the dictionaries.
@@ -64,43 +64,6 @@ async function sectionByName(level: number, name: string) {
 // ---------------------------------------------------------------------------
 // 1. Admission season
 // ---------------------------------------------------------------------------
-
-async function cleanupApplication(phone: string) {
-  const admin = db();
-  const { data: apps } = await admin
-    .from("admission_applications")
-    .select("id, student_id, photo_path, admission_documents(file_path)")
-    .eq("guardian_phone", phone);
-  for (const app of apps ?? []) {
-    const files = [
-      app.photo_path,
-      ...((app.admission_documents ?? []) as { file_path: string }[]).map(
-        (x) => x.file_path,
-      ),
-    ].filter((f): f is string => Boolean(f));
-    if (app.student_id) {
-      const { data: links } = await admin
-        .from("student_guardians")
-        .select("guardian_id")
-        .eq("student_id", app.student_id);
-      const guardianIds = (links ?? []).map((l) => l.guardian_id);
-      const { data: guardians } = guardianIds.length
-        ? await admin
-            .from("guardians")
-            .select("id, profile_id")
-            .in("id", guardianIds)
-        : { data: [] };
-      // Enrolments, guardian links and attendance go with the student (cascade).
-      await admin.from("students").delete().eq("id", app.student_id);
-      if (guardianIds.length)
-        await admin.from("guardians").delete().in("id", guardianIds);
-      for (const g of guardians ?? [])
-        if (g.profile_id) await admin.auth.admin.deleteUser(g.profile_id);
-    }
-    await admin.from("admission_applications").delete().eq("id", app.id);
-    if (files.length) await admin.storage.from("private-docs").remove(files);
-  }
-}
 
 async function fillApplication(
   page: Page,
@@ -232,8 +195,9 @@ for (const lang of ["en", "bn"] as const) {
         page.getByText(
           pattern(aa.approved, {
             name: esc(name),
-            code: `${DIGIT}{10}`,
-            roll: `${DIGIT}+`,
+            // QA-02: the student ID and roll use the reader's digits.
+            code: `${lang === "bn" ? "[০-৯]" : "[0-9]"}{10}`,
+            roll: `${lang === "bn" ? "[০-৯]" : "[0-9]"}+`,
           }),
         ),
       ).toBeVisible({ timeout: 30_000 });

@@ -140,3 +140,44 @@ export const TINY_PNG = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
   "base64",
 );
+
+/**
+ * Deletes an online application made by a test (found by its guardian mobile), with the
+ * student, guardians and guardian login its approval created, and its uploaded files.
+ */
+export async function cleanupApplication(phone: string) {
+  const admin = adminClient();
+  const { data: apps } = await admin
+    .from("admission_applications")
+    .select("id, student_id, photo_path, admission_documents(file_path)")
+    .eq("guardian_phone", phone);
+  for (const app of apps ?? []) {
+    const files = [
+      app.photo_path,
+      ...((app.admission_documents ?? []) as { file_path: string }[]).map(
+        (x) => x.file_path,
+      ),
+    ].filter((f): f is string => Boolean(f));
+    if (app.student_id) {
+      const { data: links } = await admin
+        .from("student_guardians")
+        .select("guardian_id")
+        .eq("student_id", app.student_id);
+      const guardianIds = (links ?? []).map((l) => l.guardian_id);
+      const { data: guardians } = guardianIds.length
+        ? await admin
+            .from("guardians")
+            .select("id, profile_id")
+            .in("id", guardianIds)
+        : { data: [] };
+      // Enrolments, guardian links and attendance go with the student (cascade).
+      await admin.from("students").delete().eq("id", app.student_id);
+      if (guardianIds.length)
+        await admin.from("guardians").delete().in("id", guardianIds);
+      for (const g of guardians ?? [])
+        if (g.profile_id) await admin.auth.admin.deleteUser(g.profile_id);
+    }
+    await admin.from("admission_applications").delete().eq("id", app.id);
+    if (files.length) await admin.storage.from("private-docs").remove(files);
+  }
+}

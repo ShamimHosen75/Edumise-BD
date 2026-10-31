@@ -33,9 +33,9 @@ The **5 skipped** tests are by design: desktop-only or phone-only checks (menus,
 
 | ID | Severity | Requirement | Title | Status |
 |---|---|---|---|---|
-| QA-01 | Minor | EXM-02 (and the i18n rule) | Saved marks show Latin digits in the Bangla marks grid | Open (Minor: waiting for the owner) |
-| QA-02 | Cosmetic | ADM-04 (and the i18n rule) | The admission approval message shows the student ID in Latin digits in Bangla | Open |
-| QA-03 | Minor (tests) | ADM-01…04 | The older `admission.spec.ts` leaves its applications, students and guardian logins in the database | Open |
+| QA-01 | Minor | EXM-02 (and the i18n rule) | Saved marks show Latin digits in the Bangla marks grid | ✅ Fixed |
+| QA-02 | Cosmetic | ADM-04 (and the i18n rule) | The admission approval message shows the student ID in Latin digits in Bangla | ✅ Fixed |
+| QA-03 | Minor (tests) | ADM-01…04 | The older `admission.spec.ts` leaves its applications, students and guardian logins in the database | ✅ Fixed |
 | QA-04 | Not reproduced | WEB-07 | Once, on the phone in Bangla, saving a new page sent the admin to the login page | Watching |
 
 No Blockers or Majors were found, so nothing in step 5 had to be fixed.
@@ -67,6 +67,23 @@ No Blockers or Majors were found, so nothing in step 5 had to be fixed.
 - **What happened:** the phone, Bangla website-editor run went to `/bn/login` right after "Save page" on a new page.
 - **Since then:** it passed in 4 later runs and in the full run above. Logged so it can be checked if it happens again (for example, session refresh during long editing sessions).
 
-### Waiting for the owner
+### Fixes (owner approved, 2026-10-31)
 
-As Step 6.1 says, the Minor and Cosmetic findings (QA-01 to QA-03) are **not fixed yet**. Please confirm, and they will be fixed one by one, with the report updated.
+| ID | Fix | Test |
+|---|---|---|
+| QA-01 | Saved marks are shown in the reader's digits (`localizeDigits` in `marks-grid.tsx`). Typing either kind of digit still works. | `day-exam-cycle.spec.ts` › "exam cycle (bn)": the check is now a hard assertion and passes. |
+| QA-02 | The approval messages show the student ID with Bangla digits in Bangla (`review-panel.tsx`). | `day-admission-school.spec.ts` now requires the reader's digits. |
+| QA-03 | `admission.spec.ts` cleans up in `finally`, with `cleanupApplication()` (moved to `tests/e2e/helpers.ts`, shared with the scenario). | No test students or applications are left after the run. |
+
+QA-04 is still being watched. It did not happen again in either full run.
+
+### Re-run after the fixes
+
+| Suite | Result |
+|---|---|
+| Lint, typecheck | ✅ |
+| Unit | ✅ 516 |
+| Database | ✅ 504 |
+| End to end | ✅ **273 passed, 0 failed**, 5 skipped by design |
+
+All 20 runs of the five scenarios pass (English and Bangla, desktop and phone).

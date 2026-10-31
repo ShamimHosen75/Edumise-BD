@@ -267,7 +267,8 @@ for (const lang of ["en", "bn"] as const) {
       const karimName = person(karim.student);
       await expect(field(d.marks.cq, karimName, 60)).toBeDisabled();
       // bn uses Bangla digits everywhere, also in saved marks (CLAUDE.md rule 3).
-      await expect.soft(field(d.marks.cq, karimName, 60)).toHaveValue(n(52));
+      // QA-01 (fixed): saved marks show in the reader's digits.
+      await expect(field(d.marks.cq, karimName, 60)).toHaveValue(n(52));
       await logout();
 
       // 3. The office closes marks, processes, reviews the tabulation sheet, publishes.

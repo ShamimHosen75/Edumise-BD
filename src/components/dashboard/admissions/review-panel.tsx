@@ -98,7 +98,7 @@ export function ReviewPanel({
       setEnrolled(
         a("approved", {
           name,
-          code: result.studentCode,
+          code: localizeDigits(result.studentCode, lang),
           roll: localizeDigits(result.roll, lang),
         }),
       );
@@ -175,7 +175,7 @@ export function ReviewPanel({
             {enrolled}
           </p>
         ) : approved && studentCode ? (
-          <p>{a("enrolledAs", { code: studentCode })}</p>
+          <p>{a("enrolledAs", { code: localizeDigits(studentCode, lang) })}</p>
         ) : null}
         {!approved ? (
           <>

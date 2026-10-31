@@ -35,7 +35,9 @@ import type { MarksEntry } from "@/lib/marks-data";
 
 import { MarksRow, type Draft } from "./marks-row";
 
-const toText = (v: number | null) => (v === null ? "" : String(v));
+// QA-01: saved marks in the reader's digits (readMark accepts both kinds).
+const toText = (v: number | null, lang: Locale) =>
+  v === null ? "" : localizeDigits(v, lang);
 const same = (a: MarkRow, b: MarkRow) =>
   a.is_absent === b.is_absent &&
   a.cq === b.cq &&
@@ -77,9 +79,9 @@ export function MarksGrid({
           r.studentId,
           {
             texts: {
-              cq: toText(saved?.cq ?? null),
-              mcq: toText(saved?.mcq ?? null),
-              practical: toText(saved?.practical ?? null),
+              cq: toText(saved?.cq ?? null, lang),
+              mcq: toText(saved?.mcq ?? null, lang),
+              practical: toText(saved?.practical ?? null, lang),
             },
             absent: saved?.is_absent ?? false,
           },
