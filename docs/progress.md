@@ -1022,3 +1022,31 @@ Known issues:
 Manual check (≤ 8 clicks): as admin, Fees → Late fine → tick "Families can pay online",
 choose Sandbox, Save → as guardian, My children → Fees → Pay now → Pay (test) → See the
 receipt.
+
+## Phase 5 code review ✅
+
+Report: `docs/code-review-phase-5.md`. Four reviewers covered:
+- security;
+- fee setup correctness;
+- collection and online payment correctness;
+- performance, maintainability and UX.
+
+Fixed, in `20261102003900_phase5_review_fixes.sql` and the code, with tests:
+- **High:**
+  - staff could edit bills directly (zero a bill, mark it paid, give an unapproved waiver);
+  - the generator trusted the amounts sent to it;
+  - an online "pay all" confirmed after midnight became part paid;
+  - clashing gateway IDs made the webhook fail for ever;
+  - the invoice list counted a late fine twice when filtered by month.
+- **Medium and low:** late fines frozen on bills that got no money; failed online payments could still become paid; billing months outside the session or before a student was admitted; and more.
+
+Checks: `lint` ✅ · `typecheck` ✅ · `test` ✅ 516 · `db:test` ✅ 32 files / 504 tests ·
+`db lint` ✅ · `build` ✅ · `test:e2e` ✅ 245 passed, 5 skipped by design.
+
+Left for later, listed in the report:
+- paging and SQL summaries for large schools;
+- one shared live-fine view;
+- a month picker and a styled confirm dialog;
+- a Bangla font in PDFs;
+- adjusting bills after a late waiver approval;
+- waivers for other sessions.

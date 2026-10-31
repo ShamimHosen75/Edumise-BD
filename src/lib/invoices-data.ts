@@ -60,11 +60,13 @@ export async function invoiceList(
         `id, invoice_no, issued_on, due_on, status, total, paid,
          student:students!inner(student_code, full_name_en, full_name_bn,
            enrollments(session_id, roll, section:sections(class_id, name_en, name_bn, class:classes(name_en, name_bn)))),
-         items:invoice_items!inner(period_key, is_fine)`,
+         items:invoice_items(period_key, is_fine),
+         match:invoice_items!inner(period_key)`,
       )
       .eq("session_id", f.sessionId);
     if (f.status) q = q.eq("status", f.status);
-    if (f.period) q = q.eq("items.period_key", f.period);
+    // Filter on a second embed: "items" keeps every item (with a frozen fine).
+    if (f.period) q = q.eq("match.period_key", f.period);
     return q.order("id", { ascending: false }).range(a, b);
   });
   return rows

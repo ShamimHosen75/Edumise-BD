@@ -1,6 +1,7 @@
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import { amountInWordsBn, amountInWordsEn } from "@/lib/amount-words";
+import { receiverText } from "@/lib/receipt-text";
 import type { Receipt } from "@/lib/receipts-data";
 import {
   formatCurrency,
@@ -36,7 +37,7 @@ export function ReceiptView({
     ...(r.section
       ? [
           [
-            dict.fees.generate.classes,
+            v.class,
             `${r.section}${r.roll !== null ? ` · ${dict.fees.invoices.roll} ${localizeDigits(r.roll, lang)}` : ""}`,
           ] as [string, string],
         ]
@@ -45,7 +46,7 @@ export function ReceiptView({
       v.method,
       `${dict.fees.methods[r.method]}${r.txnId ? ` · ${v.txn} ${r.txnId}` : ""}`,
     ],
-    [v.collectedBy, r.collectedBy || "—"],
+    [v.collectedBy, receiverText(r, dict)],
     ...(r.note ? [[v.note, r.note] as [string, string]] : []),
   ];
   return (

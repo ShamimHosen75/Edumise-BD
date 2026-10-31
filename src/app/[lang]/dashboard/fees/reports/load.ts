@@ -37,7 +37,7 @@ export async function readFilters(
     sessions[0];
   const id = (v?: string) =>
     v && /^[1-9]\d{0,15}$/.test(v) ? Number(v) : undefined;
-  const period = q.period?.trim();
+  const period = toAsciiDigits(q.period ?? "").trim();
   let student = id(q.student);
   const code = toAsciiDigits(q.code ?? "").trim();
   if (!student && /^\d{10}$/.test(code)) {
@@ -48,14 +48,17 @@ export async function readFilters(
       .maybeSingle();
     student = data?.id;
   }
-  const from = isDay(q.from) ? q.from : monthBounds(today).from;
+  // C11: dates given the wrong way round are swapped, not dropped.
+  let from = isDay(q.from) ? q.from : monthBounds(today).from;
+  let to = isDay(q.to) ? q.to : today;
+  if (to < from) [from, to] = [to, from];
   return {
     kind,
     sessions,
     sessionId: session?.id,
     day: isDay(q.day) ? q.day : today,
     from,
-    to: isDay(q.to) && q.to >= from ? q.to : today,
+    to,
     classId: id(q.class),
     sectionId: id(q.section),
     period:

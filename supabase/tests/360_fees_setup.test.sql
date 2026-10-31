@@ -54,8 +54,8 @@ select is(public.create_invoices((select session from ids), '2026-11', '2099-12-
   '{"created": 2, "skipped": 0}'::jsonb, 'the accountant makes November tuition invoices');
 select results_eq($$ select i.total, i.status::text, i.invoice_no ~ '^INV-\d{4}-\d{6}$' from public.invoices i
   join public.invoice_items it on it.invoice_id = i.id where it.period_key = '2026-11' order by i.total $$,
-  $$ values (0::bigint, 'paid', true), (50000::bigint, 'unpaid', true) $$,
-  'totals are the net of the items; a fully waived invoice is paid; numbers are INV-YYYY-NNNNNN');
+  $$ values (60000::bigint, 'unpaid', true), (60000::bigint, 'unpaid', true) $$,
+  'amounts come from the fee structure and approved waivers, not from the caller; numbers are INV-YYYY-NNNNNN');
 select is(public.create_invoices((select session from ids), '2026-11', '2099-12-31', (select rows from plan)),
   '{"created": 0, "skipped": 2}'::jsonb, 'running it again adds nothing');
 select is((select count(*)::int from public.invoices i where not exists (select 1 from public.invoice_items it where it.invoice_id = i.id)),
@@ -65,7 +65,7 @@ select throws_ok($$ select public.create_invoices((select session from ids), 'ex
 select throws_ok($$ select public.create_invoices((select session from ids), '2026-13', '2099-12-31', '[]') $$,
   '22023', null, 'a bad period is refused');
 select throws_ok($$ select public.create_invoices((select session from ids), '2026-11', '2000-01-01', '[]') $$,
-  '22023', null, 'a due date in the past is refused');
+  '22007', null, 'a due date in the past is refused');
 
 -- Copy the structure into a new session -------------------------------------------------
 reset role;

@@ -41,7 +41,7 @@ export default async function InvoicePage({ params }: Props) {
     [v.invoiceNo, inv.invoiceNo],
     [v.student, `${inv.student} (${localizeDigits(inv.studentCode, lang)})`],
     [
-      dict.fees.generate.classes,
+      dict.fees.receipt.class,
       `${inv.section}${inv.roll !== null ? ` · ${v.roll} ${localizeDigits(inv.roll, lang)}` : ""}`,
     ],
     [v.issued, formatDate(inv.issuedOn, lang, "medium")],

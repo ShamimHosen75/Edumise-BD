@@ -95,6 +95,7 @@ export function CollectForm({
             amount,
             method,
             txn_id: txn,
+            expected: owed,
             note,
           }).catch(() => ({
             ok: false as const,

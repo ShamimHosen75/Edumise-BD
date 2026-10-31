@@ -187,7 +187,8 @@
     "month": "Choose a month in the session.",
     "graceDays": "Enter 0 to 60 days.",
     "dueDays": "Enter 0 to 90 days.",
-    "dueDate": "The due date cannot be in the past."
+    "dueDate": "The due date cannot be in the past.",
+    "moneyTooLarge": "This amount is too large (at most Tk 10,00,000)."
   },
   "forbidden": {
     "title": "You do not have access to this page",
@@ -1781,7 +1782,9 @@
       "making": "Making invoices…",
       "confirm": "Make {count} invoices for {total}?",
       "made": "{created} invoices made; {skipped} already billed.",
-      "seeInvoices": "See the invoices"
+      "seeInvoices": "See the invoices",
+      "pendingWaivers": "{count} waivers of these students are waiting for an admin and will not be applied. Ask an admin to approve them first: a bill made now keeps its amount.",
+      "changed": "The fees or the period changed meanwhile. Preview again."
     },
     "invoices": {
       "title": "Invoices",
@@ -1890,7 +1893,7 @@
       "lines": "Paid for",
       "amount": "Amount",
       "total": "Total received",
-      "dueNow": "Still due on these bills",
+      "dueNow": "Still due today (all bills)",
       "inWords": "In words",
       "signature": "Signature of the receiver",
       "qr": "Receipt check code",
@@ -1904,7 +1907,10 @@
       "errors": {
         "reason": "Give a reason (at least 3 characters).",
         "alreadyCancelled": "This payment is already cancelled."
-      }
+      },
+      "class": "Class",
+      "currency": "Tk",
+      "onlineVia": "Online payment ({provider})"
     },
     "portal": {
       "title": "Fees",
@@ -2005,7 +2011,8 @@
         "nagad": "Nagad",
         "sslcommerz": "SSLCommerz (cards and mobile banking)"
       },
-      "notSetUp": "not set up"
+      "notSetUp": "not set up",
+      "checkAgain": "Check again"
     }
   }
 }

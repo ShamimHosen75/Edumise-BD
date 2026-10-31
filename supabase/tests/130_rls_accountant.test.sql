@@ -15,7 +15,7 @@ select is((select count(*)::int from public.guardians), 19, 'accountant reads gu
 select is((select count(*)::int from public.invoices), 3, 'accountant reads all invoices');
 select lives_ok($$ insert into public.fee_heads (code, name_en, frequency) values ('LIBRARY', 'Library fee', 'one_time') $$,
   'accountant creates fee heads');
-select is(pg_temp.affected($$ update public.invoices set due_on = due_on + 1 $$), 3, 'accountant updates invoices');
+select is(pg_temp.affected($$ update public.invoices set due_on = due_on + 1 $$), 0, 'accountant reads invoices but changes them only through the fee functions (Phase 5 review)');
 select lives_ok($$ update public.fee_structures set amount = amount + 100 $$, 'accountant edits the fee structure');
 
 -- Forbidden

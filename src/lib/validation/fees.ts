@@ -114,9 +114,13 @@ export const generateSchema = z
   });
 export type GenerateInput = z.infer<typeof generateSchema>;
 
+// The database allows at most Tk 10,00,000 (100,000,000 poisha) for each.
+const fineMoney = () =>
+  money().pipe(z.number().max(100_000_000, "errors.moneyTooLarge"));
+
 export const fineSettingsSchema = z.object({
-  late_fine_per_day: money(),
-  late_fine_cap: money(),
+  late_fine_per_day: fineMoney(),
+  late_fine_cap: fineMoney(),
   grace_days: whole(0, 60, "errors.graceDays"),
   due_days: whole(0, 90, "errors.dueDays"),
 });

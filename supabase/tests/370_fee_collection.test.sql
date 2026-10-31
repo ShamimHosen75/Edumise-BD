@@ -64,8 +64,8 @@ select results_eq($$ select total, paid, status::text from public.invoices where
   $$ values (70000::bigint, 70000::bigint, 'paid') $$, 'the invoice is paid');
 select throws_ok($$ select public.record_payment((select ayesha from ids), array[(select item2 from ids)], 100, 'bkash', 'TX-12345', '') $$,
   '23505', null, 'a bKash transaction ID is recorded only once');
-select throws_ok($$ update public.invoices set paid = 0, status = 'unpaid' where id = (select inv3 from ids) $$,
-  '42501', null, 'what is paid cannot be edited by hand');
+select is(pg_temp.affected($$ update public.invoices set paid = 0, status = 'unpaid' where id = (select inv3 from ids) $$),
+  0, 'what is paid cannot be edited by hand');
 select throws_ok($$ insert into public.invoice_items (invoice_id, student_id, fee_head_id, period_key, gross, is_fine)
   select inv3, tanvir, (select id from public.fee_heads where code = 'LATE_FINE'), 'fine:' || inv3, 1, true from ids $$,
   '42501', null, 'nor a fine added by hand');
@@ -75,7 +75,7 @@ select throws_ok($$ select public.create_invoices(i.session_id, 'session:' || i.
   jsonb_build_array(jsonb_build_object('student_id', i.student_id, 'items', jsonb_build_array(
     jsonb_build_object('fee_head_id', (select id from public.fee_heads where code = 'LATE_FINE'), 'gross', 100, 'waiver', 0)))))
   from public.invoices i where i.id = (select inv3 from ids) $$,
-  '42501', null, 'and cannot be billed by the generator');
+  '22023', null, 'and cannot be billed by the generator');
 
 -- Cancelling ----------------------------------------------------------------------------
 select throws_ok($$ select public.cancel_payment((select id from public.payments where receipt_no = 'RCP-2026-000004'), 'Wrong') $$,

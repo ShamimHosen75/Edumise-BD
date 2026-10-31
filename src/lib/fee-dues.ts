@@ -6,6 +6,10 @@ import { ledger } from "@/lib/collection";
 import { lateFine, type FineRule } from "@/lib/fees";
 import { formatDate, localizeDigits, pickLocalized } from "@/lib/format";
 import { dhakaToday } from "@/lib/people";
+
+/** The Dhaka date (YYYY-MM-DD) of a timestamp. */
+const dhakaDate = (ts: string) =>
+  new Date(Date.parse(ts) + 6 * 3600_000).toISOString().slice(0, 10);
 import { totalsRow, type CellKind, type Report } from "@/lib/report-table";
 import { fetchAll } from "@/lib/supabase/fetch-all";
 import type { createClient } from "@/lib/supabase/server";
@@ -161,30 +165,63 @@ export async function ledgerReport(
   dict: Dictionary,
 ): Promise<Report | null> {
   const r = dict.fees.reports;
-  const [{ data: st }, { data: invoices }, { data: payments }] =
-    await Promise.all([
-      db
-        .from("students")
-        .select("student_code, full_name_en, full_name_bn")
-        .eq("id", studentId)
-        .maybeSingle(),
-      db
-        .from("invoices")
-        .select("invoice_no, issued_on, total, status")
-        .eq("student_id", studentId),
-      db
-        .from("payments")
-        .select("receipt_no, paid_on, amount, cancelled_at")
-        .eq("student_id", studentId),
-    ]);
+  const [
+    { data: st },
+    { data: invoices },
+    { data: payments },
+    { data: fines },
+  ] = await Promise.all([
+    db
+      .from("students")
+      .select("student_code, full_name_en, full_name_bn")
+      .eq("id", studentId)
+      .maybeSingle(),
+    db
+      .from("invoices")
+      .select("invoice_no, issued_on, total, status")
+      .eq("student_id", studentId),
+    db
+      .from("payments")
+      .select("receipt_no, paid_on, amount, cancelled_at")
+      .eq("student_id", studentId),
+    db
+      .from("invoice_items")
+      .select("gross, created_at, invoice:invoices(invoice_no, status)")
+      .eq("student_id", studentId)
+      .eq("is_fine", true),
+  ]);
   if (!st) return null;
+  // A late fine is charged on the day it was frozen, not on the bill's date: the
+  // balances of the days before stay as they were.
+  const fineRows = (fines ?? []).map((f) => {
+    const inv = f.invoice as unknown as { invoice_no: string; status: string };
+    return {
+      date: dhakaDate(f.created_at),
+      kind: "invoice" as const,
+      ref: `${inv.invoice_no} · ${dict.fees.invoices.fine}`,
+      invoiceNo: inv.invoice_no,
+      amount: f.gross,
+      cancelled: inv.status === "cancelled",
+    };
+  });
+  const fineOf = (no: string) =>
+    fineRows
+      .filter((f) => f.invoiceNo === no)
+      .reduce((s, f) => s + f.amount, 0);
   const rows = ledger([
     ...(invoices ?? []).map((i) => ({
       date: i.issued_on,
       kind: "invoice" as const,
       ref: i.invoice_no,
-      amount: i.total,
+      amount: i.total - fineOf(i.invoice_no),
       cancelled: i.status === "cancelled",
+    })),
+    ...fineRows.map((f) => ({
+      date: f.date,
+      kind: f.kind,
+      ref: f.ref,
+      amount: f.amount,
+      cancelled: f.cancelled,
     })),
     ...(payments ?? []).map((p) => ({
       date: p.paid_on,

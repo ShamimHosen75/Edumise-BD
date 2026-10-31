@@ -11,7 +11,12 @@ import { getDictionary } from "@/i18n/get-dictionary";
 import { parsePeriod, type InvoiceStatus } from "@/lib/fees";
 import { periodNamer } from "@/lib/fee-periods";
 import { feeSessions, fineRule } from "@/lib/fees-data";
-import { formatCurrency, localizeDigits, pickLocalized } from "@/lib/format";
+import {
+  formatCurrency,
+  localizeDigits,
+  pickLocalized,
+  toAsciiDigits,
+} from "@/lib/format";
 import { invoiceList } from "@/lib/invoices-data";
 import { createClient } from "@/lib/supabase/server";
 
@@ -49,8 +54,9 @@ export default async function InvoicesPage({ params, searchParams }: Props) {
     sessions[0];
   if (!session) notFound();
   const status = STATUSES.find((s) => s === q.status);
-  const period =
-    q.period && parsePeriod(q.period.trim()) ? q.period.trim() : undefined;
+  // Bangla digits are accepted ("২০২৬-১০").
+  const typed = toAsciiDigits(q.period ?? "").trim();
+  const period = typed && parsePeriod(typed) ? typed : undefined;
   const classId = (classes ?? []).find((c) => String(c.id) === q.class)?.id;
   const rows = await invoiceList(
     db,

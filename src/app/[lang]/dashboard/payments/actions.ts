@@ -14,6 +14,8 @@ import {
   signSandbox,
 } from "@/lib/payments/sandbox";
 import { processWebhook } from "@/lib/payments/settle";
+import { hitRateLimit } from "@/lib/rate-limit";
+import { LIMITS, rateKey } from "@/lib/rate-limit-keys";
 import { createClient } from "@/lib/supabase/server";
 
 type Result =
@@ -30,7 +32,10 @@ export async function startOnlinePayment(
   studentId: unknown,
 ): Promise<Result> {
   if (!isLocale(lang)) throw new Error("Invalid language");
-  await requireRole(lang, ["guardian", "student"]);
+  // "Pay now" is for guardians (Step 5.3); the database checks the child too.
+  const me = await requireRole(lang, ["guardian"]);
+  if (await hitRateLimit(rateKey("pay", me.id), LIMITS.payPerAccount))
+    return { ok: false, error: "errors.tooManyRequests" };
   const parsed = id.safeParse(studentId);
   if (!parsed.success) return { ok: false, error: "errors.notAllowed" };
   const db = await createClient();
@@ -72,7 +77,9 @@ export async function sandboxPay(
   outcome: unknown,
 ): Promise<Result> {
   if (!isLocale(lang)) throw new Error("Invalid language");
-  await requireRole(lang, ["guardian", "student"]);
+  const me = await requireRole(lang, ["guardian"]);
+  if (await hitRateLimit(rateKey("pay", me.id), LIMITS.payPerAccount))
+    return { ok: false, error: "errors.tooManyRequests" };
   const parsedId = uuid.safeParse(intentId);
   const parsedOutcome = z.enum(["paid", "failed"]).safeParse(outcome);
   if (

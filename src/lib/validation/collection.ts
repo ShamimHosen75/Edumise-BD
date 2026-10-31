@@ -21,6 +21,8 @@ export const paymentSchema = z
     method: z.enum(PAYMENT_METHODS),
     txn_id: z.string().max(60, "errors.tooLong").default(""),
     note: z.string().trim().max(300, "errors.tooLong").default(""),
+    /** What the screen showed as owed (poisha): the server refuses if the bills changed. */
+    expected: z.number().int().min(0).max(1e12).optional(),
   })
   .transform((v, ctx) => {
     const txn = v.txn_id.trim() ? readTxn(v.txn_id) : null;

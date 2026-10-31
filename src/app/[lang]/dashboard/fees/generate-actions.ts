@@ -71,6 +71,8 @@ export type PreviewResult =
       total: number;
       waived: number;
       skipped: number;
+      /** Waivers of these students and heads still waiting for an admin (not applied). */
+      pendingWaivers: number;
       periodKey: string;
     }
   | Failure;
@@ -90,7 +92,12 @@ export async function previewInvoices(
     classIds: parsed.data.class_ids,
     ...r,
   });
-  return { ok: true, periodKey: r.periodKey, ...planSummary(plan) };
+  return {
+    ok: true,
+    periodKey: r.periodKey,
+    pendingWaivers: plan.pendingWaivers,
+    ...planSummary(plan),
+  };
 }
 
 export type GenerateResult =
@@ -124,7 +131,9 @@ export async function generateInvoices(
       })),
     })),
   });
-  if (error?.code === "22023") return { ok: false, error: "errors.dueDate" };
+  if (error?.code === "22007") return { ok: false, error: "errors.dueDate" };
+  if (error?.code === "22023")
+    return { ok: false, error: "fees.generate.changed" };
   if (error) return { ok: false, error: "auth.unexpected" };
   const out = data as { created: number; skipped: number };
   return {

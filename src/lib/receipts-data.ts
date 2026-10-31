@@ -25,9 +25,12 @@ export type Receipt = {
   txnId: string | null;
   paidOn: string;
   note: string;
+  /** The receiver's name in the reader's language; "" for an online payment. */
   collectedBy: string;
+  /** The gateway of an online payment (its label comes from the dictionary). */
+  gateway: string | null;
   cancelled: { at: string; reason: string } | null;
-  /** Still owed today on the bills this receipt paid (late fines added later not included). */
+  /** Everything the student still owes today, on all bills (late fines not yet charged excluded). */
   dueNow: number;
   lines: { invoiceNo: string; head: string; period: string; amount: number }[];
 };
@@ -42,6 +45,7 @@ export async function receiptById(
     .from("payments")
     .select(
       `id, receipt_no, student_id, amount, method, txn_id, paid_on, note, collected_by_name,
+       collected_by_name_bn, gateway, gateway_txn_id,
        cancelled_at, cancel_reason, created_at,
        student:students(${ENROLLED}),
        lines:payment_allocations(amount, item:invoice_items(period_key, is_fine,
@@ -50,7 +54,14 @@ export async function receiptById(
     .eq("id", id)
     .maybeSingle();
   if (!p) return null;
-  const periodName = await periodNamer(db, lang);
+  const [periodName, { data: open }] = await Promise.all([
+    periodNamer(db, lang),
+    db
+      .from("invoices")
+      .select("total, paid")
+      .eq("student_id", p.student_id)
+      .in("status", ["unpaid", "partial"]),
+  ]);
   const lines = p.lines as unknown as {
     amount: number;
     item: {
@@ -82,17 +93,14 @@ export async function receiptById(
     roll: st.roll,
     amount: p.amount,
     method: p.method,
-    txnId: p.txn_id,
+    // Online: the gateway's own ID as sent (txn_id holds a digest of it).
+    txnId: p.gateway_txn_id ?? p.txn_id,
     paidOn: p.paid_on,
     note: p.note,
-    collectedBy: p.collected_by_name,
-    dueNow: [
-      ...new Map(
-        lines.map((l) => [l.item.invoice.id, l.item.invoice]),
-      ).values(),
-    ]
-      .filter((i) => i.status !== "cancelled")
-      .reduce((sum, i) => sum + i.total - i.paid, 0),
+    collectedBy:
+      (lang === "bn" && p.collected_by_name_bn) || p.collected_by_name,
+    gateway: p.gateway,
+    dueNow: (open ?? []).reduce((sum, i) => sum + i.total - i.paid, 0),
     cancelled: p.cancelled_at
       ? { at: p.cancelled_at, reason: p.cancel_reason ?? "" }
       : null,

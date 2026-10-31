@@ -127,7 +127,11 @@ export function GenerateForm({
             id="gen-session"
             className={select}
             value={sessionId}
-            onChange={(e) => change(setSessionId)(Number(e.target.value))}
+            onChange={(e) => {
+              // An exam belongs to one session: choose it again.
+              setExamId(null);
+              change(setSessionId)(Number(e.target.value));
+            }}
           >
             {sessions.map((s) => (
               <option key={s.id} value={s.id}>
@@ -261,6 +265,14 @@ export function GenerateForm({
                   skipped: n(preview.skipped),
                 })
               : g("none")}
+          </p>
+        ) : null}
+        {preview?.pendingWaivers ? (
+          <p
+            className="mt-2 rounded-lg border border-amber-600 p-3 text-sm"
+            data-testid="pending-waivers"
+          >
+            {g("pendingWaivers", { count: n(preview.pendingWaivers) })}
           </p>
         ) : null}
         {made ? (

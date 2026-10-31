@@ -246,6 +246,19 @@ describe("planning invoices", () => {
   });
 });
 
+describe("Phase 5 review", () => {
+  it("an amount of 0 bills nothing (no empty paid invoice)", () => {
+    const plan = planInvoices({
+      students: [{ studentId: 9, classId: 1, groupId: null }],
+      feeHeadIds: [7],
+      structures: [{ classId: 1, groupId: null, feeHeadId: 7, amount: 0 }],
+      waivers: new Map(),
+      billed: new Set(),
+    });
+    expect(plan).toEqual({ invoices: [], skipped: 0 });
+  });
+});
+
 describe("reading period keys", () => {
   it("month, session or exam", async () => {
     const { parsePeriod } = await import("@/lib/fees");

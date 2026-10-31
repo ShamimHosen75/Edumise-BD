@@ -95,8 +95,12 @@ test("accountant sets up a fee, a waiver waits for the admin, invoices are made 
       await page.getByLabel(`Class ${level}`, { exact: true }).uncheck();
     await page.getByRole("button", { name: "Preview" }).click();
     const preview = page.getByTestId("generate-preview");
-    await expect(preview).toContainText(
+    await expect(preview.locator("p").first()).toHaveText(
       /^\d+ invoices, total ৳[\d,]+\.\d\d \(waivers ৳0\.00\)\. 0 already billed, skipped\.$/,
+    );
+    // The waiver entered above waits for an admin: the preview warns (Phase 5 review C16).
+    await expect(page.getByTestId("pending-waivers")).toContainText(
+      "1 waivers of these students are waiting for an admin",
     );
     const count = Number((await preview.textContent())!.match(/^(\d+)/)![1]);
     page.once("dialog", (d) => d.accept());

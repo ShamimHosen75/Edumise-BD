@@ -6,6 +6,7 @@ import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { amountInWordsEn } from "@/lib/amount-words";
 import { requireRole } from "@/lib/auth/session";
+import { pdfMoney, receiptQrPayload, receiverText } from "@/lib/receipt-text";
 import { receiptById } from "@/lib/receipts-data";
 import { formatDate, formatDateTime } from "@/lib/format";
 import { sheetHeader } from "@/lib/school";
@@ -14,9 +15,6 @@ import { createClient } from "@/lib/supabase/server";
 type Context = { params: Promise<{ lang: string; id: string }> };
 
 /** Money in the PDF: "Tk 1,200.00" (the PDF fonts have no ৳ sign). */
-const tk = (p: number) =>
-  `Tk ${(p / 100).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-
 /** The receipt as an English PDF (staff and the family; RLS decides). */
 export async function GET(_request: Request, { params }: Context) {
   const { lang, id } = await params;
@@ -33,16 +31,14 @@ export async function GET(_request: Request, { params }: Context) {
   if (!r) return new Response("Not found", { status: 404 });
   const dict = await getDictionary("en");
   const v = dict.fees.receipt;
+  const tk = (p: number) => pdfMoney(p, v.currency);
   const i = dict.fees.invoices;
   const [school, qr] = await Promise.all([
     sheetHeader("en", dict),
-    QRCode.toDataURL(
-      `${r.receiptNo}|${r.studentCode}|${r.amount / 100}|${r.paidOn}`,
-      {
-        margin: 1,
-        errorCorrectionLevel: "M",
-      },
-    ),
+    QRCode.toDataURL(receiptQrPayload(r), {
+      margin: 1,
+      errorCorrectionLevel: "M",
+    }),
   ]);
   const pdf = await renderToBuffer(
     <ReceiptPdf
@@ -57,7 +53,7 @@ export async function GET(_request: Request, { params }: Context) {
           ...(r.section
             ? [
                 [
-                  dict.fees.generate.classes,
+                  v.class,
                   `${r.section}${r.roll !== null ? ` · ${i.roll} ${r.roll}` : ""}`,
                 ] as [string, string],
               ]
@@ -66,7 +62,7 @@ export async function GET(_request: Request, { params }: Context) {
             v.method,
             `${dict.fees.methods[r.method]}${r.txnId ? ` · ${r.txnId}` : ""}`,
           ],
-          [v.collectedBy, r.collectedBy || "-"],
+          [v.collectedBy, receiverText(r, dict, "-")],
         ],
         head: [i.invoiceNo, i.head, i.period, v.amount],
         lines: r.lines.map((l) => [

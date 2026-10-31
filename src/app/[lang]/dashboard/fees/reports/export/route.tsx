@@ -5,15 +5,13 @@ import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { requireRole } from "@/lib/auth/session";
 import { csvFileName } from "@/lib/csv";
+import { pdfMoney } from "@/lib/receipt-text";
 import { cellText, reportSheet } from "@/lib/report-table";
 import { sheetHeader } from "@/lib/school";
 import { createClient } from "@/lib/supabase/server";
 import { toXlsx } from "@/lib/xlsx";
 
 import { buildReport, readFilters } from "../load";
-
-const tk = (p: number) =>
-  `Tk ${(p / 100).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 /** A fee report as Excel (in the page language) or PDF (English). Staff only. */
 export async function GET(
@@ -50,6 +48,7 @@ export async function GET(
     });
   }
   const school = await sheetHeader("en", dict);
+  const tk = (p: number) => pdfMoney(p, dict.fees.receipt.currency);
   const text = (v: string | number, k: "text" | "money" | "number") =>
     cellText(v, k, tk, (n) => String(n));
   const file = await renderToBuffer(

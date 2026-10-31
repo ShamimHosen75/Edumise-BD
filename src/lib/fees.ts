@@ -172,7 +172,8 @@ export function planInvoices(input: {
     const items: PlannedInvoice["items"] = [];
     for (const head of input.feeHeadIds) {
       const gross = amountFor(input.structures, st.classId, st.groupId, head);
-      if (gross === null) continue;
+      // No amount, or 0: nothing to bill (no empty "paid" invoice).
+      if (gross === null || gross === 0) continue;
       if (input.billed.has(`${st.studentId}:${head}`)) {
         skipped++;
         continue;

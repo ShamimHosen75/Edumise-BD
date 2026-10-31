@@ -13,7 +13,11 @@ import {
 
 export const SANDBOX_HEADER = "x-sandbox-signature";
 
-const secret = () => process.env.PAYMENT_SANDBOX_SECRET ?? "";
+// Never on the live site, even if the secret is set there by mistake.
+const secret = () =>
+  process.env.VERCEL_ENV === "production"
+    ? ""
+    : (process.env.PAYMENT_SANDBOX_SECRET ?? "");
 
 const payload = (e: GatewayEvent) =>
   `${e.intentId}|${e.providerTxnId}|${e.amount}|${e.status}`;

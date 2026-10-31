@@ -20,6 +20,9 @@ export function DueItemList({
   tr: Translate;
 }) {
   const inPlay = new Set(chosen.map((i) => i.id));
+  const withFees = new Set(
+    items.filter((i) => !i.isFine).map((i) => i.invoiceId),
+  );
   const cell = "border-b px-2 py-2";
   return (
     <div
@@ -65,8 +68,9 @@ export function DueItemList({
                       item: `${label} (${i.invoiceNo})`,
                     })}
                     checked={i.isFine ? inPlay.has(i.id) : ticked.has(i.id)}
-                    // A fine is paid with its invoice's items, never on its own.
-                    disabled={i.isFine}
+                    // A fine goes with its invoice's ticked items. A frozen fine left on
+                    // its own (its fees paid) can be ticked by itself.
+                    disabled={i.isFine && (i.live || withFees.has(i.invoiceId))}
                     onChange={(e) => onTick(i.id, e.target.checked)}
                   />
                 </td>

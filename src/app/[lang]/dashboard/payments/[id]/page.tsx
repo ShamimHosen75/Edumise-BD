@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { RefreshWhileWaiting } from "@/components/dashboard/fees/refresh-while-waiting";
 import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { requireRole } from "@/lib/auth/session";
@@ -61,6 +62,9 @@ export default async function PaymentStatusPage({ params }: Props) {
         <dt className="text-muted-foreground">{o.started}</dt>
         <dd>{formatDateTime(intent.created_at, lang)}</dd>
       </dl>
+      {status === "created" ? (
+        <RefreshWhileWaiting label={o.checkAgain} />
+      ) : null}
       {intent.payment_id ? (
         <Link
           href={`/${lang}/dashboard/receipts/${intent.payment_id}`}

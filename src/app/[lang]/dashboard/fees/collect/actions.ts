@@ -27,6 +27,7 @@ export async function recordPayment(
     p_method: v.method,
     p_txn_id: v.txn_id ?? "",
     p_note: v.note,
+    p_expected: v.expected,
   });
   if (error?.code === "23514")
     return {

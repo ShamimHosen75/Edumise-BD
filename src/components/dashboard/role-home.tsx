@@ -10,6 +10,7 @@ import { requireRole } from "@/lib/auth/session";
 import { attendanceToday } from "@/lib/attendance-data";
 import { ROLE_WIDGETS } from "@/lib/dashboard-widgets";
 import { collectionSummary } from "@/lib/fee-reports";
+import { fineRule } from "@/lib/fees-data";
 import { createClient } from "@/lib/supabase/server";
 
 type Props = { params: Promise<{ lang: string }>; role: Role };
@@ -27,7 +28,10 @@ export async function RoleHome({ params, role }: Props) {
       : null;
   const collection =
     role === "accountant"
-      ? await collectionSummary(await createClient(), lang)
+      ? await (async () => {
+          const db = await createClient();
+          return collectionSummary(db, await fineRule(db), lang);
+        })()
       : null;
 
   return (
@@ -44,22 +48,24 @@ export async function RoleHome({ params, role }: Props) {
       {collection ? (
         <CollectionWidgets lang={lang} dict={dict} data={collection} />
       ) : null}
-      <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {ROLE_WIDGETS[role].map((key) => (
-          <li key={key} className="bg-card rounded-xl border p-4 shadow-xs">
-            <p className="text-sm font-medium">{t(dict, key)}</p>
-            <p
-              className="text-muted-foreground mt-2 text-2xl font-semibold"
-              aria-hidden="true"
-            >
-              —
-            </p>
-            <p className="text-muted-foreground text-xs">
-              {dict.dashboard.comingSoon}
-            </p>
-          </li>
-        ))}
-      </ul>
+      {ROLE_WIDGETS[role].length ? (
+        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {ROLE_WIDGETS[role].map((key) => (
+            <li key={key} className="bg-card rounded-xl border p-4 shadow-xs">
+              <p className="text-sm font-medium">{t(dict, key)}</p>
+              <p
+                className="text-muted-foreground mt-2 text-2xl font-semibold"
+                aria-hidden="true"
+              >
+                —
+              </p>
+              <p className="text-muted-foreground text-xs">
+                {dict.dashboard.comingSoon}
+              </p>
+            </li>
+          ))}
+        </ul>
+      ) : null}
     </div>
   );
 }

@@ -12,6 +12,8 @@ export const LIMITS = {
   resultPerIpDay: { max: 300, windowSeconds: 24 * 60 * 60 },
   // Certificate checks: offices verifying a few papers, not stepping through references.
   verifyPerIp: { max: 60, windowSeconds: 10 * 60 },
+  // Online payments: a guardian starts a few payments, not hundreds.
+  payPerAccount: { max: 20, windowSeconds: 60 * 60 },
 } as const;
 
 /**

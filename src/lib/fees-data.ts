@@ -194,12 +194,19 @@ export async function loadPlan(
     periodKey: string;
   },
 ) {
-  const [enrolled, rows, waived, billed] = await Promise.all([
+  // A month is billed only to students admitted by its end (a catch-up run in August
+  // does not bill March to students who came in June).
+  const monthEnd = /^\d{4}-\d{2}$/.test(p.periodKey)
+    ? new Date(Date.UTC(+p.periodKey.slice(0, 4), +p.periodKey.slice(5, 7), 0))
+        .toISOString()
+        .slice(0, 10)
+    : null;
+  const [enrolledAll, rows, waived, billed, pending] = await Promise.all([
     fetchAll((a, b) =>
       db
         .from("enrollments")
         .select(
-          "student_id, group_id, section:sections!inner(class_id), student:students!inner(status)",
+          "student_id, group_id, section:sections!inner(class_id), student:students!inner(status, admitted_on)",
         )
         .eq("session_id", p.sessionId)
         .in("section.class_id", p.classIds)
@@ -226,7 +233,23 @@ export async function loadPlan(
         .order("id")
         .range(a, b),
     ),
+    fetchAll((a, b) =>
+      db
+        .from("fee_waivers")
+        .select("student_id")
+        .eq("session_id", p.sessionId)
+        .in("fee_head_id", p.feeHeadIds)
+        .is("approved_at", null)
+        .order("id")
+        .range(a, b),
+    ),
   ]);
+  const enrolled = enrolledAll.filter((e) => {
+    const admitted = (e.student as unknown as { admitted_on: string | null })
+      .admitted_on;
+    return !monthEnd || !admitted || admitted <= monthEnd;
+  });
+  const billable = new Set(enrolled.map((e) => e.student_id));
   const byStudent = new Map<number, Map<number, Waiver[]>>();
   for (const w of waived) {
     const heads = byStudent.get(w.student_id) ?? new Map<number, Waiver[]>();
@@ -236,7 +259,7 @@ export async function loadPlan(
     ]);
     byStudent.set(w.student_id, heads);
   }
-  return planInvoices({
+  const plan = planInvoices({
     students: enrolled.map((e) => ({
       studentId: e.student_id,
       classId: (e.section as unknown as { class_id: number }).class_id,
@@ -247,6 +270,10 @@ export async function loadPlan(
     waivers: byStudent,
     billed: new Set(billed.map((b) => `${b.student_id}:${b.fee_head_id}`)),
   });
+  return {
+    ...plan,
+    pendingWaivers: pending.filter((w) => billable.has(w.student_id)).length,
+  };
 }
 
 /** Late fine of an invoice today (live, open question 39). */

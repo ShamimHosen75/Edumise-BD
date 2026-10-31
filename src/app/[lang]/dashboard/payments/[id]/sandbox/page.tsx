@@ -28,7 +28,7 @@ export default async function SandboxCheckoutPage({ params }: Props) {
     !sandboxProvider.available()
   )
     notFound();
-  await requireRole(lang, ["guardian", "student"]);
+  await requireRole(lang, ["guardian"]);
   const dict = await getDictionary(lang);
   const o = dict.fees.online;
   const { data: intent } = await (

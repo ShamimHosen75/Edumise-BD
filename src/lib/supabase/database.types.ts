@@ -995,14 +995,14 @@ isOneToOne: false
                   ]
                 },"payments": {
                   Row: {
-                    "amount": number,"cancel_reason": string | null,"cancelled_at": string | null,"cancelled_by": string | null,"collected_by": string | null,"collected_by_name": string,"created_at": string,"id": number,"method": Database["public"]['Enums']["payment_method"],"note": string,"paid_on": string,"receipt_no": string,"student_id": number,"txn_id": string | null
+                    "amount": number,"cancel_reason": string | null,"cancelled_at": string | null,"cancelled_by": string | null,"collected_by": string | null,"collected_by_name": string,"collected_by_name_bn": string,"created_at": string,"gateway": string | null,"gateway_txn_id": string | null,"id": number,"method": Database["public"]['Enums']["payment_method"],"note": string,"paid_on": string,"receipt_no": string,"student_id": number,"txn_id": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "amount": number,"cancel_reason"?: string | null,"cancelled_at"?: string | null,"cancelled_by"?: string | null,"collected_by"?: string | null,"collected_by_name"?: string,"created_at"?: string,"id"?: never,"method": Database["public"]['Enums']["payment_method"],"note"?: string,"paid_on": string,"receipt_no": string,"student_id": number,"txn_id"?: string | null
+                    "amount": number,"cancel_reason"?: string | null,"cancelled_at"?: string | null,"cancelled_by"?: string | null,"collected_by"?: string | null,"collected_by_name"?: string,"collected_by_name_bn"?: string,"created_at"?: string,"gateway"?: string | null,"gateway_txn_id"?: string | null,"id"?: never,"method": Database["public"]['Enums']["payment_method"],"note"?: string,"paid_on": string,"receipt_no": string,"student_id": number,"txn_id"?: string | null
                   }
                   Update: {
-                    "amount"?: number,"cancel_reason"?: string | null,"cancelled_at"?: string | null,"cancelled_by"?: string | null,"collected_by"?: string | null,"collected_by_name"?: string,"created_at"?: string,"id"?: never,"method"?: Database["public"]['Enums']["payment_method"],"note"?: string,"paid_on"?: string,"receipt_no"?: string,"student_id"?: number,"txn_id"?: string | null
+                    "amount"?: number,"cancel_reason"?: string | null,"cancelled_at"?: string | null,"cancelled_by"?: string | null,"collected_by"?: string | null,"collected_by_name"?: string,"collected_by_name_bn"?: string,"created_at"?: string,"gateway"?: string | null,"gateway_txn_id"?: string | null,"id"?: never,"method"?: Database["public"]['Enums']["payment_method"],"note"?: string,"paid_on"?: string,"receipt_no"?: string,"student_id"?: number,"txn_id"?: string | null
                   }
                   Relationships: [
                     {
@@ -1557,7 +1557,7 @@ isOneToOne: false
 { Args: { "p_action": string,"p_details": Json,"p_entity": string,"p_entity_id": string }; Returns: undefined
                            },
 "record_payment":
-{ Args: { "p_amount": number,"p_item_ids": (number)[],"p_method": Database["public"]['Enums']["payment_method"],"p_note": string,"p_student_id": number,"p_txn_id": string }; Returns: Json
+{ Args: { "p_amount": number,"p_expected"?: number,"p_item_ids": (number)[],"p_method": Database["public"]['Enums']["payment_method"],"p_note": string,"p_student_id": number,"p_txn_id": string }; Returns: Json
                            },
 "revoke_certificate":
 { Args: { "p_id": number,"p_reason": string }; Returns: boolean

@@ -9,6 +9,7 @@ import { PrintButton } from "@/components/routine/print-button";
 import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { requireRole } from "@/lib/auth/session";
+import { receiptQrPayload } from "@/lib/receipt-text";
 import { receiptById } from "@/lib/receipts-data";
 import { feesMessages } from "@/lib/fees-messages";
 import { sheetHeader } from "@/lib/school";
@@ -38,10 +39,10 @@ export default async function ReceiptPage({ params }: Props) {
   const [school, qr] = await Promise.all([
     sheetHeader(lang, dict),
     // Enough to check a printed receipt against the books.
-    QRCode.toDataURL(
-      `${receipt.receiptNo}|${receipt.studentCode}|${receipt.amount / 100}|${receipt.paidOn}`,
-      { margin: 1, errorCorrectionLevel: "M" },
-    ),
+    QRCode.toDataURL(receiptQrPayload(receipt), {
+      margin: 1,
+      errorCorrectionLevel: "M",
+    }),
   ]);
   const back = staff
     ? `/${lang}/dashboard/fees/collect?student=${receipt.studentId}`

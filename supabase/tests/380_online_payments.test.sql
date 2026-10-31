@@ -75,10 +75,10 @@ select is(public.complete_payment_intent((select id from intent), 'sandbox', 'sb
   'the same webhook again records nothing');
 select throws_ok($$ select public.complete_payment_intent((select id from intent), 'sandbox', 'sbx-other', 50000) $$,
   '23505', null, 'another transaction cannot pay it again');
-select results_eq($$ select i.status::text, i.paid, p.method::text, p.txn_id, p.collected_by is null
+select results_eq($$ select i.status::text, i.paid, p.method::text, p.gateway_txn_id, p.collected_by is null
   from public.invoices i, public.payments p
   where i.invoice_no = 'INV-T-380' and p.id = (select payment_id from public.payment_intents where id = (select id from intent)) $$,
-  $$ values ('paid', 50000::bigint, 'online', 'SBX-7F3A', true) $$,
+  $$ values ('paid', 50000::bigint, 'online', 'sbx-7f3a', true) $$,
   'the invoice is paid; the receipt says online with the gateway''s ID');
 select is((select count(*)::int from public.payments p join public.payment_allocations a on a.payment_id = p.id
   join public.invoice_items ii on ii.id = a.invoice_item_id join public.invoices i on i.id = ii.invoice_id
