@@ -23,6 +23,8 @@ jobs:
       - run: npm run typecheck
       - run: npm run test
       - run: npm run build
+      - name: No secrets in the browser bundles
+        run: node scripts/check-bundle-secrets.mjs
 
   e2e:
     runs-on: ubuntu-latest
