@@ -86,7 +86,7 @@ export function ReceiptView({
         role="region"
         tabIndex={0}
         aria-label={v.lines}
-        className="overflow-x-auto"
+        className="relative overflow-x-auto"
       >
         <table className="w-full border-collapse text-sm">
           <caption className="sr-only">{v.lines}</caption>

@@ -38,7 +38,7 @@ Paste the real catalogue to replace the descriptions and priorities.
 | WEB-09 | Public routine, exam schedule and academic calendar pages. (Step 3.5) | e2e/routine: "admin builds a section routine… teacher and public views show it", "exam schedule: add a paper, hide and publish…", "calendar: holidays and events by month…" | ✅ |
 | WEB-11 | Board exam results: admin enters year, examinees, passed and GPA-5 counts; public table and pass-rate chart. (Step 4.3) | e2e/results: "board results: the office adds a year and the website shows it", "teachers cannot open board results…"; db/330_results | ✅ |
 | WEB-12 | Certificates (testimonial, transfer, character) with reference no and QR; PDF; public verify page and header popup showing only name, type, date and status. (Step 4.4) | e2e/certificates: all 3 tests; unit/certificates; db/340_certificates | ✅ |
-| WEB-17 | SEO, performance and accessibility of the public site. (Step 6.3) | e2e/content: sitemap/robots; e2e/smoke. Lighthouse and axe are run in Step 6.3. | ⏳ 6.3 |
+| WEB-17 | SEO, performance and accessibility of the public site. (Step 6.3) | Lighthouse (mobile) ≥ 90 in every category on home, notice list, notice detail, result and teachers (`docs/qa-report.md`); Lighthouse CI on the home page in every build; e2e/accessibility (axe); e2e/content: sitemap/robots | ✅ |
 
 ## Admissions, students and access (Phase 3)
 
@@ -84,9 +84,9 @@ Paste the real catalogue to replace the descriptions and priorities.
 |---|---|---|---|
 | NFR-01 | Security: RLS everywhere, roles on server and database, no service key in the browser. (Step 6.2) | db/090_rls_coverage, db/100–160 RLS suites, db/010_schema (fixed search_path); unit/security-rules, unit/supabase-admin, unit/security-audit; db/400_security_audit; e2e/security-headers; `scripts/check-bundle-secrets.mjs` in CI; `docs/security-report.md` | ✅ |
 | NFR-02 | Privacy and abuse limits: no personal data on public pages, rate limits, safe uploads. (Step 6.2) | e2e/people and e2e/staff (no NID, birth date or address); e2e/auth (login limits); e2e/people (contact limit); e2e/cms (fake PDF refused); e2e/dashboard (logo checked by content); e2e/privacy-crawl (whole public site, en and bn); e2e/students (switched-off login blocked in the API) | ✅ |
-| NFR-03 | Performance (Lighthouse ≥ 90). (Step 6.3) | Run in 6.3. | ⏳ 6.3 |
-| NFR-04 | Accessibility (axe, keyboard, contrast). (Step 6.3) | Partly: e2e/home (keyboard menu), e2e/content (lightbox keys). axe in 6.3. | ⏳ 6.3 |
-| NFR-06 | Mobile (360px) and print. (Step 6.3) | e2e/smoke, e2e/dashboard ("dashboard works on a phone… no sideways scrolling"), every spec on mobile-360. Print styles in 6.3. | ⏳ 6.3 |
+| NFR-03 | Performance (Lighthouse ≥ 90). (Step 6.3) | Lighthouse mobile: home 91, notices 93, notice detail 97, result 93, teachers 95 (`docs/qa-report.md`); `lighthouserc.json` fails CI under 90 | ✅ |
+| NFR-04 | Accessibility (axe, keyboard, contrast). (Step 6.3) | e2e/accessibility: axe (WCAG 2.1 A/AA) on 27 public and 32 dashboard pages, no serious or critical violations; e2e/home (keyboard menu), e2e/content (lightbox keys); Lighthouse accessibility 100 | ✅ |
+| NFR-06 | Mobile (360px) and print. (Step 6.3) | e2e/mobile-print: 70 dashboard screens at 360×740 with no sideways scrolling, and the receipt, mark sheet, attendance sheet and routines print without the navigation; every spec also runs on mobile-360 | ✅ |
 
 ## IDs with no text supplied
 
@@ -98,4 +98,4 @@ None of the cited IDs is left without a test. The gaps found at the start of Ste
 - FEE-04 dues, income and ledger reports and their exports;
 - the News module of WEB-07/08.
 
-NFR-01…06 and WEB-17 are covered in full by Steps 6.2 and 6.3, as the requirements plan.
+Every ID is covered; NFR-01…06 and WEB-17 were completed by Steps 6.2 and 6.3.

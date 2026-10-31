@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
-import { adminClient } from "./helpers";
+import { adminClient, revalidate } from "./helpers";
 
 const SECTIONS = [
   "notices",
@@ -45,6 +45,9 @@ test.describe("home page", () => {
       by_class: { level: number; students: number }[];
     };
     const class6 = stats.by_class.find((c) => c.level === 6)!.students;
+    // Other tests delete students straight from the database; refresh the cached home.
+    await revalidate(page.request, ["stats"]);
+    await page.request.get("/en");
     await page.goto("/en");
     const glance = page.locator('[data-section="at-a-glance"]');
     await expect(

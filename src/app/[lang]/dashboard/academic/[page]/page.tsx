@@ -132,7 +132,7 @@ export default async function AcademicPage({ params }: Props) {
           {a.intro[titleKey(page)]}
         </p>
       </div>
-      <div className="overflow-x-auto">
+      <div className="relative overflow-x-auto">
         <TabLinks
           label={a.tabs}
           tabs={ACADEMIC_PAGES.map((p) => ({

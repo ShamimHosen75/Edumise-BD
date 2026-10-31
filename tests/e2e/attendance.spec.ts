@@ -65,9 +65,7 @@ test("a teacher marks attendance on a phone and the guardian sees it", async ({
     await expect(students).toHaveCount(6);
     await t.getByRole("button", { name: "All present" }).click();
     // Rahim (roll 1): Present -> Absent. Roll 2: Present -> Absent -> Late.
-    await t
-      .getByRole("button", { name: /^Rahim Ahmed, roll 1: Present/ })
-      .tap();
+    await t.getByRole("button", { name: /^1 Rahim Ahmed Present/ }).tap();
     await students.nth(1).tap();
     await students.nth(1).tap();
     await expect(t.getByTestId("attendance-counts")).toContainText(
@@ -82,7 +80,7 @@ test("a teacher marks attendance on a phone and the guardian sees it", async ({
     await expect(t.getByText("Attendance saved.").last()).toBeVisible();
     await t.reload();
     await expect(
-      t.getByRole("button", { name: /^Rahim Ahmed, roll 1: Absent/ }),
+      t.getByRole("button", { name: /^1 Rahim Ahmed Absent/ }),
     ).toBeVisible();
 
     // The guardian (Rahim's father) sees the absence on the calendar.

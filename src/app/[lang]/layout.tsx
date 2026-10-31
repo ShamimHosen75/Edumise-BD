@@ -7,6 +7,7 @@ import { getDictionary } from "@/i18n/get-dictionary";
 import { schoolName } from "@/lib/school";
 import { getSiteUrl } from "@/lib/site-url";
 import { getSchoolSettings } from "@/lib/settings";
+import { publicMediaUrl } from "@/lib/supabase/public";
 import { buildThemeCss } from "@/lib/theme";
 
 import "../globals.css";
@@ -16,11 +17,15 @@ const inter = Inter({
   variable: "--font-inter",
   display: "swap",
 });
+// Step 6.3: three weights and no preload. Preloading 8 Bangla font files (about 320 KB)
+// delayed the hero image on phones; with unicode-range, a page downloads only the files
+// its text needs, once the stylesheet is read. "medium" falls back to regular.
 const hind = Hind_Siliguri({
   subsets: ["bengali", "latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "600", "700"],
   variable: "--font-hind",
   display: "swap",
+  preload: false,
 });
 
 type LayoutProps = {
@@ -49,6 +54,8 @@ export async function generateMetadata({
     metadataBase: new URL(getSiteUrl()),
     title: { default: name, template: `%s | ${name}` },
     description: dict.meta.description,
+    // The school's own favicon from settings, else the built-in mark (no 404s).
+    icons: { icon: publicMediaUrl(settings?.favicon_path) ?? "/icon.svg" },
     openGraph: { siteName: name, locale: lang === "bn" ? "bn_BD" : "en_GB" },
   };
 }

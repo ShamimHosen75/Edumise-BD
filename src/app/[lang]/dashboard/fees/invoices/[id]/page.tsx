@@ -82,7 +82,7 @@ export default async function InvoicePage({ params }: Props) {
           role="region"
           tabIndex={0}
           aria-label={v.items}
-          className="overflow-x-auto"
+          className="relative overflow-x-auto"
         >
           <table className="w-full border-collapse text-sm">
             <caption className="sr-only">{v.items}</caption>

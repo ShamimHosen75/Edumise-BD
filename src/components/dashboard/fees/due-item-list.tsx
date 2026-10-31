@@ -29,7 +29,7 @@ export function DueItemList({
       role="region"
       tabIndex={0}
       aria-label={tr("fees.collect.items")}
-      className="overflow-x-auto rounded-lg border"
+      className="relative overflow-x-auto rounded-lg border"
     >
       <table className="w-full text-sm" data-testid="due-items">
         <caption className="sr-only">{tr("fees.collect.items")}</caption>

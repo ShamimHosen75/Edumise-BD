@@ -110,11 +110,6 @@ export function AttendanceTaker({
               <button
                 type="button"
                 data-testid="attendance-student"
-                aria-label={a("studentStatus", {
-                  name: r.name,
-                  roll: n(r.roll),
-                  status: label,
-                })}
                 onClick={() =>
                   set({ ...marks, [r.studentId]: nextStatus(status) })
                 }
@@ -130,6 +125,8 @@ export function AttendanceTaker({
                   {r.name}
                 </span>
                 <span className="shrink-0 text-sm font-semibold">{label}</span>
+                {/* The name is the visible text (roll, name, status) plus this hint. */}
+                <span className="sr-only">{a("tapToChange")}</span>
               </button>
             </li>
           );

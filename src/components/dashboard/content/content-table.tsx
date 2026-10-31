@@ -53,7 +53,7 @@ export function ContentTable({
   return (
     // Scrolls sideways on phones; focusable so keyboard users can scroll it too.
     <div
-      className="overflow-x-auto rounded-xl border"
+      className="relative overflow-x-auto rounded-xl border"
       role="region"
       aria-label={dict.content[module]}
       tabIndex={0}

@@ -29,7 +29,7 @@ export function ReportTables({
               role="region"
               tabIndex={0}
               aria-label={t.caption}
-              className="overflow-x-auto rounded-lg border"
+              className="relative overflow-x-auto rounded-lg border"
             >
               <table className="w-full text-sm">
                 <thead className="bg-muted text-left">

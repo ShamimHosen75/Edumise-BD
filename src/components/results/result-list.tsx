@@ -31,7 +31,7 @@ export function ResultList({
       role="region"
       tabIndex={0}
       aria-label={r.title}
-      className="focus-visible:ring-ring overflow-x-auto rounded-xl border outline-none focus-visible:ring-2"
+      className="focus-visible:ring-ring relative overflow-x-auto rounded-xl border outline-none focus-visible:ring-2"
     >
       <table className="w-full text-sm" data-testid="result-list">
         <caption className="sr-only">{r.title}</caption>

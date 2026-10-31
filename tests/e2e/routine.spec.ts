@@ -59,7 +59,7 @@ test("admin builds a section routine; clashes block saving; teacher and public v
     await expect(page.getByText("Routine saved.").last()).toBeVisible();
     await page.reload();
     await expect(
-      page.getByRole("button", { name: "Sunday, period 1: Mathematics" }),
+      page.getByRole("button", { name: /^Sunday, period 1: Mathematics/ }),
     ).toContainText("Shirin Sultana");
 
     // By teacher.

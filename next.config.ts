@@ -18,7 +18,8 @@ const csp = [
   `connect-src 'self' ${supabaseOrigin}`.trim(),
   `object-src 'self' ${supabaseOrigin}`.trim(),
   `media-src 'self' ${supabaseOrigin}`.trim(),
-  "frame-src https://www.google.com https://maps.google.com",
+  // PDF previews (<object>) use frame-src in Chrome; the contact map is a Google embed.
+  `frame-src 'self' ${supabaseOrigin} https://www.google.com https://maps.google.com`.trim(),
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",

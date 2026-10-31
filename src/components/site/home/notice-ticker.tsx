@@ -26,7 +26,10 @@ export function NoticeTicker({
       >
         <span aria-hidden="true" className="bg-primary size-1.5 rounded-full" />
         {item.href && copy === 0 ? (
-          <Link href={item.href} className="hover:underline">
+          <Link
+            href={item.href}
+            className="inline-block py-1.5 hover:underline"
+          >
             {item.title}
           </Link>
         ) : (

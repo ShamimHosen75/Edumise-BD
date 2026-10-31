@@ -1309,7 +1309,7 @@
     "closed": "The school is closed on this day.",
     "noSections": "You have no sections this session.",
     "noStudents": "No students in this section.",
-    "studentStatus": "{name}, roll {roll}: {status}. Tap to change.",
+    "tapToChange": "Tap to change.",
     "roll": "Roll",
     "name": "Name",
     "total": "Total",

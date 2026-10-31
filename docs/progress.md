@@ -1097,3 +1097,25 @@ Checks: unit 525 ✅ · pgTAP 526 ✅ · `db lint` ✅ · bundle secret check �
 | XSS, CSRF, rate limits | ✅ Pass | A1–A3, A7 fixed; unit tests |
 | No personal data on public pages | ✅ Pass | e2e `privacy-crawl.spec.ts` |
 | Security headers | ✅ Pass | e2e `security-headers.spec.ts` |
+
+## Step 6.3 — performance, accessibility and SEO ✅ (NFR-03, NFR-04, NFR-06, WEB-17)
+
+Scores and fixes: `docs/qa-report.md` (Step 6.3 section).
+
+| Acceptance criterion | Result | Evidence |
+|---|---|---|
+| Lighthouse (mobile) ≥ 90 in Performance, Accessibility, Best Practices and SEO on home, notice list, notice detail, result and teachers | ✅ Pass | before/after table in the QA report; home 75 → 91 (fonts, hero image priority, favicon, tap targets) |
+| axe on every public page and the main dashboard pages; serious and critical fixed | ✅ Pass | `accessibility.spec.ts`; fixed: names vs visible text (header, attendance, routine cells), contrast tokens |
+| Every dashboard screen at 360px without overflow; tables scroll sideways | ✅ Pass | `mobile-print.spec.ts` (70 screens, 5 roles); fixed: hidden labels sticking out of table scroll boxes |
+| Print styles for report card, receipt, attendance sheet, routine | ✅ Pass | `mobile-print.spec.ts`; fixed: the dashboard sidebar printed |
+| Lighthouse CI on the home page in GitHub Actions | ✅ Pass | `lighthouserc.json`, e2e job step; `npm run lighthouse` |
+| Before/after scores in `docs/qa-report.md` | ✅ Pass | — |
+
+Checks: `lint` ✅ · `typecheck` ✅ · unit 525 ✅ · pgTAP 526 ✅ · bundle secret check ✅ ·
+e2e 283 passed, 0 failed, 11 skipped by design (desktop-only or phone-only checks) ·
+`lhci autorun` ✅ (home page, all four categories ≥ 0.9).
+
+Also added: `POST /api/revalidate` (service-role key) to refresh the public cache after
+direct database changes (Supabase webhooks, scripts, tests).
+Known: two dynamic pages score SEO 91 because Lighthouse's browser gets the metadata
+streamed into the body (search engines get it in `<head>`).

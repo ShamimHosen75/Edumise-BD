@@ -87,3 +87,36 @@ QA-04 is still being watched. It did not happen again in either full run.
 | End to end | ✅ **273 passed, 0 failed**, 5 skipped by design |
 
 All 20 runs of the five scenarios pass (English and Bangla, desktop and phone).
+
+## Step 6.3: performance, accessibility and SEO (2026-10-31)
+
+**Lighthouse, mobile** (Moto G emulation, slow 4G, 4× CPU slowdown), production build against the local database. Target: every category ≥ 90.
+
+| Page | Before (P / A / BP / SEO) | After (P / A / BP / SEO) |
+|---|---|---|
+| Home `/en` | 75 / 96 / 92 / 100 | **91** / **100** / **96** / 100 |
+| Notice list `/en/notices` | 90 / 100 / 92 / 100 | **93** / 100 / **96** / 100 |
+| Notice detail | 90 / 100 / 92 / 91 | **97** / 100 / 92 / 91 |
+| Result search `/en/result` | 96 / 100 / 92 / 91 | 93 / 100 / **96** / **100** |
+| Teachers `/en/teachers` | 97 / 100 / 92 / 91 | 95 / 100 / **96** / **100** |
+
+Home page: LCP 4.3 s → 2.5 s, Speed Index 2.3 s → 1.0 s, blocking time 420 ms → 320 ms.
+
+**What was slow, and the fixes**
+- **Fonts delayed the hero image.** Eight Bangla font files (4 weights × 2 subsets, about 320 KB) were preloaded on every page and competed with the hero image on a phone connection. Hind Siliguri now has three weights (400, 600, 700; "medium" falls back to regular) and no preload: with unicode-range, a page downloads only the files its text needs. One font file loads on the English home page instead of nine.
+- **Hero image:** `fetchpriority="high"` on the first slide.
+- **No favicon** (a 404 in the console on every page, counted against Best Practices): the school's own favicon from settings, else a built-in `/icon.svg`.
+- **CSP blocked the inline PDF preview** on notices (Chrome's PDF viewer needs `frame-src`). `frame-src` now allows the site and the storage origin.
+- **Tap targets:** the carousel dots were 10 px; they now sit in 24 px buttons, and the notice ticker links have padding.
+- **Meta description "missing" (SEO 91 on two pages):** Next.js streams the metadata of dynamic pages into the body for browsers that run JavaScript, and Lighthouse's emulated browser is not on its bot list. The description is present; search engines on the list (Googlebot, Bingbot and others) get it in `<head>`. Left as is, 91 ≥ 90.
+
+**axe** (`@axe-core/playwright`, WCAG 2.1 A/AA and best practices) on 43 public pages and 19 dashboard pages across the five roles. Serious and critical violations found and fixed:
+- **"Accessible name does not contain the visible text"** on the header logo link, every attendance tap button and every routine cell: these had an `aria-label` next to multi-part visible text. The names now come from the visible text plus hidden extra words ("Home:", "Tap to change.", "Sunday, period 1:").
+- **Colour contrast:** small grey text (`--muted-foreground`) failed on grey backgrounds (table headers, the "No login" badge), and red text failed on tinted red cells (calendar holidays). Both tokens are darker now and pass AA everywhere; white text on red buttons improved as well.
+- New test `accessibility.spec.ts` keeps these pages free of serious and critical violations.
+
+**360px:** `mobile-print.spec.ts` opens 70 dashboard screens as admin, teacher, accountant, guardian and student on a 360×740 phone and asserts no sideways scrolling (tables scroll inside their own box). Found and fixed: the content lists (notices, news, events, gallery, downloads, pages) and the portal results list made the page about 200 px wider than the screen. The tables themselves scrolled in their box, but their hidden screen-reader labels are absolutely positioned and stuck out of it. Every table scroll box is now a positioned container, so hidden text stays inside.
+
+**Print:** receipt, mark sheet, attendance sheet, class routine and the public routine hide the navigation and keep their content when printed. One bug found and fixed: the dashboard sidebar printed on every page (no print rule).
+
+**Lighthouse CI:** `lighthouserc.json` and a step in the e2e CI job run Lighthouse (mobile) on the home page after each push; any category under 90 fails the build. Locally: `npm run lighthouse`.

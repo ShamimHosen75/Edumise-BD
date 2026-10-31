@@ -21,7 +21,8 @@
     "db:reset": "supabase db reset",
     "db:test": "supabase test db",
     "db:types": "supabase gen types typescript --local > src/lib/supabase/database.types.ts",
-    "seed:results": "eval \"$(supabase status -o env | grep -E '^(API_URL|SERVICE_ROLE_KEY)=')\" && SEED_URL=$API_URL SEED_KEY=$SERVICE_ROLE_KEY vitest run -c scripts/vitest.seed.config.ts"
+    "seed:results": "eval \"$(supabase status -o env | grep -E '^(API_URL|SERVICE_ROLE_KEY)=')\" && SEED_URL=$API_URL SEED_KEY=$SERVICE_ROLE_KEY vitest run -c scripts/vitest.seed.config.ts",
+    "lighthouse": "lhci autorun"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.2",
@@ -50,7 +51,9 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@eslint/eslintrc": "^3.3.7",
+    "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^22.20.5",
@@ -63,6 +66,7 @@
     "dotenv": "^18.0.9",
     "eslint": "^9.39.5",
     "eslint-config-next": "^15.5.28",
+    "lighthouse": "^13.6.0",
     "postcss": "^8.5.31",
     "prettier": "^3.9.10",
     "prettier-plugin-tailwindcss": "^0.8.1",

@@ -146,17 +146,18 @@ export function RoutineBuilder({
         cell={(day, period, key) => {
           const c = cells.get(key);
           const clash = clashAt(key);
-          const label = r("cellLabel", {
+          // Read as "Sunday, period 1: Mathematics …": the visible text follows a
+          // hidden prefix, so the name contains what is shown (a11y).
+          const prefix = r("cellLabel", {
             day: dayName(day),
             number: n(period.number),
-            subject: c ? name(subjects, c.subjectId) : r("noSubject"),
-          });
+            subject: c ? "" : r("noSubject"),
+          }).trim();
           return (
             <div className="flex flex-col gap-1">
               <button
                 type="button"
                 onClick={() => setSelected({ day, period })}
-                aria-label={label}
                 aria-pressed={editing === key}
                 data-slot={key}
                 className={cn(
@@ -165,6 +166,7 @@ export function RoutineBuilder({
                   clash.length > 0 && "border-destructive bg-destructive/10",
                 )}
               >
+                <span className="sr-text">{prefix} </span>
                 {c ? (
                   <EntryText
                     title={name(subjects, c.subjectId)}

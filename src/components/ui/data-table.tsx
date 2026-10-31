@@ -245,7 +245,7 @@ export function DataTable<T>({
         </p>
       ) : (
         <div
-          className="overflow-x-auto rounded-xl border"
+          className="relative overflow-x-auto rounded-xl border"
           role="region"
           aria-label={title}
           tabIndex={0}

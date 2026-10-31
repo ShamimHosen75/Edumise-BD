@@ -83,7 +83,7 @@ export async function PortalFees({
             role="region"
             tabIndex={0}
             aria-labelledby="portal-invoices"
-            className="overflow-x-auto rounded-lg border"
+            className="relative overflow-x-auto rounded-lg border"
           >
             <table className="w-full text-sm" data-testid="portal-invoices">
               <thead className="bg-muted text-left">

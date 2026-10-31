@@ -87,6 +87,7 @@ export function HeroCarousel({
               alt=""
               fill
               priority={i === 0}
+              fetchPriority={i === 0 ? "high" : undefined}
               sizes="100vw"
               className="object-cover"
             />
@@ -134,7 +135,7 @@ export function HeroCarousel({
           >
             <ChevronRight className="size-5" aria-hidden="true" />
           </button>
-          <div className="ml-auto flex gap-1.5">
+          <div className="ml-auto flex gap-0.5">
             {slides.map((s, i) => (
               <button
                 key={s.id}
@@ -142,11 +143,17 @@ export function HeroCarousel({
                 onClick={() => go(i)}
                 aria-label={s.goTo}
                 aria-current={i === index}
-                className={cn(
-                  "h-2.5 rounded-full bg-white/60 transition-all hover:bg-white",
-                  i === index ? "w-6 bg-white" : "w-2.5",
-                )}
-              />
+                // A 24px tap target around a small dot (Lighthouse target-size).
+                className="flex h-6 min-w-6 items-center justify-center"
+              >
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    "block h-2.5 rounded-full bg-white/60 transition-all",
+                    i === index ? "w-6 bg-white" : "w-2.5",
+                  )}
+                />
+              </button>
             ))}
           </div>
         </div>

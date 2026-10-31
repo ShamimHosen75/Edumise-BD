@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { expect, type Page } from "@playwright/test";
+import { expect, type APIRequestContext, type Page } from "@playwright/test";
 
 export const PASSWORD = "Password123!";
 
@@ -180,4 +180,22 @@ export async function cleanupApplication(phone: string) {
     await admin.from("admission_applications").delete().eq("id", app.id);
     if (files.length) await admin.storage.from("private-docs").remove(files);
   }
+}
+
+/**
+ * Refreshes the public site's cached content after a test changed data directly in the
+ * database (the app revalidates on its own only for changes made through it).
+ */
+export async function revalidate(
+  request: { post: APIRequestContext["post"] },
+  tags: string[],
+) {
+  const res = await request.post("/api/revalidate", {
+    headers: {
+      authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+    },
+    data: { tags },
+  });
+  if (res.status() !== 200)
+    throw new Error(`revalidate failed: ${res.status()}`);
 }

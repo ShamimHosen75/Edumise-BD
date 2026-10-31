@@ -58,6 +58,9 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
+      # Step 6.3: Lighthouse (mobile) on the home page; every category must score 90+.
+      - name: Lighthouse CI (home page)
+        run: npx lhci autorun
 
   database:
     runs-on: ubuntu-latest

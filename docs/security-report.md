@@ -39,6 +39,10 @@
 | Personal data on public pages | ✅ e2e `privacy-crawl.spec.ts` crawls every public page in the sitemap, plus the forms (over 80 pages per language), in English and Bangla. It asserts that no NID, birth date (in every format), birth registration number, address, or personal or guardian phone from the database appears. |
 | Security headers | ✅ H1 fixed (see above). |
 
+## Added in Step 6.3
+
+- `POST /api/revalidate` refreshes the public site's cached content on demand (tags from the known list only). It needs `Authorization: Bearer <service-role key>`, compared in constant time; without it, 401. For Supabase database webhooks, operations scripts and the test suite. It changes no data.
+
 ## Assumptions and notes for deployment
 
 - **Behind a proxy other than Vercel:** set `TRUSTED_PROXY_HOPS`, otherwise per-address limits can be bypassed (A3).

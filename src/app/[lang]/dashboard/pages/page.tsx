@@ -106,7 +106,7 @@ export default async function PagesList({ params, searchParams }: Props) {
       </p>
 
       {pages && pages.length > 0 ? (
-        <div className="overflow-x-auto rounded-xl border">
+        <div className="relative overflow-x-auto rounded-xl border">
           <table className="w-full min-w-[40rem] text-sm">
             <thead className="bg-muted/50 text-left">
               <tr>

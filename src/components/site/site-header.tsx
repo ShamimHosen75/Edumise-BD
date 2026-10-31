@@ -24,11 +24,8 @@ export function SiteHeader({ lang, dict, settings, name, menu }: Props) {
   return (
     <header className="bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-30 border-b backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
-        <Link
-          href={`/${lang}`}
-          className="flex min-w-0 items-center gap-3"
-          aria-label={`${name} – ${dict.site.nav.home}`}
-        >
+        <Link href={`/${lang}`} className="flex min-w-0 items-center gap-3">
+          <span className="sr-only">{dict.site.nav.home}: </span>
           <SchoolMark
             logoUrl={publicMediaUrl(settings?.logo_path)}
             initials={settings?.short_name || name}

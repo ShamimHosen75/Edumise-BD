@@ -409,8 +409,9 @@ for (const lang of ["en", "bn"] as const) {
       await page.getByRole("button", { name: a.allPresent }).click();
       const button = (who: string, roll: number, status: string) =>
         page.getByRole("button", {
-          name: fill(a.studentStatus, { name: who, roll: n(roll), status }),
-          exact: true,
+          name: new RegExp(
+            `^${esc(n(roll))}\\s+${esc(who)}\\s+${esc(status)}\\s+${esc(a.tapToChange)}$`,
+          ),
         });
       // The child is absent; another student comes late (Present -> Absent -> Late).
       await button(childName, ctx.roll, a.statuses.present).click();

@@ -120,7 +120,7 @@ export function DashboardSidebar({
   return (
     <nav
       aria-label={label}
-      className="hidden w-56 shrink-0 border-r p-3 md:block"
+      className="hidden w-56 shrink-0 border-r p-3 md:block print:hidden"
     >
       <NavLinks lang={lang} items={items} />
     </nav>
