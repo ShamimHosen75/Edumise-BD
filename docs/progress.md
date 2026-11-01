@@ -1119,3 +1119,20 @@ Also added: `POST /api/revalidate` (service-role key) to refresh the public cach
 direct database changes (Supabase webhooks, scripts, tests).
 Known: two dynamic pages score SEO 91 because Lighthouse's browser gets the metadata
 streamed into the body (search engines get it in `<head>`).
+
+## Step 6.4 — production deployment ✅ (prepared; the live deployment needs the school's accounts)
+
+| Acceptance criterion | Result | Evidence |
+|---|---|---|
+| `docs/deploy.md`: Supabase project, link and push, Auth URLs and SMTP, buckets, access token hook, first super admin, Vercel env vars, domain, backups | ✅ Pass | `docs/deploy.md` with a go-live checklist |
+| Production seed: settings, grading scale, empty structure, no demo people | ✅ Pass | `supabase/seed.prod.sql`; applied on a fresh database: 5 classes, 19 subjects, 87 class-subject rows, 5 sections, 17 draft pages, 42 menu items, 5 fee heads, 8 periods, 0 students, 0 sessions; the site and sign-in page load with it |
+| Health check `/api/health` (database reachable) | ✅ Pass | `src/app/api/health/route.ts`; 200 `{"status":"ok","db":"ok"}`, 503 when the database is down; covered by `smoke-prod.spec.ts` |
+| First super admin script | ✅ Pass | `scripts/create-admin.mjs` (one-time password, must change at first sign-in); tried locally, then removed |
+| User guides EN and BN with Playwright screenshots | ✅ Pass | `docs/user-guide-en.md`, `docs/user-guide-bn.md`, 44 screenshots in `docs/guide/` from `scripts/guide-screenshots.mjs` |
+| `docs/rebrand.md`: a new school in under an hour | ✅ Pass | minute-by-minute plan; every identity setting listed |
+| Smoke subset against the production preview; tag v1.0.0; `CHANGELOG.md` | ⏳ Waiting for the owner | `tests/e2e/smoke-prod.spec.ts` (read-only, 10 checks) runs with `E2E_BASE_URL=https://<site>`; it passes locally. `CHANGELOG.md` is written. The preview URL needs the school's Supabase and Vercel accounts; the tag follows that run. |
+
+Decisions:
+- The admin script is `scripts/create-admin.mjs` (plain Node, no build step), not `.ts`.
+- The production seed does not create a session: the office creates and marks the current session in Academic setup, so no bill or exam can be made against a wrong year by accident.
+- `.lighthouseci/` and `coverage/` are ignored.

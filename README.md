@@ -5,7 +5,11 @@ Bangladeshi secondary schools (Class 6–10). One codebase, one Supabase project
 
 - Requirements: [docs/requirements.md](docs/requirements.md)
 - Build progress: [docs/progress.md](docs/progress.md)
+- Deploying for a school: [docs/deploy.md](docs/deploy.md) · new school in an hour: [docs/rebrand.md](docs/rebrand.md)
+- User guides: [English](docs/user-guide-en.md) · [বাংলা](docs/user-guide-bn.md)
+- Quality: [QA report](docs/qa-report.md) · [security audit](docs/security-report.md) · [traceability](docs/traceability.md)
 - Project rules for contributors and Claude: [CLAUDE.md](CLAUDE.md)
+- Changes: [CHANGELOG.md](CHANGELOG.md)
 
 ## Local setup
 
@@ -20,15 +24,19 @@ npm run dev                 # http://localhost:3000 -> redirects to /en
 
 ## Scripts
 
-| Script                         | What it does                                             |
-| ------------------------------ | -------------------------------------------------------- |
-| `npm run dev`                  | Dev server                                               |
-| `npm run build` / `npm start`  | Production build / serve it                              |
-| `npm run lint`                 | ESLint (no warnings allowed)                             |
-| `npm run typecheck`            | TypeScript, strict                                       |
-| `npm run test`                 | Unit tests (Vitest)                                      |
-| `npm run test:e2e`             | E2E tests (Playwright; builds and starts the app itself) |
-| `npm run db:start` / `db:stop` | Start / stop local Supabase                              |
-| `npm run db:reset`             | Re-apply all migrations and the seed                     |
-| `npm run db:test`              | Database tests (pgTAP)                                   |
-| `npm run db:types`             | Regenerate `src/lib/supabase/database.types.ts`          |
+| Script                                  | What it does                                             |
+| --------------------------------------- | -------------------------------------------------------- |
+| `npm run dev`                           | Dev server                                               |
+| `npm run build` / `npm start`           | Production build / serve it                              |
+| `npm run lint`                          | ESLint (no warnings allowed)                             |
+| `npm run typecheck`                     | TypeScript, strict                                       |
+| `npm run test`                          | Unit tests (Vitest)                                      |
+| `npm run test:e2e`                      | E2E tests (Playwright; builds and starts the app itself) |
+| `npm run db:start` / `db:stop`          | Start / stop local Supabase                              |
+| `npm run db:reset`                      | Re-apply all migrations and the seed                     |
+| `npm run db:test`                       | Database tests (pgTAP)                                   |
+| `npm run db:types`                      | Regenerate `src/lib/supabase/database.types.ts`          |
+| `npm run lighthouse`                    | Lighthouse CI on the home page (mobile, 90+ required)    |
+| `node scripts/create-admin.mjs`         | First super admin of a deployment (`docs/deploy.md`)     |
+| `node scripts/check-bundle-secrets.mjs` | Fails if a secret is in the browser bundles              |
+| `node scripts/guide-screenshots.mjs`    | Screenshots for the user guides (demo seed)              |
