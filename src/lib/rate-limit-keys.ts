@@ -31,8 +31,12 @@ export const LIMITS = {
 export function clientIp(
   headers: Pick<Headers, "get">,
   trustedHops = Number(process.env.TRUSTED_PROXY_HOPS ?? 0),
+  onVercel = Boolean(process.env.VERCEL),
 ): string {
-  const vercel = headers.get("x-vercel-forwarded-for")?.split(",")[0]?.trim();
+  // Only Vercel's own header on Vercel: anywhere else a client could send it (review S2).
+  const vercel = onVercel
+    ? headers.get("x-vercel-forwarded-for")?.split(",")[0]?.trim()
+    : undefined;
   if (vercel) return vercel;
   const chain = (headers.get("x-forwarded-for") ?? "")
     .split(",")

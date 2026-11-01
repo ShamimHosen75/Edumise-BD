@@ -192,10 +192,52 @@ export async function revalidate(
 ) {
   const res = await request.post("/api/revalidate", {
     headers: {
-      authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+      authorization: `Bearer ${process.env.REVALIDATE_SECRET}`,
     },
     data: { tags },
   });
   if (res.status() !== 200)
     throw new Error(`revalidate failed: ${res.status()}`);
+}
+
+/**
+ * Replaces the "/1" of detail pages with the first id in the database, so a list of
+ * screens survives ids moving between seeds and test runs.
+ */
+export async function withIds(urls: string[]) {
+  const db = adminClient();
+  const first = async (
+    table:
+      | "admission_applications"
+      | "notices"
+      | "pages"
+      | "gallery_albums"
+      | "certificates"
+      | "exams"
+      | "staff"
+      | "students"
+      | "invoices"
+      | "payments",
+  ) =>
+    (await db.from(table).select("id").order("id").limit(1).maybeSingle()).data
+      ?.id;
+  const ids = {
+    "admissions/1": await first("admission_applications"),
+    "notices/1": await first("notices"),
+    "pages/1": await first("pages"),
+    "gallery/1": await first("gallery_albums"),
+    "certificates/1": await first("certificates"),
+    "exams/1": await first("exams"),
+    "teachers/1": await first("staff"),
+    "staff/1": await first("staff"),
+    "students/1": await first("students"),
+    "invoices/1": await first("invoices"),
+    "receipts/1": await first("payments"),
+  };
+  return urls.flatMap((u) => {
+    for (const [k, id] of Object.entries(ids))
+      if (u.includes(`/${k}`))
+        return id ? [u.replace(`/${k}`, `/${k.split("/")[0]}/${id}`)] : [];
+    return [u];
+  });
 }

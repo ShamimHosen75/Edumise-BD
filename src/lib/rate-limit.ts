@@ -31,3 +31,11 @@ export async function isRateLimited(
   if (error) throw new Error(`Rate limit check failed: ${error.message}`);
   return data === true;
 }
+
+/** Forgets every hit on a key (a successful sign-in clears its failure counters). */
+export async function clearRateLimit(key: string): Promise<void> {
+  const { error } = await createAdminClient().rpc("clear_rate_limit", {
+    p_key: key,
+  });
+  if (error) throw new Error(`Rate limit reset failed: ${error.message}`);
+}

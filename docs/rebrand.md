@@ -37,7 +37,7 @@ Classes 6–10 with one section each, groups (Science, Business Studies, Humanit
 - **Calendar:** the year's holidays (they count in attendance percentages).
 - **Fees:** the fee structure per class and group, late fine, due days.
 - **Pages and menu:** fill in the draft pages, publish, reorder the menu, hide what is not needed.
-- **Grading scale:** only if the school grades differently (School settings → grading, a JSON list of bands).
+- **Grading scale:** only if the school grades differently. There is no form for it yet: it is the `grading` column of `school_settings` (a JSON list of bands, the Bangladesh SSC scale by default), changed with SQL in the Supabase dashboard.
 
 ## What stays the same for every school
 

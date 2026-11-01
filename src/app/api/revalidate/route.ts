@@ -1,4 +1,4 @@
-import { timingSafeEqual } from "node:crypto";
+import { createHash, timingSafeEqual } from "node:crypto";
 
 import { revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
@@ -10,18 +10,20 @@ import { TAGS } from "@/lib/site/cache";
  * only (Supabase database webhooks, operations scripts, the test suite): data changed
  * outside the dashboard (a direct database change) is otherwise shown for up to an hour.
  *
- * POST { "tags": ["stats", "notices"] } with `Authorization: Bearer <service-role key>`.
+ * POST { "tags": ["stats", "notices"] } with `Authorization: Bearer <REVALIDATE_SECRET>`.
+ * Its own secret, not the service-role key: a webhook header is stored and logged where
+ * a key that bypasses every access rule must never be (review S3).
  */
+const digest = (s: string) => createHash("sha256").update(s).digest();
+
 export async function POST(request: Request) {
-  const secret = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
+  const secret = process.env.REVALIDATE_SECRET ?? "";
   const given = (request.headers.get("authorization") ?? "").replace(
     /^Bearer /,
     "",
   );
   const ok =
-    secret.length >= 16 &&
-    given.length === secret.length &&
-    timingSafeEqual(Buffer.from(given), Buffer.from(secret));
+    secret.length >= 16 && timingSafeEqual(digest(given), digest(secret));
   if (!ok) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   let tags: unknown;
   try {

@@ -92,7 +92,13 @@ export async function setFamilyLoginActive(
     .in("role", ["student", "guardian"])
     .select("id");
   if (error || !data.length) return { ok: false, error: "errors.notAllowed" };
-  if (!(await setLoginBlocked(profileId, !active)))
+  if (!(await setLoginBlocked(profileId, !active))) {
+    // Keep the profile and Auth in step (review C4).
+    await supabase
+      .from("profiles")
+      .update({ is_active: !active })
+      .eq("id", profileId);
     return { ok: false, error: "auth.unexpected" };
+  }
   return { ok: true };
 }

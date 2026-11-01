@@ -1136,3 +1136,27 @@ Decisions:
 - The admin script is `scripts/create-admin.mjs` (plain Node, no build step), not `.ts`.
 - The production seed does not create a session: the office creates and marks the current session in Academic setup, so no bill or exam can be made against a wrong year by accident.
 - `.lighthouseci/` and `coverage/` are ignored.
+
+## Phase 6 code review ✅
+
+Report: `docs/code-review-phase-6.md`. Four reviewers covered:
+- security;
+- correctness;
+- test quality, CI and maintainability;
+- UX, i18n, accessibility, performance and documentation accuracy.
+
+Fixed, in `20261104004100_phase6_review_fixes.sql` and the code, with tests:
+- **Medium:**
+  - an admin could make anyone an admin, or switch another admin off, through the API;
+  - `x-vercel-forwarded-for` was trusted off Vercel, so every per-address limit could be dodged;
+  - the service-role key doubled as the revalidate token (now its own `REVALIDATE_SECRET`);
+  - the bundle secret check matched only one of three encodings of a service-role key.
+- **Low:** a deleted staff member's login was not blocked in Auth; a switched-off login got a different sign-in message; the hourly failure cap could keep an owner locked out (success now clears it); a failed Auth call left a login half switched; the test gateway was refused on Vercel previews.
+- **Tests:** the privacy crawl now covers emails, login phones, applications, a student's personal phone, mark sheets, certificates, short dates and escaped text; the axe test refuses 404s; the headers test asserts each CSP directive and HSTS; the attendance scenario no longer skips on holidays.
+- **Docs and UI:** guide labels match the dictionaries; `REVALIDATE_SECRET` and `PAYMENT_SANDBOX_ALLOW_LIVE` documented; Bangla medium text keeps its weight; home gallery photos no longer repeat their caption as alt text.
+
+Checks: `lint` ✅ · `typecheck` ✅ · `test` ✅ 526 · `db:test` ✅ 35 files / 538 tests ·
+`db lint` ✅ · `build` ✅ · bundle secret check ✅ · `test:e2e` ✅ 293 passed, 11 skipped by design · Lighthouse CI ✅ (home 90 / 100 / 96 / 100).
+
+**Decision:** the Phase 6 review closes the planned scope (Phases 1–6). The remaining 6.4 items
+(smoke run against the production preview, the v1.0.0 tag) wait for the owner's accounts.

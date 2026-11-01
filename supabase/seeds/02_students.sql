@@ -40,7 +40,8 @@ select
   'active', '2026-01-01',
   make_date(2026 - s.level - 6, 1 + s.n % 12, 1 + s.n % 28),
   '20132691' || lpad(s.n::text, 9, '0'),
-  format('Village %s, Demo Upazila', s.n), null
+  format('Village %s, Demo Upazila', s.n),
+  case when s.n = 2 then '01811000002' end
 from seed_students s;
 
 insert into public.enrollments (student_id, session_id, section_id, group_id, roll, fourth_subject_id)

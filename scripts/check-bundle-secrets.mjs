@@ -14,8 +14,11 @@ const needles = new Map([
   ["SUPABASE_SERVICE_ROLE_KEY", "secret name"],
   ["PAYMENT_SANDBOX_SECRET", "secret name"],
   ["ADMISSION_TOKEN_SECRET", "secret name"],
-  // {"role":"service_role"} inside a JWT, base64url-encoded.
+  // "service_role" inside a JWT payload, base64-encoded at each of the three byte
+  // alignments (which one a key uses depends on the length of its project ref).
   ["c2VydmljZV9yb2xl", "service-role JWT"],
+  ["NlcnZpY2Vfcm9sZ", "service-role JWT"],
+  ["zZXJ2aWNlX3JvbGU", "service-role JWT"],
   ["sb_secret_", "Supabase secret key"],
 ]);
 if (existsSync(".env.local")) {

@@ -71,7 +71,7 @@ It prints a one-time password. Give it to the person in private; they must chang
 
 ## 8. Deploy on Vercel
 
-1. **Add New → Project**, import the GitHub repository. Framework preset: Next.js. Build command `npm run build`, Node.js 22.
+1. **Add New → Project**, import the GitHub repository. Framework preset: Next.js. Build command `npm run build`, Node.js 20.9 or newer (22 recommended).
 2. **Environment variables** (Production, and Preview if you want preview deployments to work):
 
 | Variable | Value |
@@ -81,6 +81,8 @@ It prints a one-time password. Give it to the person in private; they must chang
 | `SUPABASE_SERVICE_ROLE_KEY` | the service_role key (**Sensitive**) |
 | `NEXT_PUBLIC_SITE_URL` | `https://<school domain>` (used in links and sitemaps) |
 | `ADMISSION_TOKEN_SECRET` | `openssl rand -hex 32` (**Sensitive**) |
+| `REVALIDATE_SECRET` | `openssl rand -hex 32` (**Sensitive**); only needed for cache refresh from outside the app (step 10) |
+| `PAYMENT_SANDBOX_ALLOW_LIVE` | leave unset |
 | `PAYMENT_SANDBOX_SECRET` | **leave unset** on production (test gateway) |
 | `TRUSTED_PROXY_HOPS` | leave unset on Vercel |
 
@@ -105,7 +107,7 @@ The security headers (CSP, HSTS and the others) are sent by the app itself; noth
 - **Database:** Supabase Pro keeps daily backups for 7 days (Point-in-Time Recovery is an add-on). Take a manual dump before risky operations: `npx supabase db dump --linked -f backup.sql` (schema) and `--data-only` for data.
 - **Files:** Storage is not in the database backups. Copy the two buckets periodically with the Supabase CLI or the dashboard, or an S3-compatible tool (Storage has an S3 endpoint).
 - **Uptime:** point a monitor (UptimeRobot, Better Stack, or Vercel's own) at `https://<domain>/api/health` every 5 minutes. It returns 503 when the database is unreachable.
-- **Cache refresh from outside the app:** `POST https://<domain>/api/revalidate` with `Authorization: Bearer <service_role key>` and `{"tags":["stats"]}` (tags: see `src/lib/site/cache.ts`), for example from a Supabase database webhook on `students`, so the home page counters change at once after a direct database edit.
+- **Cache refresh from outside the app:** `POST https://<domain>/api/revalidate` with `Authorization: Bearer <REVALIDATE_SECRET>` (never the service-role key: a webhook header is stored and logged) and `{"tags":["stats"]}` (tags: see `src/lib/site/cache.ts`), for example from a Supabase database webhook on `students`, so the home page counters change at once after a direct database edit.
 - **Logs:** Vercel → Logs for the app; Supabase → Logs for Auth, Postgres and Storage.
 
 ## 11. Updates
@@ -119,7 +121,7 @@ Push to `main`: GitHub Actions runs lint, typecheck, unit, database and browser 
 - [ ] Site URL and redirect URLs set; sign-up off; custom SMTP on and tested with a password reset
 - [ ] access token hook enabled; a sign-in reaches the dashboard
 - [ ] super admin created; one-time password changed
-- [ ] Vercel env vars set; `PAYMENT_SANDBOX_SECRET` absent
+- [ ] Vercel env vars set; `PAYMENT_SANDBOX_SECRET` and `PAYMENT_SANDBOX_ALLOW_LIVE` absent
 - [ ] custom domain with HTTPS; `/api/health` is `ok`
 - [ ] smoke tests pass against the site: `E2E_BASE_URL=https://<domain> npx playwright test tests/e2e/smoke-prod.spec.ts`
 - [ ] uptime monitor on `/api/health`; backup schedule agreed

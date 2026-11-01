@@ -47,7 +47,8 @@ export function GalleryPreview({
               <figure className="bg-card overflow-hidden rounded-xl border">
                 <Image
                   src={img.src}
-                  alt={caption}
+                  // The caption below names the photo; the same text as alt would be read twice.
+                  alt=""
                   width={400}
                   height={300}
                   sizes="(min-width: 640px) 33vw, 50vw"

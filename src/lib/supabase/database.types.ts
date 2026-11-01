@@ -1508,6 +1508,9 @@ isOneToOne: false
 "class_allows_group":
 { Args: { "p_class_id": number }; Returns: boolean
                            },
+"clear_rate_limit":
+{ Args: { "p_key": string }; Returns: undefined
+                           },
 "complete_payment_intent":
 { Args: { "p_amount": number,"p_id": string,"p_provider": string,"p_txn": string }; Returns: string
                            },

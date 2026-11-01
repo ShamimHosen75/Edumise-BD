@@ -103,7 +103,7 @@ All 20 runs of the five scenarios pass (English and Bangla, desktop and phone).
 Home page: LCP 4.3 s → 2.5 s, Speed Index 2.3 s → 1.0 s, blocking time 420 ms → 320 ms.
 
 **What was slow, and the fixes**
-- **Fonts delayed the hero image.** Eight Bangla font files (4 weights × 2 subsets, about 320 KB) were preloaded on every page and competed with the hero image on a phone connection. Hind Siliguri now has three weights (400, 600, 700; "medium" falls back to regular) and no preload: with unicode-range, a page downloads only the files its text needs. One font file loads on the English home page instead of nine.
+- **Fonts delayed the hero image.** Eight Bangla font files (4 weights × 2 subsets, about 320 KB) were preloaded on every page and competed with the hero image on a phone connection. Hind Siliguri now has three weights (400, 600, 700; "medium" text uses semibold in Bangla) and no preload: with unicode-range, a page downloads only the files its text needs. One font file loads on the English home page instead of nine.
 - **Hero image:** `fetchpriority="high"` on the first slide.
 - **No favicon** (a 404 in the console on every page, counted against Best Practices): the school's own favicon from settings, else a built-in `/icon.svg`.
 - **CSP blocked the inline PDF preview** on notices (Chrome's PDF viewer needs `frame-src`). `frame-src` now allows the site and the storage origin.

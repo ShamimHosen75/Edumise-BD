@@ -175,7 +175,13 @@ export async function setStaffLoginActive(
     .eq("id", profile.id)
     .select("id");
   if (error || !data.length) return { ok: false, error: "errors.notAllowed" };
-  if (!(await setLoginBlocked(profile.id, !active)))
+  if (!(await setLoginBlocked(profile.id, !active))) {
+    // Keep the profile and Auth in step (review C4).
+    await supabase
+      .from("profiles")
+      .update({ is_active: !active })
+      .eq("id", profile.id);
     return { ok: false, error: "auth.unexpected" };
+  }
   return { ok: true };
 }

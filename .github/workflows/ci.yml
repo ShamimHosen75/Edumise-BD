@@ -48,6 +48,7 @@ jobs:
             -e 's/^SERVICE_ROLE_KEY=/SUPABASE_SERVICE_ROLE_KEY=/p' > .env.local
           # Test payment gateway for the online payment E2E (never set on a live site).
           echo "PAYMENT_SANDBOX_SECRET=ci-sandbox-$(openssl rand -hex 16)" >> .env.local
+          echo "REVALIDATE_SECRET=ci-revalidate-$(openssl rand -hex 16)" >> .env.local
           cut -d= -f1 .env.local
       - run: npm ci
       - run: npx playwright install --with-deps chromium
@@ -61,6 +62,12 @@ jobs:
       # Step 6.3: Lighthouse (mobile) on the home page; every category must score 90+.
       - name: Lighthouse CI (home page)
         run: npx lhci autorun
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-report
+          path: .lighthouseci/
+          retention-days: 7
 
   database:
     runs-on: ubuntu-latest

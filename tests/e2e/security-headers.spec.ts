@@ -19,10 +19,31 @@ test("security headers are sent on pages, files and API routes", async ({
   for (const url of [...PAGES, "/sitemap.xml", "/api/payments/webhook/nope"]) {
     const res = await request.get(url, { failOnStatusCode: false });
     const h = res.headers();
-    expect(h["content-security-policy"], url).toContain(
-      "frame-ancestors 'none'",
+    // Each directive's exact value, so a loosened policy cannot pass unnoticed.
+    const csp = Object.fromEntries(
+      (h["content-security-policy"] ?? "")
+        .split(";")
+        .map((d) => d.trim().split(/\s+/))
+        .map(([name, ...values]) => [name, values.join(" ")]),
     );
-    expect(h["content-security-policy"], url).toContain("object-src");
+    const supabase = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    expect(csp, url).toMatchObject({
+      "default-src": "'self'",
+      "script-src": "'self' 'unsafe-inline'",
+      "style-src": "'self' 'unsafe-inline'",
+      "img-src": `'self' data: blob: ${supabase}`,
+      "font-src": "'self' data:",
+      "connect-src": `'self' ${supabase}`,
+      "object-src": `'self' ${supabase}`,
+      "frame-src": `'self' ${supabase} https://www.google.com https://maps.google.com`,
+      "frame-ancestors": "'none'",
+      "base-uri": "'self'",
+      "form-action": "'self'",
+    });
+    expect(csp["script-src"], url).not.toContain("unsafe-eval");
+    expect(h["strict-transport-security"], url).toBe(
+      "max-age=63072000; includeSubDomains",
+    );
     expect(h["x-frame-options"], url).toBe("DENY");
     expect(h["x-content-type-options"], url).toBe("nosniff");
     expect(h["referrer-policy"], url).toBe("strict-origin-when-cross-origin");

@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
-import { adminClient, loginAs } from "./helpers";
+import { loginAs, withIds } from "./helpers";
 
 // Step 6.3 (NFR-06): every dashboard screen fits a 360px phone without sideways
 // scrolling (tables scroll inside their own box), and the printable pages hide the
@@ -111,43 +111,6 @@ async function overflow(page: Page) {
 }
 
 /** Real ids for the detail pages (tests delete and recreate rows, so ids move). */
-async function withIds(urls: string[]) {
-  const db = adminClient();
-  const first = async (
-    table:
-      | "admission_applications"
-      | "notices"
-      | "pages"
-      | "gallery_albums"
-      | "certificates"
-      | "exams"
-      | "staff"
-      | "students"
-      | "invoices"
-      | "payments",
-  ) =>
-    (await db.from(table).select("id").order("id").limit(1).maybeSingle()).data
-      ?.id;
-  const ids = {
-    "admissions/1": await first("admission_applications"),
-    "notices/1": await first("notices"),
-    "pages/1": await first("pages"),
-    "gallery/1": await first("gallery_albums"),
-    "certificates/1": await first("certificates"),
-    "exams/1": await first("exams"),
-    "staff/1": await first("staff"),
-    "students/1": await first("students"),
-    "invoices/1": await first("invoices"),
-    "receipts/1": await first("payments"),
-  };
-  return urls.flatMap((u) => {
-    for (const [k, id] of Object.entries(ids))
-      if (u.includes(`/${k}`))
-        return id ? [u.replace(`/${k}`, `/${k.split("/")[0]}/${id}`)] : [];
-    return [u];
-  });
-}
-
 test("every dashboard screen fits a 360px phone", async ({ page }, info) => {
   test.skip(info.project.name !== "mobile-360", "phone layout only");
   test.setTimeout(600_000);

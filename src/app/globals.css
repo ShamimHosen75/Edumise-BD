@@ -59,6 +59,11 @@ html[lang="bn"] {
     var(--font-hind), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
+/* Hind Siliguri loads 400/600/700 only (Step 6.3); medium text uses semibold. */
+html[lang="bn"] .font-medium {
+  font-weight: 600;
+}
+
 @theme {
   --font-sans: var(--app-font);
 }

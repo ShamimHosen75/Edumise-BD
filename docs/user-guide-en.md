@@ -2,7 +2,7 @@
 
 Short task guides per role. Screenshots are from the demo school; your school's name, colours and data differ. Bangla version: `user-guide-bn.md`.
 
-**Signing in:** open the school website, press **Login** (top right). Staff sign in with their email, guardians with their mobile number, students with their student ID. The first time, you must choose your own password. Forgot it? **Forgot password** emails a link to staff; guardians and students ask the office for a new one-time password.
+**Signing in:** open the school website, press **Login** (top right). Staff sign in with their email, guardians with their mobile number, students with their student ID. The first time, you must choose your own password. Forgot it? **Forgot password?** emails a link to staff; guardians and students ask the office for a new one-time password.
 
 ![Sign-in page](guide/login-en.png)
 
@@ -34,7 +34,7 @@ The language switch (**বাংলা / English**) in the top bar changes the w
 
 **Academic setup:** sessions (one is current), classes, sections with class teachers, groups, subjects and which class takes which subject.
 
-**Exams:** create the exam, choose its classes and the full and pass marks per subject, move it to **Marks entry** so teachers can enter marks, then **Review**, **Process results** and **Publish**. Published results appear in the family portal and the public result search. Tabulation sheets and mark sheets print or download as PDF.
+**Exams:** create the exam, choose its classes and the full and pass marks per subject, move it to **Marks entry** so teachers can enter marks, then to **Review**, press **Process results** on the Results tab, and move the exam to **Published**. Published results appear in the family portal and the public result search. Tabulation sheets and mark sheets print or download as PDF.
 
 ![Exams](guide/admin-exams-en.png)
 
@@ -68,7 +68,7 @@ The language switch (**বাংলা / English**) in the top bar changes the w
 
 **Fee setup:** fee heads, the fee structure per class (and group), waivers (an admin approves them), the late fine and default due days.
 
-**Make invoices:** choose a month (all monthly fees) or a one-time fee, the classes, and **Preview**: it says how many invoices and the total, and warns if any waiver is still waiting for approval. **Make** them. Running it again makes nothing twice.
+**Make invoices:** choose a month (all monthly fees) or a one-time fee, the classes, and **Preview**: it says how many invoices and the total, and warns if any waiver is still waiting for approval. Press **Make … invoices**. Running it again makes nothing twice.
 
 ![Make invoices](guide/accountant-generate-en.png)
 

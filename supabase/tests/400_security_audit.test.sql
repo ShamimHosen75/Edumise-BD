@@ -3,7 +3,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 create function pg_temp.affected(sql text) returns int language plpgsql as
   $$ declare n int; begin execute sql; get diagnostics n = row_count; return n; end $$;
-select plan(22);
+select plan(24);
 
 -- D6: catalogue checks ----------------------------------------------------------------
 select is(
@@ -53,6 +53,19 @@ where id in ('00000000-0000-4000-a000-000000000005', '00000000-0000-4000-a000-00
 set local role authenticated;
 set local request.jwt.claims to '{"sub": "00000000-0000-4000-a000-000000000006", "role": "authenticated"}';
 select ok((select count(*) from public.invoices) > 0, 'switched on again, the guardian sees the bills');
+
+-- D1: a switched-off teacher has no staff identity ----------------------------------------
+reset role;
+set local request.jwt.claims to '{}';
+update public.profiles set is_active = false where id = '00000000-0000-4000-a000-000000000003';
+set local role authenticated;
+set local request.jwt.claims to '{"sub": "00000000-0000-4000-a000-000000000003", "role": "authenticated"}';
+select is(app.my_staff_id(), null, 'a switched-off teacher has no staff id');
+select is((select count(*)::int from public.attendance), 0, 'and sees no attendance');
+reset role;
+set local request.jwt.claims to '{}';
+update public.profiles set is_active = true where id = '00000000-0000-4000-a000-000000000003';
+set local role authenticated;
 
 -- D3: names are changed by an admin only ----------------------------------------------------
 set local request.jwt.claims to '{"sub": "00000000-0000-4000-a000-000000000004", "role": "authenticated"}';

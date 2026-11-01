@@ -359,14 +359,27 @@ async function isSchoolDay(date: string) {
   );
 }
 
+async function recentSchoolDay() {
+  const now = dhakaToday();
+  for (let back = 0; back < 3; back++) {
+    const d = new Date(`${now}T00:00:00Z`);
+    d.setUTCDate(d.getUTCDate() - back);
+    const day = d.toISOString().slice(0, 10);
+    if (await isSchoolDay(day)) return day;
+  }
+  return null;
+}
+
 for (const lang of ["en", "bn"] as const) {
   test(`a school day: attendance (${lang})`, async ({ page }) => {
     test.setTimeout(180_000);
     const d = lang === "en" ? en : bn;
     const a = d.attendance;
     const n = (v: string | number) => localizeDigits(v, lang);
-    const today = dhakaToday();
-    test.skip(!(await isSchoolDay(today)), "the school is closed today");
+    // The latest school day a teacher may still mark (today or the two days before),
+    // so a weekend or holiday does not skip the scenario.
+    const today = (await recentSchoolDay()) ?? "";
+    test.skip(!today, "the school was closed for the last three days");
 
     const ctx = await childInTeacherSection(CHILD[lang]);
     const childName = pick(

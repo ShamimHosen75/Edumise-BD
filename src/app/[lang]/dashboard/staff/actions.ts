@@ -12,6 +12,7 @@ import {
 } from "@/lib/actions";
 import { detectImageType, IMAGE_MAX_BYTES, imageExtension } from "@/lib/files";
 import type { Locale } from "@/i18n/config";
+import { setLoginBlocked } from "@/lib/auth/ban";
 import { canManageLogin } from "@/lib/auth/roles";
 import { requireRole } from "@/lib/auth/session";
 import { TAGS } from "@/lib/site/cache";
@@ -85,6 +86,9 @@ export async function deleteStaff(
       .update({ is_active: false })
       .eq("id", staff.profile_id);
     if (error) return { ok: false, error: "errors.notAllowed" };
+    // Also blocked in Auth, like a switched-off login (review S4).
+    if (!(await setLoginBlocked(staff.profile_id, true)))
+      return { ok: false, error: "auth.unexpected" };
   }
   const { error } = await supabase.from("staff").delete().eq("id", id);
   if (error) return dbError(error);

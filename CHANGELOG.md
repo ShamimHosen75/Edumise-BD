@@ -18,7 +18,7 @@ First release: a white-label, bilingual (English/Bangla) website and management 
 - Students: profiles, guardians, documents, ID cards, CSV import, year-end promotion, student and guardian portals.
 - Routine: periods, working days, clash-checked routine builder, teacher routines, exam schedule, holidays.
 - Attendance: phone-first taking by teachers, monthly sheets with Excel export, family calendars, admin widget.
-- Exams and marks: exam setup, marks entry with autosave, submit and lock, Excel import, grading (Bangladesh SSC scale, configurable), result processing, tabulation sheets, mark sheet PDFs, publishing to the portal and the public search.
+- Exams and marks: exam setup, marks entry with autosave, submit and lock, Excel import, grading (Bangladesh SSC scale, configurable in the database), result processing, tabulation sheets, mark sheet PDFs, publishing to the portal and the public search.
 - Certificates: testimonial, transfer and character certificates with QR verification and revocation.
 - Fees: fee heads, structure per class and group, waivers with admin approval, late fine, invoice generator, collection with receipts (amount in words in English and Bangla, QR, PDF), cancellation by admins, reports (daily, dues, income, ledger) in Excel and PDF, family fee pages, online payment framework with a manual provider and a sandbox gateway (bKash, Nagad, SSLCommerz stubs).
 

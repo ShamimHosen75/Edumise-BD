@@ -22,6 +22,9 @@ export function sandboxAllowed(
   env: Record<string, string | undefined> = process.env,
 ): boolean {
   if (env.VERCEL_ENV === "production") return false;
+  // A Vercel preview often shares the live site's address variable; it is not live.
+  if (env.VERCEL_ENV === "preview" || env.VERCEL_ENV === "development")
+    return true;
   const site = env.NEXT_PUBLIC_SITE_URL ?? "";
   const live =
     /^https:\/\//.test(site) &&

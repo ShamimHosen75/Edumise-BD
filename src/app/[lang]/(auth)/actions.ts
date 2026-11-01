@@ -9,7 +9,7 @@ import { studentEmail } from "@/lib/auth/linked-login";
 import { canSetPasswordWithoutCurrent } from "@/lib/auth/password-policy";
 import { isRole, roleHomePath, safeNextPath } from "@/lib/auth/roles";
 import { getSessionAmr, requireUser } from "@/lib/auth/session";
-import { hitRateLimit, isRateLimited } from "@/lib/rate-limit";
+import { clearRateLimit, hitRateLimit, isRateLimited } from "@/lib/rate-limit";
 import {
   clientIp,
   LIMITS,
@@ -112,7 +112,21 @@ export async function signIn(
     .select("role, is_active, must_change_password")
     .eq("id", data.user.id)
     .maybeSingle();
-  if (!profile?.is_active || !isRole(profile.role)) {
+  if (!profile?.is_active) {
+    // A switched-off account answers like a wrong password (review S4): a different
+    // message would tell which logins exist.
+    await supabase.auth.signOut();
+    return fail();
+  }
+  // The right password clears the failure counters, so the owner cannot be kept locked
+  // out by guesses from elsewhere (review S5).
+  await Promise.all([
+    clearRateLimit(keys.fromThisIp),
+    clearRateLimit(keys.total),
+  ]);
+  if (!isRole(profile.role)) {
+    // An account without a role is a setup problem (the access token hook, or a sign-up
+    // that should be off), so the message says so instead of "wrong password".
     await supabase.auth.signOut();
     return { ok: false, error: "auth.noAccess" };
   }

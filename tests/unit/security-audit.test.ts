@@ -10,14 +10,19 @@ const h = (o: Record<string, string>) => new Headers(o);
 
 describe("A3: the visitor's address", () => {
   it("on Vercel, the platform's header wins over a spoofed X-Forwarded-For", () => {
-    expect(
-      clientIp(
-        h({
-          "x-vercel-forwarded-for": "203.0.113.9",
-          "x-forwarded-for": "1.1.1.1",
-        }),
-      ),
-    ).toBe("203.0.113.9");
+    const both = h({
+      "x-vercel-forwarded-for": "203.0.113.9",
+      "x-forwarded-for": "1.1.1.1",
+    });
+    expect(clientIp(both, 0, true)).toBe("203.0.113.9");
+  });
+  it("off Vercel, that header is just another client header and is ignored", () => {
+    const spoofed = h({
+      "x-vercel-forwarded-for": "6.6.6.6",
+      "x-forwarded-for": "1.1.1.1, 10.0.0.2",
+    });
+    expect(clientIp(spoofed, 1, false)).toBe("10.0.0.2");
+    expect(clientIp(spoofed, 0, false)).toBe("1.1.1.1");
   });
   it("behind N trusted proxies, the entry N from the right is used", () => {
     const xff = h({ "x-forwarded-for": "6.6.6.6, 203.0.113.9, 10.0.0.2" });
@@ -95,5 +100,6 @@ describe("A5: the test payment gateway", () => {
       true,
     );
     expect(sandboxAllowed({ VERCEL_ENV: "production" })).toBe(false);
+    expect(sandboxAllowed({ ...live, VERCEL_ENV: "preview" })).toBe(true);
   });
 });
